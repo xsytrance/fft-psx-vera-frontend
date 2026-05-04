@@ -19,14 +19,17 @@ import { useApp } from '../../context/AppContext';
 import { getCharacterAccent } from '../../lib/theme';
 import { getCharacterAvatar } from '../../lib/theme';
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/project/1', icon: BookOpen, label: 'Project' },
-  { to: '/project/1/characters', icon: Users, label: 'Characters' },
-  { to: '/project/1/timeline', icon: Clock, label: 'Timeline' },
-  { to: '/chat', icon: MessageSquare, label: 'Chat' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
-];
+function useNavItems(projectId: number | undefined) {
+  const pid = projectId ?? 1;
+  return [
+    { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: `/project/${pid}`, icon: BookOpen, label: 'Project' },
+    { to: `/project/${pid}/characters`, icon: Users, label: 'Characters' },
+    { to: `/project/${pid}/timeline`, icon: Clock, label: 'Timeline' },
+    { to: '/chat', icon: MessageSquare, label: 'Chat' },
+    { to: '/settings', icon: Settings, label: 'Settings' },
+  ];
+}
 
 /**
  * LibrarySidebar — Replaces the original Sidebar with a literary, book-like
@@ -81,7 +84,7 @@ export default function LibrarySidebar() {
 
         {/* Navigation */}
         <nav className="space-y-0.5">
-          {navItems.map((item) => {
+          {useNavItems(project?.id).map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
@@ -145,7 +148,9 @@ export default function LibrarySidebar() {
               Characters
             </h2>
             <div className="flex gap-2 px-2 overflow-x-auto pb-1">
-              {characters.map((char) => {
+              {characters
+                .filter((char) => !project || char.project_id === project.id)
+                .map((char) => {
                 const accent = getCharacterAccent(char.id, isDark);
                 const avatar = getCharacterAvatar(char.id);
                 return (

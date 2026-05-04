@@ -53,7 +53,10 @@ export default function ChatPage() {
   const { state, dispatch } = useChat();
   const { state: appState } = useApp();
 
-  const characters = appState.characters.length ? appState.characters : mockCharacters;
+  const currentProjectId = appState.currentProject?.id ?? 1;
+  const characters = appState.characters.length
+    ? appState.characters.filter((c) => c.project_id === currentProjectId)
+    : mockCharacters.filter((c) => c.project_id === currentProjectId);
   const commits = mockCommits;
   const conversations = state.conversations.length ? state.conversations : [];
 
@@ -103,7 +106,7 @@ export default function ChatPage() {
     if (!conversation) {
       const newConv = {
         id: `conv-${Date.now()}`,
-        project_id: 1,
+        project_id: currentProjectId,
         character_ids: selectedChars,
         commit_id: selectedCommit,
         mode: mode as InteractionMode,
@@ -212,8 +215,8 @@ export default function ChatPage() {
               onClick={() => {
                 const newConv = {
                   id: `conv-${Date.now()}`,
-                  project_id: 1,
-                  character_ids: [1],
+                  project_id: currentProjectId,
+                  character_ids: characters.length > 0 ? [characters[0].id] : [1],
                   commit_id: 1,
                   mode: 'story-locked' as InteractionMode,
                   title: 'New Conversation',

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useApp } from '../context/AppContext';
-import type { Project } from '../types/api';
+import type { Project, Character } from '../types/api';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -89,12 +89,117 @@ export default function ProjectNew() {
           commit_count: 0,
         };
 
-        dispatch({ type: 'ADD_PROJECT', payload: newProject });
-        toast.success(`Project "${newProject.name}" created!`);
+        // Generate unique characters for this project based on the project name
+        const generatedCharacters = generateMockCharactersForProject(newId, name.trim(), files.length);
+
+        // Add generated characters to global state
+        const existingChars = appState.characters.length > 0 ? appState.characters : [];
+        const allChars = [...existingChars, ...generatedCharacters];
+        dispatch({ type: 'SET_CHARACTERS', payload: allChars });
+
+        // Update project with character count
+        const updatedProject = { ...newProject, character_count: generatedCharacters.length };
+        dispatch({ type: 'ADD_PROJECT', payload: updatedProject });
+
+        toast.success(
+          `Project "${updatedProject.name}" created with ${generatedCharacters.length} extracted characters!`
+        );
       }
       setProgress(Math.min(p, 100));
     }, 600);
   };
+
+  // Generate unique placeholder characters for a new project
+  function generateMockCharactersForProject(
+    projectId: number,
+    projectName: string,
+    sourceCount: number
+  ): Character[] {
+    const archetypes = [
+      {
+        names: ['Aria Vance', 'Kael Thornton', 'Mira Solstice', 'Dorian Blackwell'],
+        roles: ['Reluctant Hero', 'Mysterious Stranger', 'Rebel Leader', 'Fallen Noble'],
+        affiliations: ['The Wanderers', 'The Covenant', 'The Underground', 'The Old Guard'],
+        origins: ['The Outer Reaches', 'Capital City', 'The Undercity', 'Abandoned Homeworld'],
+        personality: ['Determined', 'Cautious', 'Fiery', 'Brooding'],
+        tones: ['wry and guarded', 'quiet and intense', 'passionate and defiant', 'cold and calculating'],
+      },
+      {
+        names: ['Elara Finch', 'Soren Vale', 'Isolde Crane', 'Theron Ash'],
+        roles: ['Lost Heir', 'Reluctant Oracle', 'Smuggler with a Heart', 'Disgraced Knight'],
+        affiliations: ['The Resistance', 'The Merchants Guild', 'The Silent Order', 'The Forgotten Legion'],
+        origins: ['Remote Colony', 'Orbital Station', 'Desert Outpost', 'Icebound Citadel'],
+        personality: ['Curious', 'Stoic', 'Charming', 'Resolute'],
+        tones: ['bright but fragile', 'stern yet gentle', 'sly and warm', 'hard and unyielding'],
+      },
+      {
+        names: ['Cassian Drift', 'Lyra Noon', 'Orion Pike', 'Selene Wren'],
+        roles: ['Ghost in the Machine', 'Street Magician', 'Deserter Captain', 'Awakened Construct'],
+        affiliations: ['The Signal', 'The Carnival', 'The Reclaimed', 'The Hollow Chorus'],
+        origins: ['Digital Void', 'Neon Bazaar', 'War-Torn Frontier', 'Forgotten Laboratory'],
+        personality: ['Eccentric', 'Loyal', 'Sarcastic', 'Serene'],
+        tones: ['scattered and brilliant', 'earthy and warm', 'sharp and bitter', 'calm and knowing'],
+      },
+    ];
+
+    const seed = projectName.length + sourceCount;
+    const archetype = archetypes[seed % archetypes.length];
+
+    const count = Math.min(4 + sourceCount, 8); // 4–8 characters based on source count
+
+    return Array.from({ length: count }).map((_, i) => {
+      const idx = (seed + i) % archetype.names.length;
+      const name = archetype.names[idx];
+      const role = archetype.roles[idx];
+      const affiliation = archetype.affiliations[idx];
+      const origin = archetype.origins[idx];
+      const tone = archetype.tones[idx];
+
+      return {
+        id: Date.now() + i + Math.floor(Math.random() * 1000),
+        project_id: projectId,
+        slug: name.toLowerCase().replace(/\s+/g, '-'),
+        name,
+        role,
+        affiliation,
+        origin,
+        appearance: `${name} has a distinctive presence that sets them apart in ${projectName}. Their appearance reflects their role as ${role.toLowerCase()}.`,
+        personality: [archetype.personality[idx], 'Resourceful', 'Complex'],
+        tone,
+        languages: ['English'],
+        speech_patterns: {
+          description: `${name} speaks with the cadence of a ${role.toLowerCase()}, carrying the weight of their experience in ${projectName}.`,
+          example_phrases: [
+            `In ${projectName}, nothing is ever what it seems.`,
+            `I've come too far to turn back now.`,
+            `Trust is a currency we can't afford to waste.`,
+          ],
+          code_switching: 'none',
+          signature_expressions: ['Watch closely', 'Remember this', 'Not yet'],
+        },
+        relationships: {
+          allies: [archetype.names[(idx + 1) % archetype.names.length]],
+          enemies: [archetype.names[(idx + 2) % archetype.names.length]],
+          complex: [],
+        },
+        notable_quotes: [
+          `The world of ${projectName} doesn't forgive mistakes.`,
+          `Sometimes the only way forward is through the fire.`,
+        ],
+        weapons_tools: ['Wit', 'Intuition'],
+        backstory_summary: `${name} emerged from the world of ${projectName}, shaped by forces both seen and unseen. Their journey as ${role.toLowerCase()} has left marks that run deeper than skin.`,
+        roleplay_instructions: `You are ${name}, a ${role.toLowerCase()} from ${projectName}. You speak in a ${tone} manner. Your experiences in ${origin} have shaped your worldview. You are affiliated with ${affiliation}.`,
+        knowledge_gates: {
+          knows: [`The basic structure of ${projectName}`, `Your personal history in ${origin}`],
+          does_not_know: [`The full plot of ${projectName}`, 'Future events beyond your current timeline'],
+        },
+        is_player: false,
+        is_active: true,
+        metadata: {},
+        avatarUrl: '',
+      } as Character;
+    });
+  }
 
   return (
     <motion.div

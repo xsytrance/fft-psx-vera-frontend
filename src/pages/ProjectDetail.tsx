@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import {
   ArrowLeft,
   Users,
@@ -17,12 +17,28 @@ import { useApp } from '../context/AppContext';
 
 export default function ProjectDetail() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { state: appState } = useApp();
   const [tab, setTab] = useState('characters');
 
-  const characters = mockCharacters;
-  const commits = mockCommits;
-  const sources = mockProject.sources;
+  const projectId = Number(id) || 1;
+  const project = appState.projects.find((p) => p.id === projectId) ??
+    (projectId === 1 ? mockProject : null);
+
+  // Filter characters by project
+  const characters = appState.characters.length
+    ? appState.characters.filter((c) => c.project_id === projectId)
+    : mockCharacters.filter((c) => c.project_id === projectId);
+
+  const commits = mockCommits; // TODO: filter by project when multi-project commits exist
+  const sources = project?.sources ?? mockProject.sources;
+
+  // Dynamic initials for the project icon
+  const initials = (project?.name ?? mockProject.name)
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('');
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -35,11 +51,11 @@ export default function ProjectDetail() {
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white font-bold text-lg">
-            RN
+            {initials}
           </div>
           <div>
-            <h1 className="text-2xl font-bold">{mockProject.name}</h1>
-            <p className="text-muted-foreground text-sm">{mockProject.description}</p>
+            <h1 className="text-2xl font-bold">{project?.name ?? mockProject.name}</h1>
+            <p className="text-muted-foreground text-sm">{project?.description ?? mockProject.description}</p>
           </div>
         </div>
 

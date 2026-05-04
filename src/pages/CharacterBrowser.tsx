@@ -16,7 +16,10 @@ export default function CharacterBrowser() {
   const [query, setQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
-  const characters = appState.characters.length ? appState.characters : mockCharacters;
+  const projectId = Number(id) || 1;
+  const characters = appState.characters.length
+    ? appState.characters.filter((c) => c.project_id === projectId)
+    : mockCharacters.filter((c) => c.project_id === projectId);
 
   const roles = useMemo(
     () => Array.from(new Set(mockCharacters.map((c) => c.role.split(',')[0].trim()))),

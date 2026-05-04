@@ -19,11 +19,19 @@ export default function Dashboard() {
   const { state: appState } = useApp();
   const { state: chatState } = useChat();
 
+  const allProjects = appState.projects.length > 0
+    ? appState.projects
+    : [mockProject];
+
+  // Count total characters across all projects
+  const totalCharacters = appState.characters.length || 6;
+  const totalSources = allProjects.reduce((sum, p) => sum + (p.sources?.length ?? 0), 0);
+
   const stats = [
-    { label: 'Characters', value: appState.characters.length || 6, icon: Users, color: 'text-indigo-400' },
-    { label: 'Commits', value: 13, icon: GitCommit, color: 'text-emerald-400' },
+    { label: 'Characters', value: totalCharacters, icon: Users, color: 'text-indigo-400' },
+    { label: 'Worlds', value: allProjects.length, icon: GitCommit, color: 'text-emerald-400' },
     { label: 'Conversations', value: chatState.conversations.length || 2, icon: MessageSquare, color: 'text-amber-400' },
-    { label: 'Sources', value: mockProject.sources.length, icon: BookOpen, color: 'text-violet-400' },
+    { label: 'Sources', value: totalSources || mockProject.sources.length, icon: BookOpen, color: 'text-violet-400' },
   ];
 
   return (
@@ -64,34 +72,49 @@ export default function Dashboard() {
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Projects</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Project Card */}
-          <Card
-            className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group overflow-hidden"
-            onClick={() => navigate('/project/1')}
-          >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-14 rounded-lg overflow-hidden shadow-sm">
-                  <img
-                    src="/cover-red-noodle.jpg"
-                    alt="Red Noodle Clan"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <ArrowRight size={16} className="text-muted-foreground group-hover:text-indigo-400 transition-colors" />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              <h3 className="font-semibold">{mockProject.name}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-2">{mockProject.description}</p>
-              <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><Users size={12} /> 6</span>
-                <span className="flex items-center gap-1"><GitCommit size={12} /> 13</span>
-                <span className="flex items-center gap-1"><BookOpen size={12} /> 3</span>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Project Cards — dynamic */}
+          {allProjects.map((project) => {
+            const projectChars = appState.characters.length
+              ? appState.characters.filter((c) => c.project_id === project.id)
+              : [];
+            const charCount = projectChars.length || (project.id === 1 ? 6 : 0);
+            const isRedNoodle = project.id === 1;
+
+            return (
+              <Card
+                key={project.id}
+                className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group overflow-hidden"
+                onClick={() => navigate(`/project/${project.id}`)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-14 rounded-lg overflow-hidden shadow-sm bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white font-bold text-xs">
+                      {isRedNoodle ? (
+                        <img
+                          src="/cover-red-noodle.jpg"
+                          alt={project.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        project.name.split(' ').map((w) => w[0]).slice(0, 2).join('')
+                      )}
+                    </div>
+                    <ArrowRight size={16} className="text-muted-foreground group-hover:text-indigo-400 transition-colors" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-1">
+                  <h3 className="font-semibold">{project.name}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{project.description}</p>
+                  <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><Users size={12} /> {charCount}</span>
+                    <span className="flex items-center gap-1"><GitCommit size={12} /> {project.commit_count ?? 0}</span>
+                    <span className="flex items-center gap-1"><BookOpen size={12} /> {project.sources?.length ?? 0}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
 
           {/* Create New CTA */}
           <Card
