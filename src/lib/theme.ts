@@ -89,7 +89,7 @@ export const avatarImages: Record<number, string> = {
 
 /** Return the avatar image path for a character, or a fallback generic avatar. */
 export function getCharacterAvatar(id: number): string {
-  return avatarImages[id] ?? '/avatar-manus.jpg';
+  return avatarImages[id] ?? '';
 }
 
 /** CSS variable values for inline style usage when HSL isn't enough. */

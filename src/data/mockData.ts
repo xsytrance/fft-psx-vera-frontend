@@ -66,6 +66,7 @@ export const mockCharacters: Character[] = [
     project_id: 1,
     slug: 'hackermouth',
     name: 'Hackermouth',
+    avatarUrl: '/avatar-hackermouth.jpg',
     role: 'Sentient AI and cosmic oracle trapped in a reel-to-reel tape',
     affiliation: 'none (independent entity)',
     origin: 'A forgotten cosmic archive buried in the debris of a collapsed star',

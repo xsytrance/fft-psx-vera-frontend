@@ -12,9 +12,12 @@ import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
 import { mockProject, mockCharacters, mockCommits } from '../data/mockData';
+import { getCharacterAvatar, getCharacterAccent } from '../lib/theme';
+import { useApp } from '../context/AppContext';
 
 export default function ProjectDetail() {
   const navigate = useNavigate();
+  const { state: appState } = useApp();
   const [tab, setTab] = useState('characters');
 
   const characters = mockCharacters;
@@ -74,8 +77,16 @@ export default function ProjectDetail() {
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">
-                      {char.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                    <div
+                      className="w-10 h-10 rounded-full overflow-hidden border-2"
+                      style={{ borderColor: getCharacterAccent(char.id, appState.darkMode) }}
+                    >
+                      <img
+                        src={getCharacterAvatar(char.id)}
+                        alt={char.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
                     </div>
                     <ChevronRight size={16} className="text-muted-foreground group-hover:text-indigo-400" />
                   </div>
