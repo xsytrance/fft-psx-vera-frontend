@@ -21,6 +21,7 @@ export interface Character {
   project_id: number;
   slug: string;
   name: string;
+  avatarUrl?: string;
   role: string;
   affiliation: string;
   origin: string;

@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import { useChat } from '../context/ChatContext';
 import { useApp } from '../context/AppContext';
 import { mockCharacters, mockCommits, mockCharacterResponses } from '../data/mockData';
+import { getCharacterAccent, getCharacterAvatar } from '../lib/theme';
 import type { InteractionMode } from '../types/api';
 
 const modeLabels: Record<InteractionMode, string> = {
@@ -84,6 +85,10 @@ export default function ChatPage() {
 
   const commitObj = commits.find((c) => c.id === selectedCommit);
   const charObjs = characters.filter((c) => selectedChars.includes(c.id));
+
+  const primaryCharId = selectedChars[0];
+  const primaryChar = characters.find((c) => c.id === primaryCharId);
+  const accentColor = getCharacterAccent(primaryCharId, appState.darkMode);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -182,8 +187,18 @@ export default function ChatPage() {
 
   return (
     <div className="fixed inset-0 flex bg-background" style={{ left: '16rem' }}>
+      {/* Ambient background layer */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          opacity: appState.darkMode ? 0.05 : 0.03,
+          background: `radial-gradient(circle at 70% 30%, ${accentColor} 0%, transparent 60%), radial-gradient(circle at 30% 70%, ${accentColor}88 0%, transparent 50%)`,
+        }}
+        aria-hidden="true"
+      />
+
       {/* Left Sidebar: Conversations & Character Selector */}
-      <div className="w-72 border-r border-border flex flex-col bg-secondary/20">
+      <div className="w-72 border-r border-border flex flex-col bg-secondary/20 z-10">
         <div className="p-3 border-b border-border">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-semibold flex items-center gap-2">
@@ -219,30 +234,42 @@ export default function ChatPage() {
             </Button>
           </div>
           <div className="space-y-1">
-            {characters.map((char) => (
-              <button
-                key={char.id}
-                className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
-                  selectedChars.includes(char.id)
-                    ? 'bg-indigo-500/20 text-indigo-300'
-                    : 'hover:bg-secondary text-muted-foreground'
-                }`}
-                onClick={() => {
-                  const newChars = selectedChars.includes(char.id)
-                    ? selectedChars.filter((c) => c !== char.id)
-                    : [...selectedChars, char.id];
-                  dispatch({ type: 'SELECT_CHARACTERS', payload: newChars });
-                }}
-              >
-                <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-bold text-indigo-300">
-                  {char.name[0]}
-                </div>
-                <span className="truncate">{char.name}</span>
-                {selectedChars.includes(char.id) && (
-                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                )}
-              </button>
-            ))}
+            {characters.map((char) => {
+              const charAccent = getCharacterAccent(char.id, appState.darkMode);
+              const charAvatar = getCharacterAvatar(char.id);
+              return (
+                <button
+                  key={char.id}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
+                    selectedChars.includes(char.id)
+                      ? 'bg-indigo-500/20 text-indigo-300'
+                      : 'hover:bg-secondary text-muted-foreground'
+                  }`}
+                  onClick={() => {
+                    const newChars = selectedChars.includes(char.id)
+                      ? selectedChars.filter((c) => c !== char.id)
+                      : [...selectedChars, char.id];
+                    dispatch({ type: 'SELECT_CHARACTERS', payload: newChars });
+                  }}
+                >
+                  <div
+                    className="w-5 h-5 rounded-full overflow-hidden border"
+                    style={{ borderColor: charAccent }}
+                  >
+                    <img
+                      src={charAvatar}
+                      alt={char.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <span className="truncate">{char.name}</span>
+                  {selectedChars.includes(char.id) && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
         <ScrollArea className="flex-1">
@@ -278,7 +305,7 @@ export default function ChatPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 z-10 relative">
         {/* Top Bar */}
         <div className="border-b border-border px-4 py-3 flex items-center gap-4 bg-card/30 shrink-0">
           <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/')}>
@@ -288,15 +315,25 @@ export default function ChatPage() {
           {/* Character Avatars */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="flex -space-x-2">
-              {charObjs.map((char) => (
-                <div
-                  key={char.id}
-                  className="w-8 h-8 rounded-full border-2 border-background bg-gradient-to-br from-indigo-500/30 to-violet-500/30 flex items-center justify-center text-indigo-300 font-bold text-xs"
-                  title={char.name}
-                >
-                  {char.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                </div>
-              ))}
+              {charObjs.map((char) => {
+                const charAccent = getCharacterAccent(char.id, appState.darkMode);
+                const charAvatar = getCharacterAvatar(char.id);
+                return (
+                  <div
+                    key={char.id}
+                    className="w-8 h-8 rounded-full border-2 border-background overflow-hidden"
+                    style={{ borderColor: charAccent }}
+                    title={char.name}
+                  >
+                    <img
+                      src={charAvatar}
+                      alt={char.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                );
+              })}
             </div>
             <div className="min-w-0">
               <div className="text-sm font-medium truncate">
@@ -343,42 +380,76 @@ export default function ChatPage() {
         {/* Messages */}
         <ScrollArea className="flex-1 px-4 py-4">
           <div className="space-y-4 max-w-3xl mx-auto">
-            {(activeConversation?.messages ?? []).map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex gap-2 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div
-                    className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold ${
-                      msg.role === 'user'
-                        ? 'bg-secondary text-muted-foreground'
-                        : 'bg-indigo-500/20 text-indigo-300'
-                    }`}
-                  >
-                    {msg.role === 'user' ? <User size={12} /> : <Bot size={12} />}
-                  </div>
-                  <div
-                    className={`rounded-lg px-3 py-2 text-sm leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'bg-secondary text-foreground'
-                        : msg.role === 'system'
-                        ? 'bg-amber-500/10 text-amber-300 text-xs italic'
-                        : 'bg-indigo-500/10 text-indigo-100 border border-indigo-500/20'
-                    }`}
-                  >
-                    {msg.role === 'assistant' && msg.character_name && (
-                      <div className="text-[10px] font-semibold text-indigo-400 mb-1">{msg.character_name}</div>
-                    )}
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+            {(activeConversation?.messages ?? []).map((msg, i) => {
+              const msgAccent = msg.character_id
+                ? getCharacterAccent(msg.character_id, appState.darkMode)
+                : accentColor;
+              const msgAvatar = msg.character_id ? getCharacterAvatar(msg.character_id) : undefined;
+              return (
+                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`flex gap-2 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div
+                      className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold overflow-hidden ${
+                        msg.role === 'user'
+                          ? 'bg-secondary text-muted-foreground'
+                          : 'bg-indigo-500/20 text-indigo-300'
+                      }`}
+                    >
+                      {msg.role === 'user' ? (
+                        <User size={12} />
+                      ) : msgAvatar ? (
+                        <img src={msgAvatar} alt={msg.character_name || ''} className="w-full h-full object-cover" />
+                      ) : (
+                        <Bot size={12} />
+                      )}
+                    </div>
+                    <div
+                      className={`rounded-lg px-3 py-2 text-sm leading-relaxed ${
+                        msg.role === 'user'
+                          ? 'bg-secondary text-foreground'
+                          : msg.role === 'system'
+                          ? 'bg-amber-500/10 text-amber-300 text-xs italic'
+                          : 'bg-indigo-500/10 text-indigo-100 border border-indigo-500/20'
+                      }`}
+                      style={
+                        msg.role === 'assistant' && msg.character_id
+                          ? {
+                              backgroundColor: `${msgAccent}14`,
+                              borderColor: `${msgAccent}33`,
+                              color: undefined,
+                            }
+                          : undefined
+                      }
+                    >
+                      {msg.role === 'assistant' && msg.character_name && (
+                        <div
+                          className="text-[10px] font-semibold mb-1"
+                          style={{ color: msgAccent }}
+                        >
+                          {msg.character_name}
+                        </div>
+                      )}
+                      <div className="whitespace-pre-wrap">{msg.content}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {sending && (
+              );
+            })}
+            {sending && primaryChar && (
               <div className="flex justify-start">
                 <div className="flex gap-2">
-                  <div className="w-7 h-7 rounded-full bg-indigo-500/20 flex items-center justify-center">
-                    <Sparkles size={12} className="text-indigo-300 animate-pulse" />
+                  <div
+                    className="w-7 h-7 rounded-full overflow-hidden border-2 flex items-center justify-center"
+                    style={{ borderColor: accentColor }}
+                  >
+                    <img
+                      src={getCharacterAvatar(primaryCharId)}
+                      alt={primaryChar.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="bg-indigo-500/10 rounded-lg px-3 py-2 text-sm text-indigo-300 border border-indigo-500/20">
+                  <div className="bg-indigo-500/10 rounded-lg px-3 py-2 text-sm text-indigo-300 border border-indigo-500/20 flex items-center gap-1">
+                    <Sparkles size={12} className="animate-pulse" />
                     Typing...
                   </div>
                 </div>

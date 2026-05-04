@@ -13,6 +13,8 @@ export interface TypingIndicatorProps {
   characterName: string;
   /** Avatar colour / character accent. */
   accentColor: string;
+  /** Optional avatar image URL; takes precedence over initial. */
+  avatarUrl?: string;
   /** Optional avatar initial (fallback to first char of name). */
   avatarInitial?: string;
   className?: string;
@@ -21,6 +23,7 @@ export interface TypingIndicatorProps {
 export default function TypingIndicator({
   characterName,
   accentColor,
+  avatarUrl,
   avatarInitial,
   className,
 }: TypingIndicatorProps) {
@@ -30,14 +33,30 @@ export default function TypingIndicator({
     <div className={cn('flex items-end gap-3 py-1', className)}>
       {/* Avatar */}
       <div
-        className="flex shrink-0 items-center justify-center rounded-full text-white font-serif font-bold text-sm"
+        className="flex shrink-0 items-center justify-center rounded-full overflow-hidden"
         style={{
           width: 32,
           height: 32,
-          backgroundColor: accentColor,
+          borderWidth: 2,
+          borderStyle: 'solid',
+          borderColor: accentColor,
         }}
       >
-        {initial}
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={characterName}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <span
+            className="text-white font-serif font-bold text-sm flex items-center justify-center w-full h-full"
+            style={{ backgroundColor: accentColor }}
+          >
+            {initial}
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col items-start gap-1">

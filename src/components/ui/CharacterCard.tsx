@@ -22,6 +22,8 @@ export interface CharacterCardProps {
   role: string;
   affiliation?: string;
   personality?: string[];
+  /** Character avatar image URL. */
+  avatarUrl?: string;
   /** Fallback accent colour if character lookup fails. */
   accentColor?: string;
   /** Called when the user clicks the Chat ghost button. */
@@ -37,6 +39,7 @@ export default function CharacterCard({
   role,
   affiliation,
   personality = [],
+  avatarUrl,
   accentColor,
   onChat,
   onClick,
@@ -66,15 +69,28 @@ export default function CharacterCard({
       <div className="flex items-start gap-4 p-5">
         {/* Avatar */}
         <div
-          className="flex shrink-0 items-center justify-center rounded-full text-white font-serif font-bold text-lg"
+          className="flex shrink-0 items-center justify-center rounded-full overflow-hidden"
           style={{
-            width: 56,
-            height: 56,
-            backgroundColor: color,
+            width: 64,
+            height: 64,
+            borderWidth: 3,
+            borderStyle: 'solid',
+            borderColor: color,
             boxShadow: `0 0 0 3px ${color}33`,
           }}
         >
-          {name.charAt(0)}
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={name}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <span className="text-white font-serif font-bold text-lg">
+              {name.charAt(0)}
+            </span>
+          )}
         </div>
 
         {/* Info */}

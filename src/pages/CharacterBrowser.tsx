@@ -5,13 +5,18 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
+import { getCharacterAccent, getCharacterAvatar } from '../lib/theme';
+import { useApp } from '../context/AppContext';
 import { mockCharacters } from '../data/mockData';
 
 export default function CharacterBrowser() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { state: appState } = useApp();
   const [query, setQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+
+  const characters = appState.characters.length ? appState.characters : mockCharacters;
 
   const roles = useMemo(
     () => Array.from(new Set(mockCharacters.map((c) => c.role.split(',')[0].trim()))),
@@ -19,13 +24,13 @@ export default function CharacterBrowser() {
   );
 
   const filtered = useMemo(() => {
-    return mockCharacters.filter((c) => {
+    return characters.filter((c) => {
       const matchName = c.name.toLowerCase().includes(query.toLowerCase());
       const matchAffil = c.affiliation.toLowerCase().includes(query.toLowerCase());
       const matchRole = roleFilter === '' || c.role.toLowerCase().includes(roleFilter.toLowerCase());
       return (matchName || matchAffil) && matchRole;
     });
-  }, [query, roleFilter]);
+  }, [query, roleFilter, characters]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -81,43 +86,55 @@ export default function CharacterBrowser() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((char) => (
-          <Card
-            key={char.id}
-            className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group"
-            onClick={() => navigate(`/character/${char.id}`)}
-          >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500/30 to-violet-500/30 flex items-center justify-center text-indigo-300 font-bold text-lg border border-indigo-500/20">
-                  {char.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+        {filtered.map((char) => {
+          const accent = getCharacterAccent(char.id, appState.darkMode);
+          const avatar = getCharacterAvatar(char.id);
+          return (
+            <Card
+              key={char.id}
+              className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group"
+              onClick={() => navigate(`/character/${char.id}`)}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div
+                    className="w-12 h-12 rounded-full overflow-hidden border-2"
+                    style={{ borderColor: accent }}
+                  >
+                    <img
+                      src={avatar}
+                      alt={char.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="text-right">
+                    <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-300">
+                      {char.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-300">
-                    {char.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <h3 className="font-semibold text-lg">{char.name}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{char.role}</p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Badge variant="secondary" className="text-xs">{char.affiliation || 'No affiliation'}</Badge>
+                  <Badge variant="secondary" className="text-xs">{char.origin}</Badge>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <h3 className="font-semibold text-lg">{char.name}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-2">{char.role}</p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Badge variant="secondary" className="text-xs">{char.affiliation || 'No affiliation'}</Badge>
-                <Badge variant="secondary" className="text-xs">{char.origin}</Badge>
-              </div>
-              {char.personality.length > 0 && (
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {char.personality.slice(0, 4).map((trait) => (
-                    <span key={trait} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
-                      {trait}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                {char.personality.length > 0 && (
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {char.personality.slice(0, 4).map((trait) => (
+                      <span key={trait} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                        {trait}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (

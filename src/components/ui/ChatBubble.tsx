@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { getCharacterAvatar, getCharacterAccent } from '@/lib/theme';
 
 /**
  * ChatBubble — Distinct styling per message type.
@@ -14,6 +15,7 @@ import { cn } from '@/lib/utils';
 export interface ChatBubbleProps {
   message: string;
   characterName?: string;
+  characterId?: number;
   accentColor?: string;
   /** If true, renders as a user message (right-aligned). */
   isUser?: boolean;
@@ -25,11 +27,14 @@ export interface ChatBubbleProps {
 export default function ChatBubble({
   message,
   characterName,
-  accentColor = '#5B4B8A',
+  characterId,
+  accentColor,
   isUser = false,
   isSystem = false,
   className,
 }: ChatBubbleProps) {
+  const resolvedAccent = accentColor || (characterId ? getCharacterAccent(characterId, false) : '#5B4B8A');
+  const avatarUrl = characterId ? getCharacterAvatar(characterId) : undefined;
   /* ── System message ── */
   if (isSystem) {
     return (
@@ -68,17 +73,38 @@ export default function ChatBubble({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
-      className={cn('flex flex-col items-start py-1', className)}
+      className={cn('flex items-start gap-2 py-1', className)}
     >
-      {/* Name label */}
-      {characterName && (
-        <span
-          className="mb-1 ml-1 text-xs font-medium"
-          style={{ color: accentColor }}
+      {/* Character avatar */}
+      {avatarUrl && (
+        <div
+          className="shrink-0 rounded-full overflow-hidden"
+          style={{
+            width: 32,
+            height: 32,
+            borderWidth: 2,
+            borderStyle: 'solid',
+            borderColor: resolvedAccent,
+          }}
         >
-          {characterName}
-        </span>
+          <img
+            src={avatarUrl}
+            alt={characterName || 'Character'}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
       )}
+      <div className="flex flex-col items-start">
+        {/* Name label */}
+        {characterName && (
+          <span
+            className="mb-1 ml-1 text-xs font-medium"
+            style={{ color: resolvedAccent }}
+          >
+            {characterName}
+          </span>
+        )}
 
       <div
         className={cn(
@@ -86,13 +112,14 @@ export default function ChatBubble({
           'text-card-foreground'
         )}
         style={{
-          backgroundColor: `${accentColor}14`, // ~8% opacity on light bg
+          backgroundColor: `${resolvedAccent}14`, // ~8% opacity on light bg
           borderLeftWidth: 3,
           borderLeftStyle: 'solid',
-          borderLeftColor: accentColor,
+          borderLeftColor: resolvedAccent,
         }}
       >
         {message}
+      </div>
       </div>
     </motion.div>
   );

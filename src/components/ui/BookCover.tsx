@@ -21,6 +21,8 @@ export interface BookCoverProps {
   spineColor: string;
   /** Optional sub-label shown beneath the primary label. */
   subLabel?: string;
+  /** Optional cover image URL; if provided, shows as object-cover instead of gradient. */
+  imageUrl?: string;
   /** Additional CSS classes. */
   className?: string;
   /** Click handler. */
@@ -32,6 +34,7 @@ export default function BookCover({
   gradient,
   spineColor,
   subLabel,
+  imageUrl,
   className,
   onClick,
 }: BookCoverProps) {
@@ -55,22 +58,33 @@ export default function BookCover({
       <div
         className={cn(
           'absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br p-2',
-          gradient
+          !imageUrl && gradient
         )}
       >
-        <span
-          className="font-serif text-lg font-bold leading-tight"
-          style={{ color: 'rgba(255,255,255,0.95)' }}
-        >
-          {label}
-        </span>
-        {subLabel && (
-          <span
-            className="mt-1 text-[10px] font-medium uppercase tracking-wider"
-            style={{ color: 'rgba(255,255,255,0.75)' }}
-          >
-            {subLabel}
-          </span>
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={label}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <>
+            <span
+              className="font-serif text-lg font-bold leading-tight"
+              style={{ color: 'rgba(255,255,255,0.95)' }}
+            >
+              {label}
+            </span>
+            {subLabel && (
+              <span
+                className="mt-1 text-[10px] font-medium uppercase tracking-wider"
+                style={{ color: 'rgba(255,255,255,0.75)' }}
+              >
+                {subLabel}
+              </span>
+            )}
+          </>
         )}
       </div>
     </motion.button>

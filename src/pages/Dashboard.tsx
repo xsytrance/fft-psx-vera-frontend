@@ -66,13 +66,18 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Project Card */}
           <Card
-            className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group"
+            className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group overflow-hidden"
             onClick={() => navigate('/project/1')}
           >
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white font-bold">
-                  RN
+                <div className="w-10 h-14 rounded-lg overflow-hidden shadow-sm">
+                  <img
+                    src="/cover-red-noodle.jpg"
+                    alt="Red Noodle Clan"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
                 </div>
                 <ArrowRight size={16} className="text-muted-foreground group-hover:text-indigo-400 transition-colors" />
               </div>

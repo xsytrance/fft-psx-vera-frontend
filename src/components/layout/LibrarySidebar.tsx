@@ -17,6 +17,7 @@ import { Button } from '../ui/button';
 import BookCover from '../ui/BookCover';
 import { useApp } from '../../context/AppContext';
 import { getCharacterAccent } from '../../lib/theme';
+import { getCharacterAvatar } from '../../lib/theme';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -117,6 +118,7 @@ export default function LibrarySidebar() {
                   .join('')}
                 gradient="from-indigo-500 to-violet-600"
                 spineColor="#5B4B8A"
+                imageUrl="/cover-red-noodle.jpg"
                 subLabel="Project"
                 onClick={() => navigate(`/project/${project.id}`)}
               />
@@ -145,6 +147,7 @@ export default function LibrarySidebar() {
             <div className="flex gap-2 px-2 overflow-x-auto pb-1">
               {characters.map((char) => {
                 const accent = getCharacterAccent(char.id, isDark);
+                const avatar = getCharacterAvatar(char.id);
                 return (
                   <motion.button
                     key={char.id}
@@ -155,13 +158,18 @@ export default function LibrarySidebar() {
                     title={char.name}
                   >
                     <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm"
+                      className="w-10 h-10 rounded-full overflow-hidden border-2"
                       style={{
-                        backgroundColor: accent,
+                        borderColor: accent,
                         boxShadow: `0 0 0 2px ${accent}33`,
                       }}
                     >
-                      {char.name.charAt(0)}
+                      <img
+                        src={avatar}
+                        alt={char.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
                     </div>
                     <span className="text-[10px] text-muted-foreground truncate max-w-[48px]">
                       {char.name.split(' ')[0]}

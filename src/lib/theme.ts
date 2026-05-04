@@ -78,6 +78,21 @@ export function useThemeToggle() {
 }
 
 /** CSS variable values for inline style usage when HSL isn't enough. */
+export const avatarImages: Record<number, string> = {
+  1: '/avatar-manus.jpg',
+  2: '/avatar-hackermouth.jpg',
+  3: '/avatar-roz.jpg',
+  4: '/avatar-azula.jpg',
+  5: '/avatar-koden.jpg',
+  6: '/avatar-exhumerator.jpg',
+};
+
+/** Return the avatar image path for a character, or a fallback generic avatar. */
+export function getCharacterAvatar(id: number): string {
+  return avatarImages[id] ?? '/avatar-manus.jpg';
+}
+
+/** CSS variable values for inline style usage when HSL isn't enough. */
 export const themeColors = {
   light: {
     background: '#FAF8F5',

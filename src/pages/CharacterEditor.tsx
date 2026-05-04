@@ -10,6 +10,7 @@ import { Badge } from '../components/ui/badge';
 import { toast } from 'sonner';
 import { useApp } from '../context/AppContext';
 import { mockCharacters } from '../data/mockData';
+import { getCharacterAccent, getCharacterAvatar } from '../lib/theme';
 import type { Character } from '../types/api';
 
 function TagInput({
@@ -145,8 +146,18 @@ export default function CharacterEditor() {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500/30 to-violet-500/30 flex items-center justify-center text-indigo-300 font-bold text-xl border border-indigo-500/20">
-          {form.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+        <div
+          className="w-20 h-20 rounded-full overflow-hidden border-[3px]"
+          style={{
+            borderColor: getCharacterAccent(Number(id), appState.darkMode),
+            boxShadow: `0 0 0 3px ${getCharacterAccent(Number(id), appState.darkMode)}33`,
+          }}
+        >
+          <img
+            src={getCharacterAvatar(Number(id))}
+            alt={form.name}
+            className="w-full h-full object-cover"
+          />
         </div>
         <div>
           <h1 className="text-2xl font-bold">{form.name}</h1>
