@@ -3,6 +3,7 @@ import type { Project, Character } from '../types/api';
 
 interface AppState {
   currentProject: Project | null;
+  projects: Project[];
   characters: Character[];
   darkMode: boolean;
   demoMode: boolean;
@@ -10,6 +11,8 @@ interface AppState {
 
 type AppAction =
   | { type: 'SET_PROJECT'; payload: Project }
+  | { type: 'SET_PROJECTS'; payload: Project[] }
+  | { type: 'ADD_PROJECT'; payload: Project }
   | { type: 'SET_CHARACTERS'; payload: Character[] }
   | { type: 'UPDATE_CHARACTER'; payload: Character }
   | { type: 'DELETE_CHARACTER'; payload: number }
@@ -18,6 +21,7 @@ type AppAction =
 
 const initialState: AppState = {
   currentProject: null,
+  projects: [],
   characters: [],
   darkMode: true,
   demoMode: true,
@@ -27,6 +31,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_PROJECT':
       return { ...state, currentProject: action.payload };
+    case 'SET_PROJECTS':
+      return { ...state, projects: action.payload };
+    case 'ADD_PROJECT':
+      return { ...state, projects: [...state.projects, action.payload] };
     case 'SET_CHARACTERS':
       return { ...state, characters: action.payload };
     case 'UPDATE_CHARACTER':

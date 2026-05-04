@@ -1,15 +1,43 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Upload, FileText, Loader2, CheckCircle2 } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import type { Project } from '../types/api';
+import { motion } from 'framer-motion';
+import {
+  ArrowLeft,
+  FileText,
+  Loader2,
+  CheckCircle2,
+  BookOpen,
+} from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Progress } from '../components/ui/progress';
 import { toast } from 'sonner';
 
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' as const, staggerChildren: 0.08 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' as const },
+  },
+};
+
 export default function ProjectNew() {
   const navigate = useNavigate();
+  const { state: appState, dispatch } = useApp();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -44,118 +72,236 @@ export default function ProjectNew() {
         clearInterval(interval);
         setIngesting(false);
         setDone(true);
-        toast.success('Project created and sources ingested!');
+
+        // Create and save the new project
+        const newId = (appState.projects.length > 0
+          ? Math.max(...appState.projects.map((pr) => pr.id)) + 1
+          : 2); // Start at 2 if only mockProject exists implicitly
+
+        const newProject: Project = {
+          id: newId,
+          name: name.trim(),
+          description: description.trim() || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          sources: files.map((f) => f.name),
+          character_count: 0,
+          commit_count: 0,
+        };
+
+        dispatch({ type: 'ADD_PROJECT', payload: newProject });
+        toast.success(`Project "${newProject.name}" created!`);
       }
       setProgress(Math.min(p, 100));
     }, 600);
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate('/')}>
-        <ArrowLeft size={16} />
-        Back to Dashboard
-      </Button>
-
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">Create New Project</h1>
-        <p className="text-muted-foreground">Start a new story world. Upload source material to begin.</p>
-      </div>
-
-      <Card className="bg-card border-border/50">
-        <CardHeader>
-          <CardTitle className="text-base">Project Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Project Name</label>
-            <Input
-              placeholder="e.g. Red Noodle Clan"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
-            <Textarea
-              placeholder="A short summary of your story world..."
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card border-border/50">
-        <CardHeader>
-          <CardTitle className="text-base">Source Files</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div
-            className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center hover:border-indigo-500/50 transition-colors"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleFileDrop}
-          >
-            <Upload size={32} className="mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">
-              Drop .txt, .md, .pdf, or .docx files here, or{' '}
-              <label className="text-indigo-400 cursor-pointer hover:underline">
-                click to browse
-                <input type="file" multiple className="hidden" onChange={handleFileInput} accept=".txt,.md,.pdf,.docx" />
-              </label>
-            </p>
-          </div>
-
-          {files.length > 0 && (
-            <div className="space-y-2">
-              {files.map((f, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm px-3 py-2 rounded-md bg-secondary/50">
-                  <FileText size={14} className="text-indigo-400" />
-                  <span className="flex-1 truncate">{f.name}</span>
-                  <span className="text-muted-foreground">{(f.size / 1024).toFixed(1)} KB</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {ingesting && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Ingesting sources...</span>
-                <span className="text-indigo-400 font-medium">{Math.round(progress)}%</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-          )}
-
-          {done && (
-            <div className="flex items-center gap-2 text-emerald-400 text-sm">
-              <CheckCircle2 size={16} />
-              <span>Ingestion complete! Characters and commits extracted.</span>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="flex items-center gap-3">
-        <Button variant="outline" onClick={() => navigate('/')}>
-          Cancel
-        </Button>
+    <motion.div
+      className="max-w-2xl mx-auto space-y-8"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {/* ── Back Button ── */}
+      <motion.div variants={itemVariants}>
         <Button
-          onClick={handleCreate}
-          disabled={ingesting || done || !name.trim()}
-          className="bg-indigo-600 hover:bg-indigo-700"
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-muted-foreground hover:text-foreground rounded-xl font-sans"
+          onClick={() => navigate('/')}
         >
-          {ingesting ? <Loader2 size={16} className="animate-spin mr-2" /> : null}
-          {ingesting ? 'Processing...' : done ? 'Done' : 'Create Project'}
+          <ArrowLeft size={16} />
+          Back to Library
         </Button>
-        {done && (
-          <Button variant="ghost" className="text-indigo-400" onClick={() => navigate('/project/1')}>
-            View Project →
-          </Button>
-        )}
-      </div>
-    </div>
+      </motion.div>
+
+      {/* ── Header ── */}
+      <motion.div className="space-y-2" variants={itemVariants}>
+        <h1 className="font-serif text-4xl font-semibold text-primary">
+          Add a New World
+        </h1>
+        <p className="text-muted-foreground text-[15px] leading-relaxed font-sans">
+          Start a new story world. Upload source material to bring your
+          characters to life.
+        </p>
+      </motion.div>
+
+      {/* ── Form Card ── */}
+      <motion.div variants={itemVariants}>
+        <Card className="bg-card border-border shadow-elevated rounded-2xl">
+          <CardContent className="p-8 space-y-6">
+            {/* Project Name */}
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium font-sans text-foreground">
+                World Name
+              </label>
+              <Input
+                placeholder="e.g. Red Noodle Clan"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="rounded-xl bg-secondary border-border font-serif text-lg placeholder:text-muted-foreground/60 h-12"
+              />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium font-sans text-foreground">
+                Description
+              </label>
+              <Textarea
+                placeholder="A short summary of your story world..."
+                rows={4}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="rounded-xl bg-secondary border-border resize-none font-sans text-[15px] placeholder:text-muted-foreground/60 leading-relaxed"
+              />
+            </div>
+
+            {/* Upload Area */}
+            <div className="space-y-2.5">
+              <label className="text-sm font-medium font-sans text-foreground">
+                Source Files
+              </label>
+              <div
+                className="border-2 border-dashed border-accent/40 rounded-xl p-8 text-center hover:border-accent/70 transition-colors bg-secondary/50"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleFileDrop}
+              >
+                <BookOpen size={32} className="mx-auto text-accent mb-3" />
+                <p className="text-sm text-muted-foreground font-sans">
+                  <span className="font-medium text-foreground">
+                    Drop your story here
+                  </span>
+                  <br />
+                  <span className="text-xs">
+                    .txt, .md, .pdf, or .docx
+                  </span>
+                </p>
+                <label className="inline-block mt-3 text-sm text-primary cursor-pointer hover:underline font-sans">
+                  click to browse
+                  <input
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileInput}
+                    accept=".txt,.md,.pdf,.docx"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* File List */}
+            {files.length > 0 && (
+              <div className="space-y-2">
+                {files.map((f, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-3 text-sm px-4 py-2.5 rounded-xl bg-secondary/60 border border-border/50 font-sans"
+                  >
+                    <FileText size={16} className="text-accent shrink-0" />
+                    <span className="flex-1 truncate">{f.name}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {(f.size / 1024).toFixed(1)} KB
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {/* Progress */}
+            {ingesting && (
+              <motion.div
+                className="space-y-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="flex items-center justify-between text-sm font-sans">
+                  <span className="text-muted-foreground">
+                    Ingesting sources...
+                  </span>
+                  <span className="text-accent font-medium">
+                    {Math.round(progress)}%
+                  </span>
+                </div>
+                <Progress
+                  value={progress}
+                  className="h-2 rounded-full bg-secondary"
+                  // Using accent color via inline style since Progress component
+                  // may not support custom indicator classes directly
+                  style={{ backgroundColor: 'var(--secondary)' }}
+                />
+              </motion.div>
+            )}
+
+            {/* Done Message */}
+            {done && (
+              <motion.div
+                className="flex items-center gap-2 text-sm font-sans"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <CheckCircle2 size={16} className="text-emerald-500" />
+                <span className="text-emerald-600">
+                  Ingestion complete! Characters and commits extracted.
+                </span>
+              </motion.div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/')}
+                className="rounded-xl font-sans"
+              >
+                Cancel
+              </Button>
+              <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                <Button
+                  onClick={handleCreate}
+                  disabled={ingesting || done || !name.trim()}
+                  className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-sans shadow-card hover:shadow-hover transition-shadow"
+                >
+                  {ingesting ? (
+                    <Loader2 size={16} className="animate-spin mr-2" />
+                  ) : null}
+                  {ingesting
+                    ? 'Processing...'
+                    : done
+                    ? 'Done'
+                    : 'Create World'}
+                </Button>
+              </motion.div>
+            </div>
+
+            {done && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center"
+              >
+                <Button
+                  variant="ghost"
+                  className="text-primary hover:text-primary hover:bg-primary/10 rounded-xl font-sans"
+                  onClick={() => {
+                    const lastProject = appState.projects[appState.projects.length - 1];
+                    if (lastProject) {
+                      navigate(`/project/${lastProject.id}`);
+                    } else {
+                      navigate('/project/1');
+                    }
+                  }}
+                >
+                  View Project →
+                </Button>
+              </motion.div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }
