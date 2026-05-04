@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Search, Users, Plus, Filter } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Search, BookX, Plus } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
+import CharacterCard from '../components/ui/CharacterCard';
 import { mockCharacters } from '../data/mockData';
 
 export default function CharacterBrowser() {
@@ -28,104 +28,133 @@ export default function CharacterBrowser() {
   }, [query, roleFilter]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="max-w-6xl mx-auto space-y-8"
+    >
+      {/* Top bar */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate(`/project/${id}`)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={() => navigate(`/project/${id}`)}
+        >
           <ArrowLeft size={16} />
           Project
         </Button>
-        <Button size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-700" onClick={() => {}}>
+        <Button
+          size="sm"
+          className="gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => {}}
+        >
           <Plus size={16} />
           Add Character
         </Button>
       </div>
 
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Users size={24} className="text-indigo-400" />
-          Characters
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="font-serif text-4xl font-semibold text-foreground tracking-tight">
+          The Cast
         </h1>
-        <p className="text-muted-foreground">Browse, search, and manage characters in this project.</p>
+        <p className="text-muted-foreground font-sans">
+          {filtered.length} {filtered.length === 1 ? 'soul' : 'souls'} inhabit this world
+        </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+      {/* Search + Filters */}
+      <div className="space-y-4">
+        <div className="relative">
+          <Search
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+          />
           <Input
-            placeholder="Search by name, faction, or origin..."
-            className="pl-9"
+            placeholder="Find a character..."
+            className="pl-11 py-3 h-12 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto">
-          <Filter size={14} className="text-muted-foreground shrink-0" />
-          <Badge
-            variant={roleFilter === '' ? 'default' : 'secondary'}
-            className="cursor-pointer shrink-0"
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+          <button
             onClick={() => setRoleFilter('')}
+            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              roleFilter === ''
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+            }`}
           >
             All
-          </Badge>
+          </button>
           {roles.map((role) => (
-            <Badge
+            <button
               key={role}
-              variant={roleFilter === role ? 'default' : 'secondary'}
-              className="cursor-pointer shrink-0"
               onClick={() => setRoleFilter(roleFilter === role ? '' : role)}
+              className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                roleFilter === role
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+              }`}
             >
               {role}
-            </Badge>
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((char) => (
-          <Card
+      {/* Character Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {filtered.map((char, index) => (
+          <motion.div
             key={char.id}
-            className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group"
-            onClick={() => navigate(`/character/${char.id}`)}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.35,
+              delay: index * 0.08,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
           >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500/30 to-violet-500/30 flex items-center justify-center text-indigo-300 font-bold text-lg border border-indigo-500/20">
-                  {char.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                </div>
-                <div className="text-right">
-                  <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-300">
-                    {char.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <h3 className="font-semibold text-lg">{char.name}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-2">{char.role}</p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Badge variant="secondary" className="text-xs">{char.affiliation || 'No affiliation'}</Badge>
-                <Badge variant="secondary" className="text-xs">{char.origin}</Badge>
-              </div>
-              {char.personality.length > 0 && (
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {char.personality.slice(0, 4).map((trait) => (
-                    <span key={trait} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
-                      {trait}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            <CharacterCard
+              characterId={char.id}
+              name={char.name}
+              role={char.role}
+              affiliation={char.affiliation}
+              personality={char.personality}
+              onClick={() => navigate(`/character/${char.id}`)}
+              onChat={() => navigate(`/chat?char=${char.id}`)}
+            />
+          </motion.div>
         ))}
       </div>
 
+      {/* Empty State */}
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <Users size={32} className="mx-auto mb-2 opacity-50" />
-          <p>No characters match your search.</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="text-center py-20 space-y-4"
+        >
+          <BookX size={48} className="mx-auto text-muted-foreground/40" />
+          <p className="text-lg text-muted-foreground font-serif">
+            No characters found in this world
+          </p>
+          <Button
+            variant="outline"
+            className="rounded-xl gap-2"
+            onClick={() => {}}
+          >
+            <Plus size={16} />
+            Add a character
+          </Button>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
