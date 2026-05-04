@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useApp } from '../context/AppContext';
+import type { Project } from '../types/api';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -35,6 +37,7 @@ const itemVariants = {
 
 export default function ProjectNew() {
   const navigate = useNavigate();
+  const { state: appState, dispatch } = useApp();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -69,7 +72,25 @@ export default function ProjectNew() {
         clearInterval(interval);
         setIngesting(false);
         setDone(true);
-        toast.success('Project created and sources ingested!');
+
+        // Create and save the new project
+        const newId = (appState.projects.length > 0
+          ? Math.max(...appState.projects.map((pr) => pr.id)) + 1
+          : 2); // Start at 2 if only mockProject exists implicitly
+
+        const newProject: Project = {
+          id: newId,
+          name: name.trim(),
+          description: description.trim() || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          sources: files.map((f) => f.name),
+          character_count: 0,
+          commit_count: 0,
+        };
+
+        dispatch({ type: 'ADD_PROJECT', payload: newProject });
+        toast.success(`Project "${newProject.name}" created!`);
       }
       setProgress(Math.min(p, 100));
     }, 600);
@@ -265,7 +286,14 @@ export default function ProjectNew() {
                 <Button
                   variant="ghost"
                   className="text-primary hover:text-primary hover:bg-primary/10 rounded-xl font-sans"
-                  onClick={() => navigate('/project/1')}
+                  onClick={() => {
+                    const lastProject = appState.projects[appState.projects.length - 1];
+                    if (lastProject) {
+                      navigate(`/project/${lastProject.id}`);
+                    } else {
+                      navigate('/project/1');
+                    }
+                  }}
                 >
                   View Project →
                 </Button>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
@@ -11,6 +11,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { mockProject, mockCharacters, mockCommits } from '../data/mockData';
+import { useApp } from '../context/AppContext';
 import BookCover from '../components/ui/BookCover';
 import CharacterCard from '../components/ui/CharacterCard';
 import { getCharacterAccent } from '../lib/theme';
@@ -65,11 +66,18 @@ const itemVariants = {
 
 export default function ProjectDetail() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const { state: appState } = useApp();
   const [tab, setTab] = useState('characters');
 
-  const characters = mockCharacters;
+  // Look up project by URL param, fallback to mockProject for id=1
+  const projectId = Number(id) || 1;
+  const project = appState.projects.find((p) => p.id === projectId) ??
+    (projectId === 1 ? mockProject : null);
+
+  const characters = mockCharacters; // TODO: filter by project_id when multi-project data exists
   const commits = mockCommits;
-  const sources = mockProject.sources;
+  const sources = project?.sources ?? mockProject.sources;
 
   return (
     <motion.div
@@ -103,7 +111,7 @@ export default function ProjectDetail() {
         />
         <div className="relative flex flex-col md:flex-row items-start gap-5">
           <BookCover
-            label={mockProject.name
+            label={(project?.name ?? mockProject.name)
               .split(' ')
               .map((w) => w[0])
               .slice(0, 2)
@@ -114,10 +122,10 @@ export default function ProjectDetail() {
           />
           <div className="flex-1 min-w-0 space-y-3">
             <h1 className="font-serif text-3xl font-semibold text-foreground">
-              {mockProject.name}
+              {(project?.name ?? mockProject.name)}
             </h1>
             <p className="text-[15px] text-muted-foreground leading-relaxed font-sans line-clamp-3 max-w-2xl">
-              {mockProject.description}
+              {(project?.description ?? mockProject.description)}
             </p>
             <div className="flex flex-wrap items-center gap-5 pt-1">
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-sans">

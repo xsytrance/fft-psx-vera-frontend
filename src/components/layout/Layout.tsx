@@ -12,6 +12,7 @@ export default function Layout() {
 
   useEffect(() => {
     appDispatch({ type: 'SET_PROJECT', payload: mockProject });
+    appDispatch({ type: 'SET_PROJECTS', payload: [mockProject] });
     appDispatch({ type: 'SET_CHARACTERS', payload: mockCharacters });
     chatDispatch({ type: 'SET_CONVERSATIONS', payload: mockConversations });
   }, [appDispatch, chatDispatch]);

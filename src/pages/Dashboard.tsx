@@ -63,6 +63,10 @@ export default function Dashboard() {
   const { state: chatState } = useChat();
   const isDark = appState.darkMode;
 
+  const allProjects = appState.projects.length > 0
+    ? appState.projects
+    : [mockProject];
+
   const stats = [
     {
       label: 'Characters',
@@ -76,6 +80,7 @@ export default function Dashboard() {
       icon: MessageSquare,
     },
     { label: 'Sources', value: mockProject.sources.length, icon: BookOpen },
+    { label: 'Worlds', value: appState.projects.length || 1, icon: BookOpen },
   ];
 
   return (
@@ -142,63 +147,66 @@ export default function Dashboard() {
           initial="hidden"
           animate="visible"
         >
-          {/* Project Card */}
-          <motion.div
-            variants={cardItemVariants}
-            whileHover={{ y: -4, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
-            className="group bg-card rounded-2xl shadow-card border border-border p-5 cursor-pointer hover:shadow-hover transition-all"
-            onClick={() => navigate('/project/1')}
-          >
-            <div className="flex items-start gap-4">
-              <BookCover
-                label={mockProject.name
-                  .split(' ')
-                  .map((w) => w[0])
-                  .slice(0, 2)
-                  .join('')}
-                gradient="from-indigo-500 to-violet-600"
-                spineColor="#5B4B8A"
-                className="w-16"
-              />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-serif text-lg font-semibold text-foreground truncate">
-                  {mockProject.name}
-                </h3>
-                <p className="text-sm text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
-                  {mockProject.description}
-                </p>
-                <div className="flex items-center gap-4 pt-3 text-xs text-muted-foreground font-sans">
-                  <span className="flex items-center gap-1.5">
-                    <Users size={13} className="text-primary" />
-                    {appState.characters.length || 6}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <GitCommit size={13} className="text-primary" />
-                    13
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <BookOpen size={13} className="text-primary" />
-                    {mockProject.sources.length}
-                  </span>
+          {/* Project Cards — dynamic from state */}
+          {allProjects.map((project) => (
+            <motion.div
+              key={project.id}
+              variants={cardItemVariants}
+              whileHover={{ y: -4, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
+              className="group bg-card rounded-2xl shadow-card border border-border p-5 cursor-pointer hover:shadow-hover transition-all"
+              onClick={() => navigate(`/project/${project.id}`)}
+            >
+              <div className="flex items-start gap-4">
+                <BookCover
+                  label={project.name
+                    .split(' ')
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join('')}
+                  gradient="from-indigo-500 to-violet-600"
+                  spineColor="#5B4B8A"
+                  className="w-16"
+                />
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-serif text-lg font-semibold text-foreground truncate">
+                    {project.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
+                    {project.description}
+                  </p>
+                  <div className="flex items-center gap-4 pt-3 text-xs text-muted-foreground font-sans">
+                    <span className="flex items-center gap-1.5">
+                      <Users size={13} className="text-primary" />
+                      {project.character_count ?? appState.characters.length ?? 6}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <GitCommit size={13} className="text-primary" />
+                      {project.commit_count ?? 13}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <BookOpen size={13} className="text-primary" />
+                      {project.sources?.length ?? 0}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-primary hover:text-primary hover:bg-primary/10 rounded-xl gap-1 font-sans"
-                >
-                  Open <ArrowRight size={14} />
-                </Button>
+              <div className="mt-4 flex items-center justify-between">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-primary hover:text-primary hover:bg-primary/10 rounded-xl gap-1 font-sans"
+                  >
+                    Open <ArrowRight size={14} />
+                  </Button>
+                </div>
+                <ArrowRight
+                  size={16}
+                  className="text-muted-foreground group-hover:text-primary transition-colors duration-200"
+                />
               </div>
-              <ArrowRight
-                size={16}
-                className="text-muted-foreground group-hover:text-primary transition-colors duration-200"
-              />
-            </div>
-          </motion.div>
+            </motion.div>
+          ))}
 
           {/* New World CTA */}
           <motion.div
