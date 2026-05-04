@@ -1,17 +1,67 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Users,
   GitCommit,
   BookOpen,
-  ChevronRight,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader } from '../components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { mockProject, mockCharacters, mockCommits } from '../data/mockData';
+import BookCover from '../components/ui/BookCover';
+import CharacterCard from '../components/ui/CharacterCard';
+import { getCharacterAccent } from '../lib/theme';
+
+const tabList = [
+  { id: 'characters', label: 'Characters' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'lore', label: 'Lore' },
+  { id: 'settings', label: 'Settings' },
+];
+
+const loreItems = [
+  { title: 'The GRATS warriors of Borinquen', desc: 'An elite cosmic fighting force sworn to protect Puerto Rican heritage across galaxies.' },
+  { title: 'The Mystical Cuatro and its heart-binding power', desc: 'A four-stringed instrument that doubles as a weapon and a vessel for ancestral souls.' },
+  { title: 'The 36 Chambers facility and Burrow Fortress', desc: 'An ancient subterranean complex beneath the Pisces estuary, built from kauri wood older than starlight.' },
+  { title: 'The Exhumerator and the Shield Doncellas', desc: 'A mystical figure who can exhume hearts, guarded by red-haired maidens armed with cosmic blade-lutes.' },
+  { title: 'Cosmic Technology and the Jibaro spacecraft', desc: 'Advanced tech woven from Borincano cultural memory — ships that navigate by song and ancestral star-maps.' },
+  { title: 'The Bamboo Mountain entity', desc: 'A being older than the Red Noodle Clan itself, dwelling at the void-side base of Bamboo Mountain.' },
+];
+
+const settingsItems = [
+  { label: 'Auto-extract characters from sources', status: 'Enabled', statusType: 'neutral' as const },
+  { label: 'Knowledge gate enforcement', status: 'Active', statusType: 'success' as const },
+  { label: 'Timeline auto-build', status: 'Manual', statusType: 'neutral' as const },
+];
+
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' as const },
+  },
+};
+
+const staggerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' as const },
+  },
+};
 
 export default function ProjectDetail() {
   const navigate = useNavigate();
@@ -22,149 +72,310 @@ export default function ProjectDetail() {
   const sources = mockProject.sources;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate('/')}>
-        <ArrowLeft size={16} />
-        Dashboard
-      </Button>
+    <motion.div
+      className="max-w-5xl mx-auto space-y-8"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {/* ── Back Button ── */}
+      <motion.div variants={itemVariants}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-muted-foreground hover:text-foreground rounded-xl font-sans"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft size={16} />
+          Library
+        </Button>
+      </motion.div>
 
-      {/* Project Header */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white font-bold text-lg">
-            RN
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">{mockProject.name}</h1>
-            <p className="text-muted-foreground text-sm">{mockProject.description}</p>
+      {/* ── Hero Header ── */}
+      <motion.div
+        className="relative rounded-2xl p-6 md:p-8 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, var(--primary) 0%, transparent 100%)' }}
+        variants={itemVariants}
+      >
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundColor: 'var(--primary)' }}
+        />
+        <div className="relative flex flex-col md:flex-row items-start gap-5">
+          <BookCover
+            label={mockProject.name
+              .split(' ')
+              .map((w) => w[0])
+              .slice(0, 2)
+              .join('')}
+            gradient="from-indigo-500 to-violet-600"
+            spineColor="#5B4B8A"
+            className="w-[120px] rounded-2xl"
+          />
+          <div className="flex-1 min-w-0 space-y-3">
+            <h1 className="font-serif text-3xl font-semibold text-foreground">
+              {mockProject.name}
+            </h1>
+            <p className="text-[15px] text-muted-foreground leading-relaxed font-sans line-clamp-3 max-w-2xl">
+              {mockProject.description}
+            </p>
+            <div className="flex flex-wrap items-center gap-5 pt-1">
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-sans">
+                <Users size={15} className="text-primary" />
+                <span>{characters.length} characters</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-sans">
+                <GitCommit size={15} className="text-primary" />
+                <span>{commits.length} commits</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-sans">
+                <BookOpen size={15} className="text-primary" />
+                <span>{sources.length} sources</span>
+              </div>
+            </div>
           </div>
         </div>
+      </motion.div>
 
-        <div className="flex flex-wrap items-center gap-4 pt-2">
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Users size={14} />
-            <span>{characters.length} characters</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <GitCommit size={14} />
-            <span>{commits.length} commits</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <BookOpen size={14} />
-            <span>{sources.length} sources</span>
-          </div>
+      {/* ── Tabs ── */}
+      <motion.div variants={itemVariants}>
+        <div className="flex items-center gap-2 flex-wrap">
+          {tabList.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`px-4 py-2 rounded-full text-sm font-medium font-sans transition-colors duration-200 ${
+                tab === t.id
+                  ? 'bg-primary text-primary-foreground shadow-card'
+                  : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
-      </div>
+      </motion.div>
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="bg-secondary border border-border/50">
-          <TabsTrigger value="characters">Characters</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="lore">Lore</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="characters" className="mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {characters.map((char) => (
-              <Card
-                key={char.id}
-                className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 transition-all group"
-                onClick={() => navigate(`/character/${char.id}`)}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">
-                      {char.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                    </div>
-                    <ChevronRight size={16} className="text-muted-foreground group-hover:text-indigo-400" />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-1">
-                  <h3 className="font-semibold">{char.name}</h3>
-                  <p className="text-xs text-muted-foreground line-clamp-1">{char.role}</p>
-                  <div className="flex items-center gap-2 pt-1">
-                    <Badge variant="secondary" className="text-[10px]">{char.affiliation}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="timeline" className="mt-4">
-          <div className="space-y-3">
-            {commits
-              .sort((a, b) => a.order_index - b.order_index)
-              .map((commit) => (
-                <Card key={commit.id} className="bg-card/50 border-border/50">
-                  <CardContent className="p-4 flex items-start gap-4">
-                    <div className="flex flex-col items-center gap-1 min-w-[80px]">
-                      <div className="w-3 h-3 rounded-full bg-indigo-500" />
-                      <div className="text-xs text-muted-foreground">{commit.chapter}</div>
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="font-medium">{commit.title}</div>
-                      <div className="text-sm text-muted-foreground">{commit.location}</div>
-                      <div className="text-xs text-muted-foreground/70 line-clamp-2">{commit.situation}</div>
-                    </div>
-                  </CardContent>
-                </Card>
+      {/* ── Tab Content ── */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        >
+          {/* ── Characters Tab ── */}
+          {tab === 'characters' && (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              variants={staggerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {characters.map((char) => (
+                <motion.div key={char.id} variants={itemVariants}>
+                  <CharacterCard
+                    characterId={char.id}
+                    name={char.name}
+                    role={char.role}
+                    affiliation={char.affiliation}
+                    personality={char.personality.slice(0, 3)}
+                    onClick={() => navigate(`/character/${char.id}`)}
+                  />
+                </motion.div>
               ))}
-          </div>
-        </TabsContent>
+            </motion.div>
+          )}
 
-        <TabsContent value="lore" className="mt-4">
-          <Card className="bg-card border-border/50">
-            <CardContent className="p-6 space-y-4">
-              <h3 className="font-semibold">World Lore</h3>
-              <p className="text-sm text-muted-foreground">
-                The Red Noodle Clan saga spans across Borincano Island, the cosmic void, and the mystical
-                People of Pisces tavern. Key lore elements include Cosmic Technology (Cos-Tech), the
-                Cuatro as both weapon and instrument, the thirty-six chambers beneath the estuary,
-                and the enigmatic Hackermouth oracle trapped in magnetic tape.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {[
-                  'The GRATS warriors of Borinquen',
-                  'The Mystical Cuatro and its heart-binding power',
-                  'The 36 Chambers facility and Burrow Fortress',
-                  'The Exhumerator and the Shield Doncellas',
-                  'Cosmic Technology and the Jibaro spacecraft',
-                  'The Bamboo Mountain entity',
-                ].map((lore) => (
-                  <div key={lore} className="px-3 py-2 rounded-md bg-secondary/50 text-sm text-muted-foreground">
-                    {lore}
+          {/* ── Timeline Tab ── */}
+          {tab === 'timeline' && (
+            <Card className="bg-card border-border shadow-card rounded-2xl overflow-hidden">
+              <CardContent className="p-6 space-y-6">
+                {/* Horizontal timeline strip */}
+                <div className="relative">
+                  <div className="flex items-center gap-1 overflow-x-auto pb-4 scrollbar-thin">
+                    {commits
+                      .sort((a, b) => a.order_index - b.order_index)
+                      .map((commit, index, arr) => {
+                        const accent = getCharacterAccent(commit.character_id ?? 1, false);
+                        const isLast = index === arr.length - 1;
+
+                        return (
+                          <div key={commit.id} className="flex items-center shrink-0">
+                            <div className="flex flex-col items-center gap-1.5 min-w-[100px] px-1">
+                              <motion.div
+                                className="w-3 h-3 rounded-full shrink-0"
+                                style={{ backgroundColor: accent }}
+                                whileHover={{ scale: 1.4 }}
+                                transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+                              />
+                              <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider text-center">
+                                {commit.chapter}
+                              </span>
+                            </div>
+                            {!isLast && (
+                              <div
+                                className="w-6 h-px shrink-0"
+                                style={{
+                                  background: `linear-gradient(to right, ${accent}, ${getCharacterAccent(arr[index + 1].character_id ?? 1, false)})`,
+                                }}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </div>
 
-        <TabsContent value="settings" className="mt-4">
-          <Card className="bg-card border-border/50">
-            <CardContent className="p-6 space-y-4">
-              <h3 className="font-semibold">Project Settings</h3>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between py-2 border-b border-border/30">
-                  <span className="text-sm">Auto-extract characters from sources</span>
-                  <Badge variant="outline" className="text-xs">Enabled</Badge>
+                {/* Commit cards */}
+                <div className="space-y-3">
+                  {commits
+                    .sort((a, b) => a.order_index - b.order_index)
+                    .map((commit) => {
+                      const char = characters.find((c) => c.id === commit.character_id);
+                      const accent = getCharacterAccent(commit.character_id ?? 1, false);
+
+                      return (
+                        <motion.div
+                          key={commit.id}
+                          whileHover={{ y: -2, transition: { duration: 0.2 } }}
+                          className="rounded-xl border border-border bg-card/60 p-4 hover:shadow-hover transition-shadow"
+                        >
+                          <div className="flex items-start gap-4">
+                            <div
+                              className="w-1 self-stretch rounded-full shrink-0"
+                              style={{ backgroundColor: accent }}
+                            />
+                            <div className="flex-1 min-w-0 space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs text-muted-foreground font-sans uppercase tracking-wider">
+                                  {commit.chapter}
+                                </span>
+                                {char && (
+                                  <span
+                                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium font-sans"
+                                    style={{
+                                      backgroundColor: `${accent}18`,
+                                      color: accent,
+                                    }}
+                                  >
+                                    {char.name}
+                                  </span>
+                                )}
+                              </div>
+                              <h4 className="font-serif text-base font-medium text-foreground">
+                                {commit.title}
+                              </h4>
+                              <p className="text-sm text-muted-foreground font-sans">
+                                {commit.location}
+                              </p>
+                              <p className="text-xs text-muted-foreground/70 line-clamp-2 font-sans leading-relaxed">
+                                {commit.situation}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-border/30">
-                  <span className="text-sm">Knowledge gate enforcement</span>
-                  <Badge variant="outline" className="text-xs text-emerald-400">Active</Badge>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── Lore Tab ── */}
+          {tab === 'lore' && (
+            <Card className="bg-card border-border shadow-card rounded-2xl">
+              <CardContent className="p-6 md:p-8 space-y-6">
+                <div className="space-y-1">
+                  <h3 className="font-serif text-xl font-semibold text-foreground">
+                    World Lore
+                  </h3>
+                  <p className="text-[15px] text-muted-foreground leading-relaxed font-sans max-w-3xl">
+                    The Red Noodle Clan saga spans across Borincano Island, the
+                    cosmic void, and the mystical People of Pisces tavern. Key
+                    lore elements include Cosmic Technology (Cos-Tech), the
+                    Cuatro as both weapon and instrument, the thirty-six chambers
+                    beneath the estuary, and the enigmatic Hackermouth oracle
+                    trapped in magnetic tape.
+                  </p>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-border/30">
-                  <span className="text-sm">Timeline auto-build</span>
-                  <Badge variant="outline" className="text-xs">Manual</Badge>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {loreItems.map((item, index) => (
+                    <motion.div
+                      key={item.title}
+                      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+                      className="rounded-xl border border-border bg-card/60 p-4 hover:shadow-hover transition-shadow"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="w-1 self-stretch rounded-full shrink-0 mt-0.5"
+                          style={{
+                            backgroundColor: `hsl(${258 + index * 20}, 31%, ${40 + index * 5}%)`,
+                          }}
+                        />
+                        <div className="space-y-1">
+                          <h4 className="font-serif text-sm font-semibold text-foreground">
+                            {item.title}
+                          </h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed font-sans">
+                            {item.desc}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </div>
-              <Button variant="destructive" size="sm">Delete Project</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── Settings Tab ── */}
+          {tab === 'settings' && (
+            <Card className="bg-card border-border shadow-card rounded-2xl">
+              <CardContent className="p-6 md:p-8 space-y-6">
+                <h3 className="font-serif text-xl font-semibold text-foreground">
+                  Project Settings
+                </h3>
+
+                <div className="space-y-0 divide-y divide-border/50">
+                  {settingsItems.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center justify-between py-4"
+                    >
+                      <span className="text-sm text-foreground font-sans">
+                        {item.label}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs rounded-lg font-sans ${
+                          item.statusType === 'success'
+                            ? 'text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 dark:border-emerald-800'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {item.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="rounded-xl font-sans"
+                  >
+                    Delete World
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
   );
 }
