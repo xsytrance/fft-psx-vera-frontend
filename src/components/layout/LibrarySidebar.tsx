@@ -121,21 +121,8 @@ export default function LibrarySidebar() {
                   .join('')}
                 gradient="from-indigo-500 to-violet-600"
                 spineColor="#5B4B8A"
-                imageUrl="/cover-red-noodle.jpg"
                 subLabel="Project"
                 onClick={() => navigate(`/project/${project.id}`)}
-              />
-              <BookCover
-                label="RN"
-                gradient="from-rose-400 to-orange-300"
-                spineColor="#C2703E"
-                subLabel="Novel"
-              />
-              <BookCover
-                label="LO"
-                gradient="from-teal-500 to-emerald-600"
-                spineColor="#2D6A4F"
-                subLabel="Lore"
               />
             </div>
           </section>
@@ -214,7 +201,7 @@ export default function LibrarySidebar() {
 
           <div className="flex items-center gap-1.5 text-[10px] text-sidebar-foreground/50">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>Demo</span>
+            <span>IvaliceVera</span>
           </div>
         </div>
       </div>

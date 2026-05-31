@@ -242,7 +242,7 @@ export default function ProjectNew() {
                 World Name
               </label>
               <Input
-                placeholder="e.g. Red Noodle Clan"
+                placeholder="e.g. Final Fantasy Tactics — Chapter 1"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="rounded-xl bg-secondary border-border font-serif text-lg placeholder:text-muted-foreground/60 h-12"
