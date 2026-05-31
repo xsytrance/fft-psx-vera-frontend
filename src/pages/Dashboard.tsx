@@ -7,31 +7,30 @@ import {
   Plus,
   ArrowRight,
   Sparkles,
+  Upload,
+  Sword,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { useApp } from '../context/AppContext';
 import { useChat } from '../context/ChatContext';
-import { mockProject } from '../data/mockData';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { state: appState } = useApp();
   const { state: chatState } = useChat();
 
-  const allProjects = appState.projects.length > 0
-    ? appState.projects
-    : [mockProject];
+  const allProjects = appState.projects;
 
   // Count total characters across all projects
-  const totalCharacters = appState.characters.length || 6;
+  const totalCharacters = appState.characters.length;
   const totalSources = allProjects.reduce((sum, p) => sum + (p.sources?.length ?? 0), 0);
 
   const stats = [
     { label: 'Characters', value: totalCharacters, icon: Users, color: 'text-indigo-400' },
     { label: 'Worlds', value: allProjects.length, icon: GitCommit, color: 'text-emerald-400' },
-    { label: 'Conversations', value: chatState.conversations.length || 2, icon: MessageSquare, color: 'text-amber-400' },
-    { label: 'Sources', value: totalSources || mockProject.sources.length, icon: BookOpen, color: 'text-violet-400' },
+    { label: 'Conversations', value: chatState.conversations.length, icon: MessageSquare, color: 'text-amber-400' },
+    { label: 'Sources', value: totalSources, icon: BookOpen, color: 'text-violet-400' },
   ];
 
   return (
@@ -42,9 +41,9 @@ export default function Dashboard() {
           <Sparkles size={20} />
           <span className="text-sm font-medium uppercase tracking-wider">Welcome back</span>
         </div>
-        <h1 className="text-3xl font-bold text-foreground">Your Story Worlds</h1>
+        <h1 className="text-3xl font-bold text-foreground">IvaliceVera</h1>
         <p className="text-muted-foreground max-w-xl">
-          Browse your projects, continue conversations, and manage characters across the MultiVera universe.
+          Upload a Final Fantasy Tactics save file, explore characters, and chat at any point in the story.
         </p>
       </div>
 
@@ -72,13 +71,32 @@ export default function Dashboard() {
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Projects</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Project Cards — dynamic */}
+          {/* FFT Upload CTA */}
+          <Card
+            className="bg-gradient-to-br from-amber-900/20 to-amber-800/10 border-amber-500/30 hover:border-amber-500/60 transition-all cursor-pointer"
+            onClick={() => navigate('/save/upload')}
+          >
+            <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <Upload className="w-6 h-6 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-200">Upload FFT Save</h3>
+                <p className="text-sm text-amber-400/70 mt-1">
+                  Import a Final Fantasy Tactics save file to create a project with characters and story progress
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10">
+                <Sword className="w-4 h-4 mr-2" />
+                Upload Save
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Project Cards */}
           {allProjects.map((project) => {
-            const projectChars = appState.characters.length
-              ? appState.characters.filter((c) => c.project_id === project.id)
-              : [];
-            const charCount = projectChars.length || (project.id === 1 ? 6 : 0);
-            const isRedNoodle = project.id === 1;
+            const projectChars = appState.characters.filter((c: any) => c.project_id === project.id);
+            const charCount = projectChars.length;
 
             return (
               <Card
@@ -89,16 +107,7 @@ export default function Dashboard() {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div className="w-10 h-14 rounded-lg overflow-hidden shadow-sm bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white font-bold text-xs">
-                      {isRedNoodle ? (
-                        <img
-                          src="/cover-red-noodle.jpg"
-                          alt={project.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        project.name.split(' ').map((w) => w[0]).slice(0, 2).join('')
-                      )}
+                      {project.name.split(' ').map((w) => w[0]).slice(0, 2).join('')}
                     </div>
                     <ArrowRight size={16} className="text-muted-foreground group-hover:text-indigo-400 transition-colors" />
                   </div>
@@ -132,35 +141,37 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Conversations */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold">Recent Conversations</h2>
-        <div className="space-y-2">
-          {(chatState.conversations.length ? chatState.conversations : []).map((conv) => (
-            <Card
-              key={conv.id}
-              className="bg-card/50 border-border/50 cursor-pointer hover:border-indigo-500/50 transition-all"
-              onClick={() => navigate(`/chat/${conv.id}`)}
-            >
-              <CardContent className="p-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center">
-                    <MessageSquare size={14} className="text-indigo-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium">{conv.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {conv.mode} • {conv.messages.length} messages
+      {chatState.conversations.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold">Recent Conversations</h2>
+          <div className="space-y-2">
+            {chatState.conversations.map((conv) => (
+              <Card
+                key={conv.id}
+                className="bg-card/50 border-border/50 cursor-pointer hover:border-indigo-500/50 transition-all"
+                onClick={() => navigate(`/chat/${conv.id}`)}
+              >
+                <CardContent className="p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                      <MessageSquare size={14} className="text-indigo-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">{conv.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {conv.mode} • {conv.messages.length} messages
+                      </div>
                     </div>
                   </div>
-                </div>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                  Resume
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    Resume
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

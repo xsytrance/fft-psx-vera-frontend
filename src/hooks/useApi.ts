@@ -1,148 +1,85 @@
 import { useState, useCallback } from 'react';
-import type { Project, Character, Commit, Conversation, IngestionStatus } from '../types/api';
-import { mockProject, mockCharacters, mockCommits, mockConversations } from '../data/mockData';
+import type { Project, Character, Commit, Conversation, IngestionStatus, InteractionMode } from '../types/api';
+import * as api from '../lib/api';
 
 export function useApi() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const delay = (ms = 300) => new Promise((res) => setTimeout(res, ms));
-
-  const getProjects = useCallback(async (): Promise<Project[]> => {
+  const call = useCallback(async <T>(fn: () => Promise<T>): Promise<T | null> => {
     setLoading(true);
-    await delay();
-    setLoading(false);
-    return [mockProject];
-  }, []);
-
-  const getProject = useCallback(async (id: number): Promise<Project | null> => {
-    setLoading(true);
-    await delay();
-    setLoading(false);
-    return id === mockProject.id ? mockProject : null;
-  }, []);
-
-  const createProject = useCallback(async (data: { name: string; description: string }): Promise<Project> => {
-    setLoading(true);
-    await delay(800);
-    setLoading(false);
-    return { ...mockProject, ...data, id: Date.now() };
-  }, []);
-
-  const getCharacters = useCallback(async (projectId: number): Promise<Character[]> => {
-    setLoading(true);
-    await delay();
-    setLoading(false);
-    return projectId === mockProject.id ? mockCharacters : [];
-  }, []);
-
-  const getCharacter = useCallback(async (id: number): Promise<Character | null> => {
-    setLoading(true);
-    await delay();
-    setLoading(false);
-    return mockCharacters.find((c) => c.id === id) ?? null;
-  }, []);
-
-  const updateCharacter = useCallback(async (id: number, data: Partial<Character>): Promise<Character> => {
-    setLoading(true);
-    await delay(600);
-    setLoading(false);
-    const existing = mockCharacters.find((c) => c.id === id);
-    if (!existing) throw new Error('Character not found');
-    return { ...existing, ...data } as Character;
-  }, []);
-
-  const deleteCharacter = useCallback(async (_id: number): Promise<void> => {
-    setLoading(true);
-    await delay(400);
-    setLoading(false);
-  }, []);
-
-  const getCommits = useCallback(async (characterId?: number): Promise<Commit[]> => {
-    setLoading(true);
-    await delay();
-    setLoading(false);
-    if (!characterId) return mockCommits;
-    return mockCommits.filter((c) => c.character_id === characterId);
-  }, []);
-
-  const getConversations = useCallback(async (): Promise<Conversation[]> => {
-    setLoading(true);
-    await delay();
-    setLoading(false);
-    return mockConversations;
-  }, []);
-
-  const getConversation = useCallback(async (id: string): Promise<Conversation | null> => {
-    setLoading(true);
-    await delay();
-    setLoading(false);
-    return mockConversations.find((c) => c.id === id) ?? null;
-  }, []);
-
-  const createConversation = useCallback(
-    async (data: {
-      project_id: number;
-      character_ids: number[];
-      commit_id: number;
-      mode: string;
-      title: string;
-    }): Promise<Conversation> => {
-      setLoading(true);
-      await delay(500);
+    setError(null);
+    try {
+      const result = await fn();
+      return result;
+    } catch (e: any) {
+      setError(e.message || 'Unknown error');
+      return null;
+    } finally {
       setLoading(false);
-      const conv: Conversation = {
-        id: `conv-${Date.now()}`,
-        project_id: data.project_id,
-        character_ids: data.character_ids,
-        commit_id: data.commit_id,
-        mode: data.mode as Conversation['mode'],
-        title: data.title,
-        messages: [
-          {
-            role: 'system',
-            content: `System context for ${data.title}`,
-          },
-        ],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      return conv;
-    },
-    []
-  );
+    }
+  }, []);
 
-  const sendChatMessage = useCallback(
-    async (data: {
-      conversation_id: string | null;
-      project_id: number;
-      character_ids: number[];
-      commit_id: number;
-      mode: string;
-      message: string;
-    }): Promise<{ message: { role: string; content: string; character_id: number; character_name: string } }> => {
-      setLoading(true);
-      await delay(1000 + Math.random() * 1000);
-      setLoading(false);
-      const char = mockCharacters.find((c) => c.id === data.character_ids[0]);
-      return {
-        message: {
-          role: 'assistant',
-          content: `Mock response from ${char?.name ?? 'character'} to: "${data.message}"`,
-          character_id: data.character_ids[0],
-          character_name: char?.name ?? 'Unknown',
-        },
-      };
-    },
-    []
-  );
+  // ── Projects ──────────────────────────────────────────────────────────────
+
+  const getProjects = useCallback(() => call(() => api.getProjects()), [call]);
+  const getProject = useCallback((id: number) => call(() => api.getProject(id)), [call]);
+  const createProject = useCallback((data: { name: string; description: string }) => call(() => api.createProject(data)), [call]);
+  const deleteProject = useCallback((id: number) => call(() => api.deleteProject(id)), [call]);
+
+  // ── Characters ────────────────────────────────────────────────────────────
+
+  const getCharacters = useCallback((projectId: number) => call(() => api.getCharacters(projectId)), [call]);
+  const getCharacter = useCallback((id: number) => call(() => api.getCharacter(id)), [call]);
+  const createCharacter = useCallback((projectId: number, data: Partial<Character>) => call(() => api.createCharacter(projectId, data)), [call]);
+  const updateCharacter = useCallback((id: number, data: Partial<Character>) => call(() => api.updateCharacter(id, data)), [call]);
+  const deleteCharacter = useCallback((id: number) => call(() => api.deleteCharacter(id)), [call]);
+
+  // ── Commits ───────────────────────────────────────────────────────────────
+
+  const getCommits = useCallback((characterId?: number) => call(() => api.getCommits(characterId)), [call]);
+  const createCommit = useCallback((characterId: number, data: Partial<Commit>) => call(() => api.createCommit(characterId, data)), [call]);
+  const updateCommit = useCallback((id: number, data: Partial<Commit>) => call(() => api.updateCommit(id, data)), [call]);
+  const deleteCommit = useCallback((id: number) => call(() => api.deleteCommit(id)), [call]);
+
+  // ── Conversations ─────────────────────────────────────────────────────────
+
+  const getConversations = useCallback(() => call(() => api.getConversations()), [call]);
+  const getConversation = useCallback((id: string) => call(() => api.getConversation(id)), [call]);
+  const createConversation = useCallback((data: {
+    project_id: number;
+    character_ids: number[];
+    commit_id?: number;
+    mode: InteractionMode;
+    title?: string;
+  }) => call(() => api.createConversation(data)), [call]);
+  const deleteConversation = useCallback((id: string) => call(() => api.deleteConversation(id)), [call]);
+
+  // ── Chat ──────────────────────────────────────────────────────────────────
+
+  const sendChatMessage = useCallback((data: {
+    conversation_id?: string | null;
+    project_id: number;
+    character_ids: number[];
+    commit_id?: number;
+    mode: InteractionMode;
+    message: string;
+  }) => call(() => api.sendChatMessage(data)), [call]);
 
   const getIngestionStatus = useCallback(async (): Promise<IngestionStatus> => {
-    setLoading(true);
-    await delay();
-    setLoading(false);
-    return { status: 'complete', progress: 100, message: 'Ingestion complete' };
+    return { status: 'complete', progress: 100, message: 'Ready' };
   }, []);
+
+  // ── FFT Save File ─────────────────────────────────────────────────────────
+
+  const uploadSave = useCallback((file: File) => call(() => api.uploadSave(file)), [call]);
+  const createProjectFromSave = useCallback((file: File, projectName: string) => call(() => api.createProjectFromSave(file, projectName)), [call]);
+
+  // ── FFT Lore KB ───────────────────────────────────────────────────────────
+
+  const getLoreCharacters = useCallback(() => call(() => api.getLoreCharacters()), [call]);
+  const getLoreCharacter = useCallback((slug: string) => call(() => api.getLoreCharacter(slug)), [call]);
+  const getLoreCommits = useCallback((phase?: string) => call(() => api.getLoreCommits(phase)), [call]);
 
   return {
     loading,
@@ -151,15 +88,26 @@ export function useApi() {
     getProjects,
     getProject,
     createProject,
+    deleteProject,
     getCharacters,
     getCharacter,
+    createCharacter,
     updateCharacter,
     deleteCharacter,
     getCommits,
+    createCommit,
+    updateCommit,
+    deleteCommit,
     getConversations,
     getConversation,
     createConversation,
+    deleteConversation,
     sendChatMessage,
     getIngestionStatus,
+    uploadSave,
+    createProjectFromSave,
+    getLoreCharacters,
+    getLoreCharacter,
+    getLoreCommits,
   };
 }
