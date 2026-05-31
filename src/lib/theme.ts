@@ -14,15 +14,14 @@ export interface AccentPair {
   dark: string;
 }
 
-/** Accent colours for every known character.  Used for chat bubbles, avatars,
- *  timeline nodes, and any UI element that should "belong" to a character. */
+/** Accent colours for FFT characters. */
 export const characterAccents: Record<number, AccentPair> = {
-  1: { light: '#2D6A4F', dark: '#40916C' },  // Manus Flatfoot — forest green
-  2: { light: '#6C4A8A', dark: '#9B7EC8' },  // Hackermouth — purple
-  3: { light: '#9B2C2C', dark: '#C75050' },  // Roz Kolora — crimson
-  4: { light: '#1D4E89', dark: '#4A8BD9' },  // Azula Sabra — deep blue
-  5: { light: '#B8860B', dark: '#DAA520' },  // Koden Bushi — goldenrod
-  6: { light: '#4A0E0E', dark: '#7A2020' },  // The Exhumerator — dark red
+  1: { light: '#2D6A4F', dark: '#40916C' },  // Ramza — forest green
+  2: { light: '#9B2C2C', dark: '#C75050' },  // Delita — crimson
+  3: { light: '#1D4E89', dark: '#4A8BD9' },  // Agrias — deep blue
+  4: { light: '#B8860B', dark: '#DAA520' },  // Mustadio — goldenrod
+  5: { light: '#6C4A8A', dark: '#9B7EC8' },  // Rapha — purple
+  6: { light: '#4A0E0E', dark: '#7A2020' },  // Marach — dark red
 };
 
 /** Return the appropriate hex accent for a character given the current theme. */
@@ -77,14 +76,14 @@ export function useThemeToggle() {
   return { darkMode, toggle, setDarkMode: setDarkModeState };
 }
 
-/** CSS variable values for inline style usage when HSL isn't enough. */
+/** Avatar image paths for FFT characters. Empty string = no avatar yet. */
 export const avatarImages: Record<number, string> = {
-  1: '/avatar-manus.jpg',
-  2: '/avatar-hackermouth.jpg',
-  3: '/avatar-roz.jpg',
-  4: '/avatar-azula.jpg',
-  5: '/avatar-koden.jpg',
-  6: '/avatar-exhumerator.jpg',
+  1: '',  // Ramza
+  2: '',  // Delita
+  3: '',  // Agrias
+  4: '',  // Mustadio
+  5: '',  // Rapha
+  6: '',  // Marach
 };
 
 /** Return the avatar image path for a character, or a fallback generic avatar. */
