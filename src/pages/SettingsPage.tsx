@@ -387,25 +387,24 @@ export default function SettingsPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="font-serif text-xl font-semibold text-foreground flex items-center gap-2">
                         <Info size={18} className="text-primary" />
-                        About MultiVera
+                        About IvaliceVera
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Literary description */}
                       <p className="font-serif italic text-[15px] text-muted-foreground leading-relaxed">
-                        MultiVera is a Character Context Engine and Interaction Platform
-                        designed for storytellers, roleplayers, and worldbuilders. It enables
-                        you to create rich character personas, manage narrative timelines, and
-                        chat with characters in multiple interaction modes while enforcing
-                        knowledge boundaries.
+                        IvaliceVera is a Final Fantasy Tactics save analyzer and character
+                        chat platform. Upload your FFT save files to extract party data, story
+                        progress, and chat with characters at any point in the War of the Lions
+                        while enforcing knowledge boundaries through the Zodiac Stone system.
                       </p>
 
                       {/* Info Grid */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {[
-                          { label: 'Version', value: 'v1.0.0-demo' },
-                          { label: 'Backend', value: 'FastAPI (ready)' },
-                          { label: 'Frontend', value: 'React 19 + Tailwind' },
+                          { label: 'Version', value: 'v1.0.0-ivalice' },
+                          { label: 'Backend', value: 'FastAPI + FFT Parser' },
+                          { label: 'Frontend', value: 'React + Tailwind + FFT Theme' },
                           { label: 'Characters', value: `${mockCharacters.length} loaded` },
                         ].map((item, i) => (
                           <motion.div

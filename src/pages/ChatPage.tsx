@@ -39,10 +39,10 @@ const modeLabels: Record<InteractionMode, string> = {
 };
 
 const modeColors: Record<InteractionMode, string> = {
-  'story-locked': 'bg-indigo-600',
+  'story-locked': 'bg-primary',
   'post-end': 'bg-amber-600',
   casual: 'bg-emerald-600',
-  'multi-character': 'bg-violet-600',
+  'multi-character': 'bg-accent',
   agent: 'bg-slate-600',
 };
 
@@ -245,7 +245,7 @@ export default function ChatPage() {
                   key={char.id}
                   className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
                     selectedChars.includes(char.id)
-                      ? 'bg-indigo-500/20 text-indigo-300'
+                      ? 'bg-primary/20 text-primary'
                       : 'hover:bg-secondary text-muted-foreground'
                   }`}
                   onClick={() => {
@@ -281,7 +281,7 @@ export default function ChatPage() {
               <div
                 key={conv.id}
                 className={`group flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-xs transition-colors ${
-                  convId === conv.id ? 'bg-indigo-500/15 text-indigo-300' : 'hover:bg-secondary text-muted-foreground'
+                  convId === conv.id ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-muted-foreground'
                 }`}
                 onClick={() => navigate(`/chat/${conv.id}`)}
               >
@@ -395,7 +395,7 @@ export default function ChatPage() {
                       className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold overflow-hidden ${
                         msg.role === 'user'
                           ? 'bg-secondary text-muted-foreground'
-                          : 'bg-indigo-500/20 text-indigo-300'
+                          : 'bg-primary/20 text-primary'
                       }`}
                     >
                       {msg.role === 'user' ? (
@@ -412,7 +412,7 @@ export default function ChatPage() {
                           ? 'bg-secondary text-foreground'
                           : msg.role === 'system'
                           ? 'bg-amber-500/10 text-amber-300 text-xs italic'
-                          : 'bg-indigo-500/10 text-indigo-100 border border-indigo-500/20'
+                          : 'bg-primary/10 text-indigo-100 border border-primary/20'
                       }`}
                       style={
                         msg.role === 'assistant' && msg.character_id
@@ -451,7 +451,7 @@ export default function ChatPage() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="bg-indigo-500/10 rounded-lg px-3 py-2 text-sm text-indigo-300 border border-indigo-500/20 flex items-center gap-1">
+                  <div className="bg-primary/10 rounded-lg px-3 py-2 text-sm text-primary border border-primary/20 flex items-center gap-1">
                     <Sparkles size={12} className="animate-pulse" />
                     Typing...
                   </div>
@@ -480,7 +480,7 @@ export default function ChatPage() {
             />
             <Button
               size="icon"
-              className="bg-indigo-600 hover:bg-indigo-700 shrink-0"
+              className="bg-primary hover:bg-primary/90 shrink-0"
               onClick={handleSend}
               disabled={sending || !input.trim()}
             >

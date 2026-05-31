@@ -1,4 +1,4 @@
-import type { Project, Character, Commit, Conversation, Message } from '../types/api';
+import type { Project, Character, Commit, Conversation } from '../types/api';
 
 // Minimal mock data for build compatibility — used as fallback when API data is empty
 // These are FFT-themed placeholders, not real data

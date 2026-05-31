@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { Project, Character, Commit, Conversation, IngestionStatus, InteractionMode } from '../types/api';
+import type { Character, Commit, IngestionStatus, InteractionMode } from '../types/api';
 import * as api from '../lib/api';
 
 export function useApi() {

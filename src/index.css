@@ -9,81 +9,120 @@
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
 
-    /* ── Light Mode (default) ── */
-    --background: 40 33% 97%;              /* #FAF8F5 */
-    --foreground: 0 0% 10%;                /* #1A1A1A */
-    --card: 0 0% 100%;                     /* #FFFFFF */
-    --card-foreground: 0 0% 10%;           /* #1A1A1A */
-    --popover: 0 0% 100%;                  /* #FFFFFF */
-    --popover-foreground: 0 0% 10%;        /* #1A1A1A */
-    --primary: 258 31% 41%;                /* #5B4B8A deep plum */
-    --primary-foreground: 0 0% 100%;       /* #FFFFFF */
-    --secondary: 36 24% 93%;              /* #F2EFE9 warm parchment */
-    --secondary-foreground: 0 0% 10%;      /* #1A1A1A */
-    --muted: 35 20% 90%;                   /* #EAE5DC muted tan */
-    --muted-foreground: 24 6% 40%;         /* #6B6560 */
-    --accent: 22 51% 50%;                  /* #C2703E burnt sienna */
-    --accent-foreground: 0 0% 100%;        /* #FFFFFF */
-    --destructive: 0 52% 47%;              /* #B83A3A */
-    --destructive-foreground: 0 0% 98%;    /* #FAFAFA */
-    --border: 30 14% 84%;                  /* #DDD8D0 */
-    --input: 36 24% 93%;                   /* #F2EFE9 */
-    --ring: 258 31% 41%;                   /* #5B4B8A */
-    --radius: 1rem;
+    /* ═══ FFT IVALICE PALETTE — LIGHT ═══ */
+    --background: 38 28% 94%;
+    --foreground: 220 18% 12%;
+    --card: 40 22% 97%;
+    --card-foreground: 220 18% 12%;
+    --popover: 40 22% 97%;
+    --popover-foreground: 220 18% 12%;
+
+    /* Primary: FFT royal gold */
+    --primary: 44 55% 44%;
+    --primary-foreground: 38 28% 94%;
+
+    /* Secondary: soft parchment */
+    --secondary: 38 20% 89%;
+    --secondary-foreground: 220 18% 12%;
+
+    --muted: 38 14% 84%;
+    --muted-foreground: 220 10% 40%;
+
+    /* Accent: Ivalice midnight blue */
+    --accent: 218 42% 22%;
+    --accent-foreground: 38 28% 94%;
+
+    --destructive: 0 55% 40%;
+    --destructive-foreground: 38 28% 94%;
+
+    --border: 38 16% 78%;
+    --input: 38 20% 89%;
+    --ring: 44 55% 44%;
+
+    --radius: 0.75rem;
 
     /* ── Sidebar tokens (light) ── */
-    --sidebar-background: 40 33% 97%;
-    --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 258 31% 41%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 36 24% 93%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 30 14% 84%;
-    --sidebar-ring: 258 31% 41%;
+    --sidebar-background: 38 22% 91%;
+    --sidebar-foreground: 220 18% 12%;
+    --sidebar-primary: 44 55% 44%;
+    --sidebar-primary-foreground: 38 28% 94%;
+    --sidebar-accent: 38 16% 84%;
+    --sidebar-accent-foreground: 220 18% 12%;
+    --sidebar-border: 38 14% 78%;
+    --sidebar-ring: 44 55% 44%;
+
+    /* ── FFT Zodiac / Materia accent colors ── */
+    --zodiac-fire: 15 75% 50%;
+    --zodiac-earth: 140 35% 35%;
+    --zodiac-wind: 44 65% 55%;
+    --zodiac-water: 210 55% 50%;
+    --zodiac-light: 52 85% 60%;
+    --zodiac-dark: 280 35% 40%;
+    --auracite: 270 50% 55%;
+    --materia-green: 145 60% 40%;
 
     /* ── Shadows (light) ── */
-    --shadow-card: 0 2px 8px rgba(26, 26, 26, 0.06), 0 1px 2px rgba(26, 26, 26, 0.04);
-    --shadow-hover: 0 8px 24px rgba(26, 26, 26, 0.08), 0 2px 6px rgba(26, 26, 26, 0.04);
-    --shadow-elevated: 0 12px 40px rgba(26, 26, 26, 0.10);
+    --shadow-card: 0 2px 8px rgba(27, 42, 74, 0.06), 0 1px 2px rgba(27, 42, 74, 0.04);
+    --shadow-hover: 0 8px 24px rgba(27, 42, 74, 0.10), 0 2px 6px rgba(27, 42, 74, 0.06);
+    --shadow-elevated: 0 12px 40px rgba(27, 42, 74, 0.12);
   }
 
   .dark {
-    /* ── Dark Mode ── */
-    --background: 260 20% 8%;              /* #14121A deep charcoal purple */
-    --foreground: 30 18% 88%;              /* #E8E2D9 warm light */
-    --card: 260 16% 12%;                   /* #1C1924 */
-    --card-foreground: 30 18% 88%;         /* #E8E2D9 */
-    --popover: 260 16% 12%;                /* #1C1924 */
-    --popover-foreground: 30 18% 88%;       /* #E8E2D9 */
-    --primary: 252 39% 64%;                /* #8B7EC8 soft lavender */
-    --primary-foreground: 260 20% 8%;      /* #14121A */
-    --secondary: 260 12% 16%;              /* #252230 dark slate */
-    --secondary-foreground: 30 18% 88%;    /* #E8E2D9 */
-    --muted: 260 14% 18%;                  /* #2A2638 muted purple-grey */
-    --muted-foreground: 25 8% 55%;          /* #908980 */
-    --accent: 26 55% 57%;                  /* #D4884F amber-orange */
-    --accent-foreground: 260 20% 8%;     /* #14121A */
-    --destructive: 0 45% 53%;             /* #C45050 */
-    --destructive-foreground: 0 0% 98%;    /* #FAFAFA */
-    --border: 260 13% 21%;                 /* #2E2A3A */
-    --input: 260 12% 16%;                  /* #252230 */
-    --ring: 252 39% 64%;                   /* #8B7EC8 */
-    --radius: 1rem;
+    /* ═══ FFT IVALICE PALETTE — DARK ═══ */
+    --background: 225 28% 8%;
+    --foreground: 38 20% 88%;
+    --card: 225 22% 12%;
+    --card-foreground: 38 20% 88%;
+    --popover: 225 22% 12%;
+    --popover-foreground: 38 20% 88%;
+
+    /* Primary: brightened gold for dark mode */
+    --primary: 44 65% 56%;
+    --primary-foreground: 225 28% 8%;
+
+    --secondary: 225 18% 16%;
+    --secondary-foreground: 38 20% 88%;
+
+    --muted: 225 14% 20%;
+    --muted-foreground: 38 12% 55%;
+
+    /* Accent: Auracite glow */
+    --accent: 270 50% 55%;
+    --accent-foreground: 225 28% 8%;
+
+    --destructive: 0 50% 52%;
+    --destructive-foreground: 38 20% 88%;
+
+    --border: 225 16% 22%;
+    --input: 225 18% 16%;
+    --ring: 44 65% 56%;
+
+    --radius: 0.75rem;
 
     /* ── Sidebar tokens (dark) ── */
-    --sidebar-background: 260 20% 8%;
-    --sidebar-foreground: 30 18% 88%;
-    --sidebar-primary: 252 39% 64%;
-    --sidebar-primary-foreground: 260 20% 8%;
-    --sidebar-accent: 260 12% 16%;
-    --sidebar-accent-foreground: 30 18% 88%;
-    --sidebar-border: 260 13% 21%;
-    --sidebar-ring: 252 39% 64%;
+    --sidebar-background: 225 28% 8%;
+    --sidebar-foreground: 38 20% 88%;
+    --sidebar-primary: 44 65% 56%;
+    --sidebar-primary-foreground: 225 28% 8%;
+    --sidebar-accent: 225 18% 16%;
+    --sidebar-accent-foreground: 38 20% 88%;
+    --sidebar-border: 225 16% 22%;
+    --sidebar-ring: 44 65% 56%;
+
+    /* ── FFT Zodiac / Materia accent colors (dark) ── */
+    --zodiac-fire: 20 80% 55%;
+    --zodiac-earth: 140 40% 45%;
+    --zodiac-wind: 44 70% 60%;
+    --zodiac-water: 210 60% 55%;
+    --zodiac-light: 52 90% 65%;
+    --zodiac-dark: 280 45% 50%;
+    --auracite: 270 55% 60%;
+    --materia-green: 145 65% 45%;
 
     /* ── Shadows (dark) ── */
-    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15);
-    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.20);
-    --shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.40);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.30), 0 1px 2px rgba(0, 0, 0, 0.20);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.40), 0 2px 6px rgba(0, 0, 0, 0.25);
+    --shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.50);
   }
 }
 
@@ -104,20 +143,17 @@
     transition: background-color 0.2s ease-out, color 0.2s ease-out;
   }
 
-  /* Serif headings by default for h1–h3 */
   h1, h2, h3 {
     font-family: var(--font-serif);
     font-weight: 600;
   }
 
-  /* Monospace for code */
   code, pre, kbd, samp {
     font-family: var(--font-mono);
   }
 }
 
 @layer utilities {
-  /* Utility classes for the custom shadow variables */
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
@@ -128,7 +164,6 @@
     box-shadow: var(--shadow-elevated);
   }
 
-  /* Font utility classes */
   .font-serif {
     font-family: var(--font-serif);
   }
@@ -138,6 +173,28 @@
   .font-mono {
     font-family: var(--font-mono);
   }
+
+  /* ── FFT-specific utilities ── */
+  .text-gold {
+    color: hsl(var(--primary));
+  }
+  .text-auracite {
+    color: hsl(var(--auracite));
+  }
+  .bg-auracite-glow {
+    background: radial-gradient(circle, hsl(var(--auracite) / 0.15) 0%, transparent 70%);
+  }
+  .border-gold {
+    border-color: hsl(var(--primary) / 0.4);
+  }
+
+  /* Zodiac sign colors */
+  .zodiac-fire { color: hsl(var(--zodiac-fire)); }
+  .zodiac-earth { color: hsl(var(--zodiac-earth)); }
+  .zodiac-wind { color: hsl(var(--zodiac-wind)); }
+  .zodiac-water { color: hsl(var(--zodiac-water)); }
+  .zodiac-light { color: hsl(var(--zodiac-light)); }
+  .zodiac-dark { color: hsl(var(--zodiac-dark)); }
 }
 
 /* ── Reduced motion ── */
@@ -147,4 +204,19 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Scrollbar styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--secondary) / 0.3);
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border) / 0.6);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
 }

@@ -53,7 +53,7 @@ export default function LibrarySidebar() {
         <div className="flex items-center gap-2.5 text-sidebar-primary">
           <BookOpen size={22} strokeWidth={1.8} />
           <h1 className="font-serif text-xl font-semibold tracking-tight">
-            Library
+            IvaliceVera
           </h1>
         </div>
       </div>

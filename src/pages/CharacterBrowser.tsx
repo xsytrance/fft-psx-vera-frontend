@@ -42,7 +42,7 @@ export default function CharacterBrowser() {
           <ArrowLeft size={16} />
           Project
         </Button>
-        <Button size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-700" onClick={() => {}}>
+        <Button size="sm" className="gap-2 bg-primary hover:bg-primary/90" onClick={() => {}}>
           <Plus size={16} />
           Add Character
         </Button>
@@ -50,7 +50,7 @@ export default function CharacterBrowser() {
 
       <div className="space-y-1">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Users size={24} className="text-indigo-400" />
+          <Users size={24} className="text-primary" />
           Characters
         </h1>
         <p className="text-muted-foreground">Browse, search, and manage characters in this project.</p>
@@ -95,7 +95,7 @@ export default function CharacterBrowser() {
           return (
             <Card
               key={char.id}
-              className="bg-card border-border/50 cursor-pointer hover:border-indigo-500/50 hover:bg-card/80 transition-all group"
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:bg-card/80 transition-all group"
               onClick={() => navigate(`/character/${char.id}`)}
             >
               <CardHeader className="pb-2">
@@ -112,7 +112,7 @@ export default function CharacterBrowser() {
                     />
                   </div>
                   <div className="text-right">
-                    <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-300">
+                    <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
                       {char.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
