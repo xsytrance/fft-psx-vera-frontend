@@ -12,6 +12,7 @@ import {
   Sparkles,
   User,
   Bot,
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -26,7 +27,7 @@ import {
 import { toast } from 'sonner';
 import { useChat } from '../context/ChatContext';
 import { useApp } from '../context/AppContext';
-import { mockCharacters, mockCommits, mockCharacterResponses } from '../data/mockData';
+import { sendChatMessage } from '../lib/api';
 import { getCharacterAccent, getCharacterAvatar } from '../lib/theme';
 import type { InteractionMode } from '../types/api';
 
@@ -53,12 +54,14 @@ export default function ChatPage() {
   const { state, dispatch } = useChat();
   const { state: appState } = useApp();
 
-  const currentProjectId = appState.currentProject?.id ?? 1;
-  const characters = appState.characters.length
-    ? appState.characters.filter((c) => c.project_id === currentProjectId)
-    : mockCharacters.filter((c) => c.project_id === currentProjectId);
-  const commits = mockCommits;
-  const conversations = state.conversations.length ? state.conversations : [];
+  const currentProjectId = appState.currentProject?.id ?? appState.projects[0]?.id ?? 0;
+
+  // Get characters from context (loaded by ProjectDetail/AppContext)
+  const allCharacters = useMemo(() => {
+    return appState.characters.filter((c) => c.project_id === currentProjectId);
+  }, [appState.characters, currentProjectId]);
+
+  const conversations = state.conversations;
 
   const convId = conversationId ?? state.activeConversationId;
   const activeConversation = conversations.find((c) => c.id === convId);
@@ -68,29 +71,33 @@ export default function ChatPage() {
 
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const selectedChars = useMemo(() => {
     if (activeConversation) return activeConversation.character_ids;
     if (state.selectedCharacterIds.length) return state.selectedCharacterIds;
     if (initialCharParam) return [Number(initialCharParam)];
-    return [1];
-  }, [activeConversation, state.selectedCharacterIds, initialCharParam]);
+    if (allCharacters.length > 0) return [allCharacters[0].id];
+    return [];
+  }, [activeConversation, state.selectedCharacterIds, initialCharParam, allCharacters]);
 
   const selectedCommit = useMemo(() => {
     if (activeConversation) return activeConversation.commit_id;
     if (state.selectedCommitId) return state.selectedCommitId;
     if (initialCommitParam) return Number(initialCommitParam);
-    return 1;
+    return null;
   }, [activeConversation, state.selectedCommitId, initialCommitParam]);
 
-  const mode = activeConversation?.mode ?? state.mode ?? 'story-locked';
+  const mode = (activeConversation?.mode ?? state.mode ?? 'story-locked') as InteractionMode;
 
-  const commitObj = commits.find((c) => c.id === selectedCommit);
-  const charObjs = characters.filter((c) => selectedChars.includes(c.id));
+  const effectiveCommitId = selectedCommit ?? activeConversation?.commit_id ?? null;
+  // Default to casual mode when no commit is selected (story-locked requires a commit)
+  const effectiveMode = (mode === 'story-locked' && !effectiveCommitId) ? 'casual' : mode;
 
   const primaryCharId = selectedChars[0];
-  const primaryChar = characters.find((c) => c.id === primaryCharId);
+  const primaryChar = allCharacters.find((c) => c.id === primaryCharId);
+  const charObjs = allCharacters.filter((c) => selectedChars.includes(c.id));
   const accentColor = getCharacterAccent(primaryCharId, appState.darkMode);
 
   useEffect(() => {
@@ -98,76 +105,120 @@ export default function ChatPage() {
   }, [activeConversation?.messages]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || sending) return;
     const text = input.trim();
     setInput('');
 
-    let conversation = activeConversation;
-    if (!conversation) {
-      const newConv = {
-        id: `conv-${Date.now()}`,
-        project_id: currentProjectId,
-        character_ids: selectedChars,
-        commit_id: selectedCommit,
-        mode: mode as InteractionMode,
-        title: `Chat with ${charObjs.map((c) => c.name).join(', ')}`,
-        messages: [
-          {
-            role: 'system' as const,
-            content: `System: ${mode} mode at ${commitObj?.title ?? 'unknown'}`,
-          },
-        ],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      dispatch({ type: 'CREATE_CONVERSATION', payload: newConv });
-      conversation = newConv;
+    // Use the context conversation ID if it matches, otherwise let the backend create one
+    const existingConvId = activeConversation?.id;
+
+    // Dispatch user message to context immediately
+    const userMsg = { role: 'user' as const, content: text };
+    if (existingConvId) {
+      dispatch({
+        type: 'SEND_MESSAGE',
+        payload: { conversationId: existingConvId, message: userMsg },
+      });
     }
 
-    dispatch({
-      type: 'SEND_MESSAGE',
-      payload: { conversationId: conversation.id, message: { role: 'user', content: text } },
-    });
-
     setSending(true);
-    await new Promise((r) => setTimeout(r, 800 + Math.random() * 1000));
-    setSending(false);
+    try {
+      const response = await sendChatMessage({
+        conversation_id: existingConvId ?? null,
+        project_id: currentProjectId,
+        character_ids: selectedChars,
+        commit_id: effectiveCommitId ?? undefined,
+        mode: effectiveMode,
+        message: text,
+      });
 
-    if (mode === 'multi-character' && selectedChars.length > 1) {
-      for (const charId of selectedChars) {
-        const char = characters.find((c) => c.id === charId);
-        const responses = mockCharacterResponses[charId] ?? ['...'];
-        const response = responses[Math.floor(Math.random() * responses.length)];
+      // Create conversation in context if new
+      if (!existingConvId && response.conversation_id) {
+        const newConv = {
+          id: response.conversation_id,
+          project_id: currentProjectId,
+          character_ids: selectedChars,
+          commit_id: effectiveCommitId,
+          mode,
+          title: `Chat with ${charObjs.map((c) => c.name).join(', ')}`,
+          messages: [
+            userMsg,
+            {
+              role: 'assistant' as const,
+              content: response.message.content,
+              character_id: response.message.character_id,
+              character_name: response.message.character_name,
+            },
+          ],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        dispatch({ type: 'CREATE_CONVERSATION', payload: newConv });
+      } else if (existingConvId) {
+        // Add assistant response to existing conversation
         dispatch({
           type: 'RECEIVE_MESSAGE',
           payload: {
-            conversationId: conversation.id,
+            conversationId: existingConvId,
             message: {
-              role: 'assistant',
-              content: response,
-              character_id: charId,
-              character_name: char?.name ?? 'Unknown',
+              role: 'assistant' as const,
+              content: response.message.content,
+              character_id: response.message.character_id,
+              character_name: response.message.character_name,
             },
           },
         });
       }
-    } else {
-      const primaryCharId = selectedChars[0];
-      const char = characters.find((c) => c.id === primaryCharId);
-      const responses = mockCharacterResponses[primaryCharId] ?? ['...'];
-      const response = responses[Math.floor(Math.random() * responses.length)];
-      dispatch({
-        type: 'RECEIVE_MESSAGE',
-        payload: {
-          conversationId: conversation.id,
-          message: {
-            role: 'assistant',
-            content: response,
-            character_id: primaryCharId,
-            character_name: char?.name ?? 'Unknown',
-          },
-        },
+    } catch (err: any) {
+      console.error('[Chat] Send error:', err);
+      toast.error(`Chat error: ${err.message}`);
+      // Remove the user message we optimistically added
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (!activeConversation || regenerating) return;
+    const msgs = activeConversation.messages;
+    // Find last user message
+    let lastUserIdx = -1;
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].role === 'user') { lastUserIdx = i; break; }
+    }
+    if (lastUserIdx === -1) return;
+
+    const lastUserMsg = msgs[lastUserIdx].content;
+    setRegenerating(true);
+    try {
+      const response = await sendChatMessage({
+        conversation_id: activeConversation.id,
+        project_id: currentProjectId,
+        character_ids: selectedChars,
+        commit_id: effectiveCommitId ?? undefined,
+        mode: effectiveMode,
+        message: `__regenerate__ ${lastUserMsg}`,
       });
+
+      // Remove messages after last user message, then add new response
+      // Just update the conversation with trimmed messages + new response
+      const trimmedMsgs = msgs.slice(0, lastUserIdx + 1);
+      trimmedMsgs.push({
+        role: 'assistant' as const,
+        content: response.message.content,
+        character_id: response.message.character_id,
+        character_name: response.message.character_name,
+      });
+
+      const updatedConv = { ...activeConversation, messages: trimmedMsgs, updated_at: new Date().toISOString() };
+      // Remove old, add updated
+      dispatch({ type: 'DELETE_CONVERSATION', payload: activeConversation.id });
+      dispatch({ type: 'CREATE_CONVERSATION', payload: updatedConv });
+      toast.success('Response regenerated');
+    } catch (err: any) {
+      toast.error(`Regenerate failed: ${err.message}`);
+    } finally {
+      setRegenerating(false);
     }
   };
 
@@ -200,7 +251,7 @@ export default function ChatPage() {
         aria-hidden="true"
       />
 
-      {/* Left Sidebar: Conversations & Character Selector */}
+      {/* Left Sidebar: Character Selector & Conversations */}
       <div className="w-72 border-r border-border flex flex-col bg-secondary/20 z-10">
         <div className="p-3 border-b border-border">
           <div className="flex items-center justify-between mb-2">
@@ -213,19 +264,18 @@ export default function ChatPage() {
               size="icon"
               className="h-7 w-7"
               onClick={() => {
+                if (allCharacters.length === 0 || currentProjectId === 0) {
+                  toast.error('No project or characters available');
+                  return;
+                }
                 const newConv = {
                   id: `conv-${Date.now()}`,
                   project_id: currentProjectId,
-                  character_ids: characters.length > 0 ? [characters[0].id] : [1],
-                  commit_id: 1,
+                  character_ids: [allCharacters[0].id],
+                  commit_id: null,
                   mode: 'story-locked' as InteractionMode,
-                  title: 'New Conversation',
-                  messages: [
-                    {
-                      role: 'system' as const,
-                      content: 'System context initialized.',
-                    },
-                  ],
+                  title: `Chat with ${allCharacters[0].name}`,
+                  messages: [],
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString(),
                 };
@@ -237,7 +287,7 @@ export default function ChatPage() {
             </Button>
           </div>
           <div className="space-y-1">
-            {characters.map((char) => {
+            {allCharacters.map((char) => {
               const charAccent = getCharacterAccent(char.id, appState.darkMode);
               const charAvatar = getCharacterAvatar(char.id);
               return (
@@ -268,7 +318,7 @@ export default function ChatPage() {
                   </div>
                   <span className="truncate">{char.name}</span>
                   {selectedChars.includes(char.id) && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
                   )}
                 </button>
               );
@@ -343,7 +393,7 @@ export default function ChatPage() {
                 {charObjs.map((c) => c.name).join(', ') || 'No character selected'}
               </div>
               <div className="text-xs text-muted-foreground truncate">
-                {commitObj?.title ?? 'No checkpoint'} • {commitObj?.chapter}
+                {modeLabels[mode]} • Project #{currentProjectId}
               </div>
             </div>
           </div>
@@ -375,6 +425,17 @@ export default function ChatPage() {
             </Badge>
           )}
 
+          {activeConversation && activeConversation.messages.length > 0 && (
+            <Button
+              variant="ghost" size="icon" className="shrink-0"
+              onClick={handleRegenerate}
+              disabled={regenerating}
+              title="Regenerate last response"
+            >
+              <RotateCcw size={16} className={regenerating ? 'animate-spin' : ''} />
+            </Button>
+          )}
+
           <Button variant="ghost" size="icon" className="shrink-0" onClick={handleExport} title="Export conversation">
             <Download size={16} />
           </Button>
@@ -383,6 +444,13 @@ export default function ChatPage() {
         {/* Messages */}
         <ScrollArea className="flex-1 px-4 py-4">
           <div className="space-y-4 max-w-3xl mx-auto">
+            {(activeConversation?.messages ?? []).length === 0 && (
+              <div className="text-center py-16 text-muted-foreground">
+                <Bot size={32} className="mx-auto mb-3 opacity-30" />
+                <p className="text-sm">Start a conversation with {primaryChar?.name ?? 'a character'}...</p>
+                <p className="text-xs mt-1 opacity-60">Ask about the story, request hints, or just chat.</p>
+              </div>
+            )}
             {(activeConversation?.messages ?? []).map((msg, i) => {
               const msgAccent = msg.character_id
                 ? getCharacterAccent(msg.character_id, appState.darkMode)
@@ -453,7 +521,7 @@ export default function ChatPage() {
                   </div>
                   <div className="bg-primary/10 rounded-lg px-3 py-2 text-sm text-primary border border-primary/20 flex items-center gap-1">
                     <Sparkles size={12} className="animate-pulse" />
-                    Typing...
+                    Thinking...
                   </div>
                 </div>
               </div>
@@ -466,7 +534,7 @@ export default function ChatPage() {
         <div className="border-t border-border px-4 py-3 bg-card/30 shrink-0">
           <div className="max-w-3xl mx-auto flex gap-2">
             <Input
-              placeholder="Send a message..."
+              placeholder={primaryChar ? `Message ${primaryChar.name}...` : 'Select a character to chat...'}
               className="bg-secondary/50"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -476,13 +544,13 @@ export default function ChatPage() {
                   handleSend();
                 }
               }}
-              disabled={sending}
+              disabled={sending || !allCharacters.length}
             />
             <Button
               size="icon"
               className="bg-primary hover:bg-primary/90 shrink-0"
               onClick={handleSend}
-              disabled={sending || !input.trim()}
+              disabled={sending || !input.trim() || !allCharacters.length}
             >
               <Send size={16} />
             </Button>

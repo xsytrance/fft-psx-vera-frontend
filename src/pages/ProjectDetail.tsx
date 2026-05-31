@@ -14,7 +14,7 @@ import { useApp } from '../context/AppContext';
 export default function ProjectDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { state: appState } = useApp();
+  const { state: appState, dispatch: appDispatch } = useApp();
   const [tab, setTab] = useState('characters');
   const [fetchedProject, setFetchedProject] = useState<any>(null);
   const [fetchedCharacters, setFetchedCharacters] = useState<any[]>([]);
@@ -34,7 +34,10 @@ export default function ProjectDetail() {
         .then(r => r.json())
         .then(chars => {
           console.log('[PD] Got chars:', chars?.length);
-          if (Array.isArray(chars)) setFetchedCharacters(chars);
+          if (Array.isArray(chars)) {
+            setFetchedCharacters(chars);
+            appDispatch({ type: 'SET_CHARACTERS', payload: chars });
+          }
         })
         .catch(e => console.error('[PD] Char error:', e.message));
       return;
@@ -54,7 +57,10 @@ export default function ProjectDetail() {
       .then(r => r.json())
       .then(chars => {
         console.log('[PD] Got chars:', chars?.length);
-        if (Array.isArray(chars)) setFetchedCharacters(chars);
+        if (Array.isArray(chars)) {
+          setFetchedCharacters(chars);
+          appDispatch({ type: 'SET_CHARACTERS', payload: chars });
+        }
       })
       .catch(e => console.error('[PD] Error:', e.message));
   }, [projectId]);

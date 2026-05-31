@@ -128,8 +128,8 @@ export async function sendChatMessage(data: {
   commit_id?: number;
   mode: InteractionMode;
   message: string;
-}): Promise<{ message: Message }> {
-  return fetchJson<{ message: Message }>('/chat', {
+}): Promise<{ conversation_id: string; message: Message; mode: string; knowledge_gate_active: boolean }> {
+  return fetchJson<{ conversation_id: string; message: Message; mode: string; knowledge_gate_active: boolean }>('/chat', {
     method: 'POST',
     body: JSON.stringify(data),
   });

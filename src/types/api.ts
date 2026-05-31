@@ -82,7 +82,7 @@ export interface Conversation {
   id: string;
   project_id: number;
   character_ids: number[];
-  commit_id: number;
+  commit_id: number | null;
   mode: InteractionMode;
   title: string;
   messages: Message[];
