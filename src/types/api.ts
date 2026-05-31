@@ -12,8 +12,8 @@ export interface Project {
   created_at: string;
   updated_at: string;
   sources: string[];
-  character_count: number;
-  commit_count: number;
+  character_count?: number;
+  commit_count?: number;
 }
 
 export interface Character {

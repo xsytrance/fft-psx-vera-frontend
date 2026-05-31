@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useApi } from '../hooks/useApi';
+import { useApp } from '../context/AppContext';
 import { Upload, FileUp, CheckCircle, AlertCircle, Loader2, Sword, Users, MapPin } from 'lucide-react';
 
 export default function SaveUpload() {
   const api = useApi();
   const navigate = useNavigate();
+  const { dispatch } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
   
   const [file, setFile] = useState<File | null>(null);
@@ -32,10 +34,24 @@ export default function SaveUpload() {
     const res = await api.createProjectFromSave(file, 'Final Fantasy Tactics');
     if (res) {
       setCreated(res);
+      // Add project to context so it's available when we navigate
+      dispatch({
+        type: 'ADD_PROJECT',
+        payload: {
+          id: res.project_id,
+          name: res.project_name,
+          description: 'Uploaded from FFT save file',
+          sources: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          character_count: res.characters_created,
+          commit_count: res.commits_created,
+        },
+      });
       // Navigate to the project after a short delay
       setTimeout(() => {
         navigate(`/project/${res.project_id}`);
-      }, 2000);
+      }, 3000);
     }
   };
 
