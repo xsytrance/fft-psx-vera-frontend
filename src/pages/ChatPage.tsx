@@ -31,6 +31,28 @@ import { sendChatMessage } from '../lib/api';
 import { getCharacterAccent, getCharacterAvatar } from '../lib/theme';
 import type { InteractionMode } from '../types/api';
 
+// Reuse settings loader from SettingsPage
+interface LlmSettings {
+  provider: 'ollama' | 'openrouter';
+  ollamaHost: string;
+  ollamaModel: string;
+  openrouterApiKey: string;
+  openrouterModel: string;
+}
+function getLlmSettings(): LlmSettings {
+  try {
+    const raw = localStorage.getItem('ivalicevera-llm-settings');
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {
+    provider: 'ollama',
+    ollamaHost: 'http://100.110.224.126:11434',
+    ollamaModel: 'llama3.1:8b',
+    openrouterApiKey: '',
+    openrouterModel: 'meta-llama/llama-3.1-8b-instruct:free',
+  };
+}
+
 const modeLabels: Record<InteractionMode, string> = {
   'story-locked': 'Story-Locked',
   'post-end': 'Post-End',
@@ -109,10 +131,7 @@ export default function ChatPage() {
     const text = input.trim();
     setInput('');
 
-    // Use the context conversation ID if it matches, otherwise let the backend create one
     const existingConvId = activeConversation?.id;
-
-    // Dispatch user message to context immediately
     const userMsg = { role: 'user' as const, content: text };
     if (existingConvId) {
       dispatch({
@@ -123,14 +142,46 @@ export default function ChatPage() {
 
     setSending(true);
     try {
-      const response = await sendChatMessage({
-        conversation_id: existingConvId ?? null,
-        project_id: currentProjectId,
-        character_ids: selectedChars,
-        commit_id: effectiveCommitId ?? undefined,
-        mode: effectiveMode,
-        message: text,
-      });
+      const settings = getLlmSettings();
+      let response: { conversation_id: string; message: any; mode: string };
+
+      if (settings.provider === 'openrouter') {
+        if (!settings.openrouterApiKey) {
+          toast.error('OpenRouter API key not set — go to Settings → Provider');
+          setSending(false);
+          return;
+        }
+        // Call OpenRouter endpoint
+        const res = await fetch('/api/chat/openrouter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversation_id: existingConvId ?? null,
+            project_id: currentProjectId,
+            character_ids: selectedChars,
+            commit_id: effectiveCommitId ?? undefined,
+            mode: effectiveMode,
+            message: text,
+            model: settings.openrouterModel,
+            api_key: settings.openrouterApiKey,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(err.detail || `HTTP ${res.status}`);
+        }
+        response = await res.json();
+      } else {
+        // Default Ollama path (through backend)
+        response = await sendChatMessage({
+          conversation_id: existingConvId ?? null,
+          project_id: currentProjectId,
+          character_ids: selectedChars,
+          commit_id: effectiveCommitId ?? undefined,
+          mode: effectiveMode,
+          message: text,
+        });
+      }
 
       // Create conversation in context if new
       if (!existingConvId && response.conversation_id) {
@@ -138,8 +189,8 @@ export default function ChatPage() {
           id: response.conversation_id,
           project_id: currentProjectId,
           character_ids: selectedChars,
-          commit_id: effectiveCommitId,
-          mode,
+          commit_id: effectiveCommitId ?? null,
+          mode: response.mode as InteractionMode,
           title: `Chat with ${charObjs.map((c) => c.name).join(', ')}`,
           messages: [
             userMsg,
@@ -155,7 +206,6 @@ export default function ChatPage() {
         };
         dispatch({ type: 'CREATE_CONVERSATION', payload: newConv });
       } else if (existingConvId) {
-        // Add assistant response to existing conversation
         dispatch({
           type: 'RECEIVE_MESSAGE',
           payload: {
@@ -172,7 +222,6 @@ export default function ChatPage() {
     } catch (err: any) {
       console.error('[Chat] Send error:', err);
       toast.error(`Chat error: ${err.message}`);
-      // Remove the user message we optimistically added
     } finally {
       setSending(false);
     }
@@ -181,7 +230,6 @@ export default function ChatPage() {
   const handleRegenerate = async () => {
     if (!activeConversation || regenerating) return;
     const msgs = activeConversation.messages;
-    // Find last user message
     let lastUserIdx = -1;
     for (let i = msgs.length - 1; i >= 0; i--) {
       if (msgs[i].role === 'user') { lastUserIdx = i; break; }
@@ -191,17 +239,45 @@ export default function ChatPage() {
     const lastUserMsg = msgs[lastUserIdx].content;
     setRegenerating(true);
     try {
-      const response = await sendChatMessage({
-        conversation_id: activeConversation.id,
-        project_id: currentProjectId,
-        character_ids: selectedChars,
-        commit_id: effectiveCommitId ?? undefined,
-        mode: effectiveMode,
-        message: `__regenerate__ ${lastUserMsg}`,
-      });
+      const settings = getLlmSettings();
+      let response: { conversation_id: string; message: any; mode: string };
 
-      // Remove messages after last user message, then add new response
-      // Just update the conversation with trimmed messages + new response
+      if (settings.provider === 'openrouter') {
+        if (!settings.openrouterApiKey) {
+          toast.error('OpenRouter API key not set');
+          setRegenerating(false);
+          return;
+        }
+        const res = await fetch('/api/chat/openrouter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversation_id: activeConversation.id,
+            project_id: currentProjectId,
+            character_ids: selectedChars,
+            commit_id: effectiveCommitId ?? undefined,
+            mode: effectiveMode,
+            message: `__regenerate__ ${lastUserMsg}`,
+            model: settings.openrouterModel,
+            api_key: settings.openrouterApiKey,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(err.detail || `HTTP ${res.status}`);
+        }
+        response = await res.json();
+      } else {
+        response = await sendChatMessage({
+          conversation_id: activeConversation.id,
+          project_id: currentProjectId,
+          character_ids: selectedChars,
+          commit_id: effectiveCommitId ?? undefined,
+          mode: effectiveMode,
+          message: `__regenerate__ ${lastUserMsg}`,
+        });
+      }
+
       const trimmedMsgs = msgs.slice(0, lastUserIdx + 1);
       trimmedMsgs.push({
         role: 'assistant' as const,
@@ -211,7 +287,6 @@ export default function ChatPage() {
       });
 
       const updatedConv = { ...activeConversation, messages: trimmedMsgs, updated_at: new Date().toISOString() };
-      // Remove old, add updated
       dispatch({ type: 'DELETE_CONVERSATION', payload: activeConversation.id });
       dispatch({ type: 'CREATE_CONVERSATION', payload: updatedConv });
       toast.success('Response regenerated');
