@@ -27,7 +27,6 @@ import {
 import { toast } from 'sonner';
 import { useChat } from '../context/ChatContext';
 import { useApp } from '../context/AppContext';
-import { sendChatMessage } from '../lib/api';
 import { getCharacterAccent, getCharacterAvatar } from '../lib/theme';
 import type { InteractionMode } from '../types/api';
 
@@ -51,6 +50,51 @@ function getLlmSettings(): LlmSettings {
     openrouterApiKey: '',
     openrouterModel: 'meta-llama/llama-3.1-8b-instruct:free',
   };
+}
+
+// ── SSE streaming helper ─────────────────────────────────────────────────────
+interface StreamChatOpts {
+  url: string;
+  body: Record<string, any>;
+  onMeta: (meta: { conversation_id: string; character_id: number; character_name: string; mode: string }) => void;
+  onToken: (token: string) => void;
+  onError: (error: string) => void;
+}
+async function streamChat(opts: StreamChatOpts): Promise<void> {
+  const res = await fetch(opts.url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(opts.body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || `HTTP ${res.status}`);
+  }
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error('No response body');
+  const decoder = new TextDecoder();
+  let buf = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    // Process complete SSE messages from buffer
+    const parts = buf.split('\n\n');
+    buf = parts.pop() || ''; // keep incomplete chunk
+    for (const part of parts) {
+      for (const line of part.split('\n')) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.type === 'meta') opts.onMeta(data);
+            else if (data.type === 'token') opts.onToken(data.content);
+            else if (data.type === 'done') return;
+            else if (data.type === 'error') { opts.onError(data.content); return; }
+          } catch { /* skip malformed */ }
+        }
+      }
+    }
+  }
 }
 
 const modeLabels: Record<InteractionMode, string> = {
@@ -143,7 +187,22 @@ export default function ChatPage() {
     setSending(true);
     try {
       const settings = getLlmSettings();
-      let response: { conversation_id: string; message: any; mode: string };
+
+      // Build the request body
+      const baseBody = {
+        conversation_id: existingConvId ?? null,
+        project_id: currentProjectId,
+        character_ids: selectedChars,
+        commit_id: effectiveCommitId ?? undefined,
+        mode: effectiveMode,
+        message: text,
+      };
+
+      let convId = existingConvId;
+      let assistantText = '';
+      let charId: number | undefined;
+      let charName: string | undefined;
+      let responseMode: InteractionMode | string = effectiveMode;
 
       if (settings.provider === 'openrouter') {
         if (!settings.openrouterApiKey) {
@@ -151,72 +210,64 @@ export default function ChatPage() {
           setSending(false);
           return;
         }
-        // Call OpenRouter endpoint
-        const res = await fetch('/api/chat/openrouter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            conversation_id: existingConvId ?? null,
-            project_id: currentProjectId,
-            character_ids: selectedChars,
-            commit_id: effectiveCommitId ?? undefined,
-            mode: effectiveMode,
-            message: text,
-            model: settings.openrouterModel,
-            api_key: settings.openrouterApiKey,
-          }),
+        // Streaming via OpenRouter
+        await streamChat({
+          url: '/api/chat/openrouter/stream',
+          body: { ...baseBody, model: settings.openrouterModel, api_key: settings.openrouterApiKey },
+          onMeta: (meta) => {
+            convId = meta.conversation_id;
+            charId = meta.character_id;
+            charName = meta.character_name;
+            responseMode = meta.mode;
+          },
+          onToken: (token) => { assistantText += token; },
+          onError: (err) => { throw new Error(err); },
         });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ detail: res.statusText }));
-          throw new Error(err.detail || `HTTP ${res.status}`);
-        }
-        response = await res.json();
       } else {
-        // Default Ollama path (through backend)
-        response = await sendChatMessage({
-          conversation_id: existingConvId ?? null,
-          project_id: currentProjectId,
-          character_ids: selectedChars,
-          commit_id: effectiveCommitId ?? undefined,
-          mode: effectiveMode,
-          message: text,
+        // Streaming via Ollama
+        await streamChat({
+          url: '/api/chat/stream',
+          body: baseBody,
+          onMeta: (meta) => {
+            convId = meta.conversation_id;
+            charId = meta.character_id;
+            charName = meta.character_name;
+            responseMode = meta.mode;
+          },
+          onToken: (token) => { assistantText += token; },
+          onError: (err) => { throw new Error(err); },
         });
       }
 
-      // Create conversation in context if new
-      if (!existingConvId && response.conversation_id) {
+      // Create or update conversation in context
+      const assistantMsg = {
+        role: 'assistant' as const,
+        content: assistantText,
+        character_id: charId,
+        character_name: charName,
+      };
+
+      if (!convId) {
+        throw new Error('No conversation ID received from server');
+      }
+
+      if (!existingConvId) {
         const newConv = {
-          id: response.conversation_id,
+          id: convId,
           project_id: currentProjectId,
           character_ids: selectedChars,
           commit_id: effectiveCommitId ?? null,
-          mode: response.mode as InteractionMode,
+          mode: responseMode as InteractionMode,
           title: `Chat with ${charObjs.map((c) => c.name).join(', ')}`,
-          messages: [
-            userMsg,
-            {
-              role: 'assistant' as const,
-              content: response.message.content,
-              character_id: response.message.character_id,
-              character_name: response.message.character_name,
-            },
-          ],
+          messages: [userMsg, assistantMsg],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
         dispatch({ type: 'CREATE_CONVERSATION', payload: newConv });
-      } else if (existingConvId) {
+      } else {
         dispatch({
           type: 'RECEIVE_MESSAGE',
-          payload: {
-            conversationId: existingConvId,
-            message: {
-              role: 'assistant' as const,
-              content: response.message.content,
-              character_id: response.message.character_id,
-              character_name: response.message.character_name,
-            },
-          },
+          payload: { conversationId: existingConvId, message: assistantMsg },
         });
       }
     } catch (err: any) {
@@ -240,7 +291,19 @@ export default function ChatPage() {
     setRegenerating(true);
     try {
       const settings = getLlmSettings();
-      let response: { conversation_id: string; message: any; mode: string };
+
+      const baseBody = {
+        conversation_id: activeConversation.id,
+        project_id: currentProjectId,
+        character_ids: selectedChars,
+        commit_id: effectiveCommitId ?? undefined,
+        mode: effectiveMode,
+        message: `__regenerate__ ${lastUserMsg}`,
+      };
+
+      let assistantText = '';
+      let charId: number | undefined;
+      let charName: string | undefined;
 
       if (settings.provider === 'openrouter') {
         if (!settings.openrouterApiKey) {
@@ -248,42 +311,29 @@ export default function ChatPage() {
           setRegenerating(false);
           return;
         }
-        const res = await fetch('/api/chat/openrouter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            conversation_id: activeConversation.id,
-            project_id: currentProjectId,
-            character_ids: selectedChars,
-            commit_id: effectiveCommitId ?? undefined,
-            mode: effectiveMode,
-            message: `__regenerate__ ${lastUserMsg}`,
-            model: settings.openrouterModel,
-            api_key: settings.openrouterApiKey,
-          }),
+        await streamChat({
+          url: '/api/chat/openrouter/stream',
+          body: { ...baseBody, model: settings.openrouterModel, api_key: settings.openrouterApiKey },
+          onMeta: (meta) => { charId = meta.character_id; charName = meta.character_name; },
+          onToken: (token) => { assistantText += token; },
+          onError: (err) => { throw new Error(err); },
         });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ detail: res.statusText }));
-          throw new Error(err.detail || `HTTP ${res.status}`);
-        }
-        response = await res.json();
       } else {
-        response = await sendChatMessage({
-          conversation_id: activeConversation.id,
-          project_id: currentProjectId,
-          character_ids: selectedChars,
-          commit_id: effectiveCommitId ?? undefined,
-          mode: effectiveMode,
-          message: `__regenerate__ ${lastUserMsg}`,
+        await streamChat({
+          url: '/api/chat/stream',
+          body: baseBody,
+          onMeta: (meta) => { charId = meta.character_id; charName = meta.character_name; },
+          onToken: (token) => { assistantText += token; },
+          onError: (err) => { throw new Error(err); },
         });
       }
 
       const trimmedMsgs = msgs.slice(0, lastUserIdx + 1);
       trimmedMsgs.push({
         role: 'assistant' as const,
-        content: response.message.content,
-        character_id: response.message.character_id,
-        character_name: response.message.character_name,
+        content: assistantText,
+        character_id: charId,
+        character_name: charName,
       });
 
       const updatedConv = { ...activeConversation, messages: trimmedMsgs, updated_at: new Date().toISOString() };
