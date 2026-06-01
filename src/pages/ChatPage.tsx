@@ -307,7 +307,7 @@ export default function ChatPage() {
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted/60 text-foreground'
                     }`}
-                    style={{ color: msg.role === 'assistant' ? '#000000' : undefined }}
+                    style={{ color: msg.role === 'assistant' ? 'hsl(var(--foreground))' : undefined }}
                   >
                     {msg.role === 'assistant' && (
                       <p className="text-[10px] font-semibold text-primary/60 mb-1">
