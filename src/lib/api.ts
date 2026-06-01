@@ -141,6 +141,7 @@ export async function chat(
   projectId: number,
   characterId: number,
   message: string,
+  signal?: AbortSignal,
 ): Promise<{ response: string; character_name: string; model: string }> {
   return fetchJson<{ response: string; character_name: string; model: string }>('/chat', {
     method: 'POST',
@@ -149,6 +150,7 @@ export async function chat(
       character_id: characterId,
       message,
     }),
+    signal,
   });
 }
 
