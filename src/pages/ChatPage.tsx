@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import CharacterAvatar from '../components/CharacterAvatar';
 import * as apiClient from '../lib/api';
 
 // ── Types ──
@@ -42,16 +43,6 @@ interface Conversation {
 }
 
 // ── Constants ──
-
-const CHAR_EMOJIS: Record<string, string> = {
-  crono: '🔴',
-  marle: '🩷',
-  lucca: '🟡',
-  robo: '🟢',
-  frog: '🟩',
-  ayla: '🟤',
-  magus: '🟣',
-};
 
 const ERA_LABELS: Record<string, string> = {
   crono: '1000 AD',
@@ -154,7 +145,7 @@ export default function ChatPage() {
     const msgText = (text || input).trim();
     if (!msgText || !selectedChar || !projectId || isStreaming) return;
 
-    let convId = activeConvId;
+    let convId: string | null = activeConvId;
     if (!convId) {
       convId = newConversation();
       if (!convId) return;
@@ -179,10 +170,12 @@ export default function ChatPage() {
 
     setInput('');
 
+    if (!convId) return;
+
     // Add user message + streaming placeholder
     setConversations(prev =>
       prev.map(c =>
-        c.id === convId
+        c.id === convId!
           ? { ...c, messages: [...c.messages, userMsg, assistantMsg], last_message: msgText, updated_at: Date.now() }
           : c
       )
@@ -376,9 +369,7 @@ export default function ChatPage() {
               }`}
             >
               <div className="flex items-center gap-2">
-                <span className="text-base">
-                  {CHAR_EMOJIS[conv.character_name.toLowerCase()] || '⚪'}
-                </span>
+                <CharacterAvatar slug={conv.character_name.toLowerCase()} name={conv.character_name} size="sm" />
                 <div className="flex-1 min-w-0">
                   <p className="truncate text-sm">{conv.character_name}</p>
                   <p className="text-[10px] text-muted-foreground truncate">
@@ -412,7 +403,7 @@ export default function ChatPage() {
               onClick={() => setShowCharPicker(!showCharPicker)}
               className="flex items-center gap-2 text-sm font-medium"
             >
-              <span className="text-lg">{selectedChar ? CHAR_EMOJIS[selectedChar.slug] || '⚪' : '⏳'}</span>
+              <CharacterAvatar slug={selectedChar?.slug || 'unknown'} name={selectedChar?.name || 'Select'} size="md" />
               <span className="truncate">{selectedChar?.name || 'Select'}</span>
               <ChevronDown size={14} className={`transition-transform ${showCharPicker ? 'rotate-180' : ''}`} />
             </button>
@@ -422,9 +413,7 @@ export default function ChatPage() {
           <div className="hidden md:flex items-center gap-2 flex-1 min-w-0">
             {activeConv && (
               <>
-                <span className="text-lg">
-                  {CHAR_EMOJIS[activeConv.character_name.toLowerCase()] || '⚪'}
-                </span>
+                <CharacterAvatar slug={activeConv.character_name.toLowerCase()} name={activeConv.character_name} size="md" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold truncate">{activeConv.character_name}</p>
                   <p className="text-[10px] text-muted-foreground">
@@ -435,7 +424,7 @@ export default function ChatPage() {
             )}
             {!activeConv && selectedChar && (
               <>
-                <span className="text-lg">{CHAR_EMOJIS[selectedChar.slug] || '⚪'}</span>
+                <CharacterAvatar slug={selectedChar.slug} name={selectedChar.name} size="md" />
                 <div>
                   <p className="text-sm font-semibold">{selectedChar.name}</p>
                   <p className="text-[10px] text-muted-foreground">{ERA_LABELS[selectedChar.slug] || ''}</p>
@@ -462,7 +451,6 @@ export default function ChatPage() {
           <div className="md:hidden border-b border-border bg-card shadow-lg">
             <div className="p-2 grid grid-cols-2 gap-1.5">
               {characters.map((char) => {
-                const emoji = CHAR_EMOJIS[char.slug] || '⚪';
                 const isActive = selectedChar?.id === char.id;
                 return (
                   <button
@@ -474,7 +462,7 @@ export default function ChatPage() {
                         : 'hover:bg-muted/50 border border-transparent'
                     }`}
                   >
-                    <span className="text-lg">{emoji}</span>
+                    <CharacterAvatar slug={char.slug} name={char.name} size="sm" />
                     <div className="min-w-0">
                       <p className="truncate text-xs font-medium">{char.name}</p>
                       <p className="text-[9px] text-muted-foreground truncate">{ERA_LABELS[char.slug] || ''}</p>
@@ -491,9 +479,11 @@ export default function ChatPage() {
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center px-4">
               <div className="text-center space-y-4 max-w-sm">
-                <div className="text-5xl">
-                  {selectedChar ? CHAR_EMOJIS[selectedChar.slug] || '⚪' : '⏳'}
-                </div>
+                {selectedChar ? (
+                  <CharacterAvatar slug={selectedChar.slug} name={selectedChar.name} size="hero" />
+                ) : (
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-muted/30 flex items-center justify-center text-4xl">⏳</div>
+                )}
                 <div>
                   <p className="font-serif text-xl font-semibold">
                     {selectedChar ? `Talk to ${selectedChar.name}` : 'Select a character'}
@@ -526,11 +516,7 @@ export default function ChatPage() {
                   {/* ── Assistant message ── */}
                   {msg.role === 'assistant' && (
                     <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                        <span className="text-sm">
-                          {msg.character_name ? CHAR_EMOJIS[msg.character_name.toLowerCase()] || '⏳' : '⏳'}
-                        </span>
-                      </div>
+                      <CharacterAvatar slug={msg.character_name?.toLowerCase() || 'unknown'} name={msg.character_name || 'Assistant'} size="md" className="mt-0.5" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline gap-2 mb-1">
                           <span className="text-sm font-semibold">{msg.character_name}</span>
