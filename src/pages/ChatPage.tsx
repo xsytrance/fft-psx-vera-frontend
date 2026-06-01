@@ -567,7 +567,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 px-4 py-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
           <div className="space-y-4 max-w-3xl mx-auto">
             {(activeConversation?.messages ?? []).length === 0 && (
               <div className="text-center py-16 text-muted-foreground">
@@ -653,7 +653,7 @@ export default function ChatPage() {
             )}
             <div ref={messagesEndRef} />
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Input Area */}
         <div className="border-t border-border px-4 py-3 bg-card/30 shrink-0">
