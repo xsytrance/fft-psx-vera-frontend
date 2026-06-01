@@ -34,7 +34,6 @@ export default function SaveUpload() {
     const res = await api.createProjectFromSave(file, 'Chrono Trigger');
     if (res) {
       setCreated(res);
-      // Add project to context so it's available when we navigate
       dispatch({
         type: 'ADD_PROJECT',
         payload: {
@@ -45,10 +44,9 @@ export default function SaveUpload() {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           character_count: res.characters_created,
-          commit_count: res.commits_created,
+          commit_count: 0,
         },
       });
-      // Navigate to the project after a short delay
       setTimeout(() => {
         navigate(`/project/${res.project_id}`);
       }, 3000);
@@ -56,34 +54,34 @@ export default function SaveUpload() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-2xl mx-auto space-y-6 px-1">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Sword className="w-8 h-8 text-amber-500" />
+        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+          <Sword className="w-7 h-7 md:w-8 md:h-8 text-amber-500" />
           Upload CT Save
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-2 text-sm">
           Upload a Chrono Trigger save file to extract party data, story progress, and character info.
-          Supports both the 2MB fftsave.bin archive and 40KB resume files.
+          Supports ZSNES / SNES9x save states (.zst, .zs?).
         </p>
       </div>
 
       {/* File Upload */}
-      <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+      <div className="border-2 border-dashed border-border rounded-lg p-6 md:p-8 text-center hover:border-primary/50 transition-colors">
         <input
           ref={fileRef}
           type="file"
-          accept=".png,.sav,.bin"
+          accept=".zst,.zs1,.zs2,.zs3,.zs4,.zs5,.zs6,.zs7,.zs8,.zs9,.sav,.bin"
           onChange={handleFile}
           className="hidden"
         />
         
         {file ? (
           <div className="space-y-3">
-            <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+            <CheckCircle className="w-10 h-10 md:w-12 md:h-12 text-green-500 mx-auto" />
             <div>
-              <p className="font-medium">{file.name}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-medium text-sm md:text-base">{file.name}</p>
+              <p className="text-xs md:text-sm text-muted-foreground">
                 {(file.size / 1024).toFixed(1)} KB
               </p>
             </div>
@@ -97,13 +95,13 @@ export default function SaveUpload() {
         ) : (
           <button
             onClick={() => fileRef.current?.click()}
-            className="space-y-3 cursor-pointer"
+            className="space-y-3 cursor-pointer w-full"
           >
-            <Upload className="w-12 h-12 text-muted-foreground mx-auto" />
+            <Upload className="w-10 h-10 md:w-12 md:h-12 text-muted-foreground mx-auto" />
             <div>
-              <p className="font-medium">Click to upload a save file</p>
-              <p className="text-sm text-muted-foreground">
-                Supports .png, .sav, .bin files
+              <p className="font-medium text-sm md:text-base">Click to upload a save file</p>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Supports .zst, .zs1-.zs9, .sav, .bin
               </p>
             </div>
           </button>
@@ -112,11 +110,11 @@ export default function SaveUpload() {
 
       {/* Actions */}
       {file && !result && (
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleUpload}
             disabled={api.loading}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 text-sm"
           >
             {api.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileUp className="w-5 h-5" />}
             Parse Save
@@ -124,7 +122,7 @@ export default function SaveUpload() {
           <button
             onClick={handleCreateProject}
             disabled={api.loading}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 text-sm"
           >
             {api.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sword className="w-5 h-5" />}
             Parse & Create Project
@@ -136,67 +134,71 @@ export default function SaveUpload() {
       {api.error && (
         <div className="flex items-center gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive">
           <AlertCircle className="w-5 h-5 shrink-0" />
-          <p>{api.error}</p>
+          <p className="text-sm">{api.error}</p>
         </div>
       )}
 
       {/* Parse Result */}
       {result && !created && (
-        <div className="space-y-6">
-          <div className="p-6 bg-card border rounded-lg space-y-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2">
-              <CheckCircle className="w-6 h-6 text-green-500" />
+        <div className="space-y-4 md:space-y-6">
+          <div className="p-4 md:p-6 bg-card border rounded-lg space-y-4">
+            <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-500" />
               Save Parsed Successfully
             </h2>
 
-            {/* Story Progress */}
-            {result.story_progress && (
+            {/* Characters */}
+            {result.characters && result.characters.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-medium flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  Story Progress
+                <h3 className="font-medium flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4" />
+                  Characters ({result.characters.length})
                 </h3>
-                <div className="pl-6 space-y-1 text-sm">
-                  <p>Chapter/Scene: 0x{result.story_progress?.raw_38?.toString(16).padStart(2, '0')}, 0x{result.story_progress?.raw_39?.toString(16).padStart(2, '0')}</p>
-                  <p>Player Characters: {(result.player_characters || []).map((c: any) => typeof c === 'string' ? c : c.name).join(', ') || 'None'}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {result.characters.map((c: any, i: number) => (
+                    <div key={i} className="text-xs bg-muted/50 rounded-lg p-2.5">
+                      <p className="font-medium">{c.name || `Character ${i}`}</p>
+                      <p className="text-muted-foreground">
+                        Lv {c.level || '?'} • HP {c.hp || '?'}/{c.maxhp || '?'} • MP {c.mp || '?'}/{c.maxmp || '?'}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Party Context */}
-            {result.party_context && (
-              <div className="space-y-2">
-                <h3 className="font-medium flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Party
-                </h3>
-                <div className="pl-6 space-y-1 text-sm">
-                  <p>
-                    <span className="text-muted-foreground">Always present:</span>{' '}
-                    {(result.party_context.always_present || []).join(', ')}
-                  </p>
-                  <p>
-                    <span className="text-muted-foreground">Likely present:</span>{' '}
-                    {(result.party_context.likely_present || []).join(', ')}
-                  </p>
-                  <p className="text-muted-foreground italic">{result.party_context.phase_context}</p>
-                </div>
-              </div>
-            )}
+            {/* Stats */}
+            <div className="flex flex-wrap gap-3 text-xs">
+              {result.gold !== undefined && (
+                <span className="px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-600 font-medium">
+                  {result.gold.toLocaleString()}g
+                </span>
+              )}
+              {result.play_time && (
+                <span className="px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-600 font-medium">
+                  {result.play_time.hours}h {result.play_time.minutes}m
+                </span>
+              )}
+              {result.inventory && (
+                <span className="px-2.5 py-1 rounded-md bg-green-500/10 text-green-600 font-medium">
+                  {result.inventory.length} items
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Create Project CTA */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setResult(null)}
-              className="flex-1 px-6 py-3 border rounded-lg hover:bg-accent"
+              className="flex-1 px-4 py-3 border rounded-lg hover:bg-accent text-sm"
             >
               Upload Another
             </button>
             <button
               onClick={handleCreateProject}
               disabled={api.loading}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 text-sm"
             >
               {api.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sword className="w-5 h-5" />}
               Create Full Project
@@ -207,16 +209,15 @@ export default function SaveUpload() {
 
       {/* Project Created */}
       {created && (
-        <div className="p-6 bg-green-50 border border-green-200 rounded-lg space-y-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2 text-green-800">
-            <CheckCircle className="w-6 h-6" />
+        <div className="p-4 md:p-6 bg-green-50 border border-green-200 rounded-lg space-y-4">
+          <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2 text-green-800">
+            <CheckCircle className="w-5 h-5 md:w-6 md:h-6" />
             Project Created!
           </h2>
-          <div className="space-y-2 text-sm text-green-700">
+          <div className="space-y-1.5 text-sm text-green-700">
             <p><strong>{created.characters_created}</strong> characters created</p>
-            <p><strong>{created.commits_created}</strong> story commits created</p>
-            <p>Characters: {created.character_slugs.join(', ')}</p>
-            <p>Story phase: {created.story_phase}</p>
+            <p><strong>{created.inventory_items}</strong> inventory items</p>
+            <p><strong>{created.gold?.toLocaleString()}g</strong> gold</p>
           </div>
           <p className="text-sm text-green-600 animate-pulse">Redirecting to project...</p>
         </div>

@@ -1,3 +1,4 @@
+/* ChronoVera v1.0.1 — Chrono Trigger Save Analyzer & Character Chat */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';

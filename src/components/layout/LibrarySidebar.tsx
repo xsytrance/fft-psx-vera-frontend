@@ -36,7 +36,7 @@ function useNavItems(projectId: number | undefined) {
  * design while keeping the exact same navigation logic (NavLink, routes,
  * useNavigate) and all nav items intact.
  */
-export default function LibrarySidebar() {
+export default function LibrarySidebar({ onClose }: { onClose?: () => void }) {
   const navigate = useNavigate();
   const { state, dispatch } = useApp();
   const isDark = state.darkMode;
@@ -45,6 +45,11 @@ export default function LibrarySidebar() {
   const project = state.currentProject;
 
   const [search, setSearch] = useState('');
+
+  const handleNavClick = (to: string) => {
+    navigate(to);
+    onClose?.();
+  };
 
   return (
     <aside className="w-72 h-screen shrink-0 flex flex-col bg-sidebar-background border-r border-sidebar-border overflow-hidden">
@@ -122,7 +127,7 @@ export default function LibrarySidebar() {
                 gradient="from-indigo-500 to-violet-600"
                 spineColor="#5B4B8A"
                 subLabel="Project"
-                onClick={() => navigate(`/project/${project.id}`)}
+                onClick={() => handleNavClick(`/project/${project.id}`)}
               />
             </div>
           </section>
@@ -182,7 +187,7 @@ export default function LibrarySidebar() {
           size="sm"
           className="w-full justify-center gap-2"
           style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-          onClick={() => navigate('/project/new')}
+          onClick={() => handleNavClick('/project/new')}
         >
           <Plus size={16} />
           New Project
