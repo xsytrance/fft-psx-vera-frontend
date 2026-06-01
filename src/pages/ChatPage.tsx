@@ -608,17 +608,11 @@ export default function ChatPage() {
                           : 'border'
                       }`}
                       style={
-                        msg.role === 'assistant' && msg.character_id
+                        msg.role === 'assistant'
                           ? {
-                              backgroundColor: appState.darkMode ? `${msgAccent}18` : `${msgAccent}15`,
-                              borderColor: appState.darkMode ? `${msgAccent}40` : `${msgAccent}30`,
-                              color: appState.darkMode ? '#F0E8D0' : '#1A1A2E',
-                            }
-                          : msg.role === 'assistant'
-                          ? {
-                              backgroundColor: appState.darkMode ? 'rgba(20,28,46,0.85)' : 'rgba(240,235,224,0.9)',
-                              borderColor: appState.darkMode ? 'rgba(212,184,92,0.3)' : 'rgba(184,150,12,0.25)',
-                              color: appState.darkMode ? '#F0E8D0' : '#1A1A2E',
+                              backgroundColor: msg.character_id ? `${msgAccent}15` : 'rgba(200,200,200,0.3)',
+                              borderColor: msg.character_id ? `${msgAccent}30` : 'rgba(150,150,150,0.3)',
+                              color: '#000000',
                             }
                           : undefined
                       }
@@ -650,7 +644,7 @@ export default function ChatPage() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="bg-primary/10 rounded-lg px-3 py-2 text-sm border border-primary/20 flex items-center gap-1" style={{ color: appState.darkMode ? '#F0E8D0' : '#1A1A2E' }}>
+                  <div className="rounded-lg px-3 py-2 text-sm border flex items-center gap-1" style={{ backgroundColor: 'rgba(200,200,200,0.3)', borderColor: 'rgba(150,150,150,0.3)', color: '#000000' }}>
                     <Sparkles size={12} className="animate-pulse" />
                     Thinking...
                   </div>
