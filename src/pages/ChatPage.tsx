@@ -604,15 +604,21 @@ export default function ChatPage() {
                         msg.role === 'user'
                           ? 'bg-secondary text-foreground'
                           : msg.role === 'system'
-                          ? 'bg-amber-500/10 text-amber-300 text-xs italic'
-                          : 'bg-primary/10 text-indigo-100 border border-primary/20'
+                          ? 'bg-amber-500/10 text-amber-200 text-xs italic'
+                          : 'border'
                       }`}
                       style={
                         msg.role === 'assistant' && msg.character_id
                           ? {
-                              backgroundColor: `${msgAccent}14`,
-                              borderColor: `${msgAccent}33`,
-                              color: undefined,
+                              backgroundColor: `${msgAccent}18`,
+                              borderColor: `${msgAccent}40`,
+                              color: '#F0E8D0',
+                            }
+                          : msg.role === 'assistant'
+                          ? {
+                              backgroundColor: 'rgba(20,28,46,0.85)',
+                              borderColor: 'rgba(212,184,92,0.3)',
+                              color: '#F0E8D0',
                             }
                           : undefined
                       }
@@ -644,7 +650,7 @@ export default function ChatPage() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="bg-primary/10 rounded-lg px-3 py-2 text-sm text-primary border border-primary/20 flex items-center gap-1">
+                  <div className="bg-primary/10 rounded-lg px-3 py-2 text-sm border border-primary/20 flex items-center gap-1" style={{ color: '#F0E8D0' }}>
                     <Sparkles size={12} className="animate-pulse" />
                     Thinking...
                   </div>
