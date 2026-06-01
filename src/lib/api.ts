@@ -135,7 +135,24 @@ export async function sendChatMessage(data: {
   });
 }
 
-// ── FFT Save File ────────────────────────────────────────────────────────────
+// ── ChronoVera Chat (simplified) ──────────────────────────────────────────────
+
+export async function chat(
+  projectId: number,
+  characterId: number,
+  message: string,
+): Promise<{ response: string; character_name: string; model: string }> {
+  return fetchJson<{ response: string; character_name: string; model: string }>('/chat', {
+    method: 'POST',
+    body: JSON.stringify({
+      project_id: projectId,
+      character_id: characterId,
+      message,
+    }),
+  });
+}
+
+// ── CT Save File ────────────────────────────────────────────────────────────
 
 export async function uploadSave(file: File): Promise<{
   success: boolean;
@@ -186,7 +203,7 @@ export async function createProjectFromSave(
   return res.json();
 }
 
-// ── FFT Lore KB ──────────────────────────────────────────────────────────────
+// ── CT Lore KB ──────────────────────────────────────────────────────────────
 
 export async function getLoreCharacters(): Promise<{ characters: Array<{ name: string; slug: string; role: string; affiliation: string }> }> {
   return fetchJson('/lore/characters');

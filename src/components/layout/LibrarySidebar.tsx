@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
-  BookOpen,
+  Watch,
   MessageSquare,
   Users,
   Clock,
@@ -14,7 +14,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { Button } from '../ui/button';
-import BookCover from '../ui/BookCover';
+import ProjectChip from '../ui/ProjectChip';
 import { useApp } from '../../context/AppContext';
 import { getCharacterAccent } from '../../lib/theme';
 import { getCharacterAvatar } from '../../lib/theme';
@@ -23,7 +23,7 @@ function useNavItems(projectId: number | undefined) {
   const pid = projectId ?? 1;
   return [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: `/project/${pid}`, icon: BookOpen, label: 'Project' },
+    { to: `/project/${pid}`, icon: Watch, label: 'Project' },
     { to: `/project/${pid}/characters`, icon: Users, label: 'Characters' },
     { to: `/project/${pid}/timeline`, icon: Clock, label: 'Timeline' },
     { to: '/chat', icon: MessageSquare, label: 'Chat' },
@@ -51,9 +51,9 @@ export default function LibrarySidebar() {
       {/* ── Header ── */}
       <div className="px-5 pt-5 pb-3">
         <div className="flex items-center gap-2.5 text-sidebar-primary">
-          <BookOpen size={22} strokeWidth={1.8} />
+          <Watch size={22} strokeWidth={1.8} />
           <h1 className="font-serif text-xl font-semibold tracking-tight">
-            IvaliceVera
+            ChronoVera
           </h1>
         </div>
       </div>
@@ -106,14 +106,14 @@ export default function LibrarySidebar() {
           })}
         </nav>
 
-        {/* ── Recently Read / Project ── */}
+        {/* ── Active Era / Project ── */}
         {project && (
           <section>
             <h2 className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Recently Read
+              Active Era
             </h2>
             <div className="flex gap-2.5 px-2 overflow-x-auto pb-1">
-              <BookCover
+              <ProjectChip
                 label={project.name
                   .split(' ')
                   .map((w) => w[0])
@@ -201,7 +201,7 @@ export default function LibrarySidebar() {
 
           <div className="flex items-center gap-1.5 text-[10px] text-sidebar-foreground/50">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>IvaliceVera</span>
+            <span>ChronoVera</span>
           </div>
         </div>
       </div>

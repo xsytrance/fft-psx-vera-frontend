@@ -1,7 +1,7 @@
 /**
- * theme.ts — IvaliceVera "Ivalice" Theme Utilities
+ * theme.ts — ChronoVera "Ivalice" Theme Utilities
  *
- * FFT-themed accent colors, zodiac sign mappings, and character avatars.
+ * CT-themed accent colors, zodiac sign mappings, and character avatars.
  * Each major character is associated with a Zodiac Stone / Auracite reference.
  */
 
@@ -15,7 +15,7 @@ export interface AccentPair {
 }
 
 /**
- * Accent colors for FFT characters.
+ * Accent colors for CT characters.
  * Each character's color is inspired by their Zodiac Stone / elemental affinity.
  *
  * Ramza — no Zodiac Stone, but associated with the "light" of truth (gold/white)
@@ -89,11 +89,11 @@ export const zodiacStones: Record<string, ZodiacInfo> = {
 
 /* ── Theme (Dark / Light) Helpers ──────────────────────────────────────── */
 
-const THEME_STORAGE_KEY = 'ivalicevera-theme-dark';
+const THEME_STORAGE_KEY = 'chronovera-theme-dark';
 
 /** Read the saved preference, or fall back to system preference. */
 export function getInitialDarkMode(): boolean {
-  if (typeof window === 'undefined') return true; // Default to dark for FFT vibe
+  if (typeof window === 'undefined') return true; // Default to dark for CT vibe
   const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
   if (stored !== null) return stored === 'true';
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -124,7 +124,7 @@ export function useThemeToggle() {
   return { darkMode, toggle, setDarkMode: setDarkModeState };
 }
 
-/** Avatar image paths for FFT characters. */
+/** Avatar image paths for CT characters. */
 export const avatarImages: Record<number, string> = {
   1: '/characters/ramza.png',
   2: '/characters/delita.png',

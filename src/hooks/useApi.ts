@@ -70,12 +70,12 @@ export function useApi() {
     return { status: 'complete', progress: 100, message: 'Ready' };
   }, []);
 
-  // ── FFT Save File ─────────────────────────────────────────────────────────
+  // ── CT Save File ─────────────────────────────────────────────────────────
 
   const uploadSave = useCallback((file: File) => call(() => api.uploadSave(file)), [call]);
   const createProjectFromSave = useCallback((file: File, projectName: string) => call(() => api.createProjectFromSave(file, projectName)), [call]);
 
-  // ── FFT Lore KB ───────────────────────────────────────────────────────────
+  // ── CT Lore KB ───────────────────────────────────────────────────────────
 
   const getLoreCharacters = useCallback(() => call(() => api.getLoreCharacters()), [call]);
   const getLoreCharacter = useCallback((slug: string) => call(() => api.getLoreCharacter(slug)), [call]);

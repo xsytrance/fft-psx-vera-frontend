@@ -26,7 +26,7 @@ import { useApp } from '../context/AppContext';
 import { mockCharacters, mockCommits } from '../data/mockData';
 import { toast } from 'sonner';
 
-const STORAGE_KEY = 'ivalicevera-llm-settings';
+const STORAGE_KEY = 'chronovera-llm-settings';
 
 interface LlmSettings {
   provider: 'ollama' | 'openrouter';
@@ -712,14 +712,14 @@ export default function SettingsPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="font-serif text-xl font-semibold text-foreground flex items-center gap-2">
                         <Info size={18} className="text-primary" />
-                        About IvaliceVera
+                        About ChronoVera
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Literary description */}
                       <p className="font-serif italic text-[15px] text-muted-foreground leading-relaxed">
-                        IvaliceVera is a Final Fantasy Tactics save analyzer and character
-                        chat platform. Upload your FFT save files to extract party data, story
+                        ChronoVera is a Chrono Trigger save analyzer and character
+                        chat platform. Upload your CT save files to extract party data, story
                         progress, and chat with characters at any point in the War of the Lions
                         while enforcing knowledge boundaries through the Zodiac Stone system.
                       </p>
@@ -728,8 +728,8 @@ export default function SettingsPage() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {[
                           { label: 'Version', value: 'v1.0.0-ivalice' },
-                          { label: 'Backend', value: 'FastAPI + FFT Parser' },
-                          { label: 'Frontend', value: 'React + Tailwind + FFT Theme' },
+                          { label: 'Backend', value: 'FastAPI + CT Parser' },
+                          { label: 'Frontend', value: 'React + Tailwind + CT Theme' },
                           { label: 'Characters', value: `${mockCharacters.length} loaded` },
                         ].map((item, i) => (
                           <motion.div

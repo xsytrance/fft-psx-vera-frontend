@@ -1,684 +1,317 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router';
 import {
   Send,
   ArrowLeft,
-  MessageSquare,
-  Plus,
-  Trash2,
-  Shield,
-  Download,
-  ChevronDown,
-  Sparkles,
   User,
-  Bot,
-  RotateCcw,
+  Trash2,
+  Clock,
+  Zap,
+  Swords,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { ScrollArea } from '../components/ui/scroll-area';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu';
-import { toast } from 'sonner';
-import { useChat } from '../context/ChatContext';
-import { useApp } from '../context/AppContext';
-import { getCharacterAccent, getCharacterAvatar } from '../lib/theme';
-import type { InteractionMode } from '../types/api';
+import * as apiClient from '../lib/api';
 
-// Reuse settings loader from SettingsPage
-interface LlmSettings {
-  provider: 'ollama' | 'openrouter';
-  ollamaHost: string;
-  ollamaModel: string;
-  openrouterApiKey: string;
-  openrouterModel: string;
-}
-function getLlmSettings(): LlmSettings {
-  try {
-    const raw = localStorage.getItem('ivalicevera-llm-settings');
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return {
-    provider: 'ollama',
-    ollamaHost: 'http://100.110.224.126:11434',
-    ollamaModel: 'llama3.1:8b',
-    openrouterApiKey: '',
-    openrouterModel: 'meta-llama/llama-3.1-8b-instruct:free',
-  };
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  character_name?: string;
+  timestamp: number;
 }
 
-// ── SSE streaming helper ─────────────────────────────────────────────────────
-interface StreamChatOpts {
-  url: string;
-  body: Record<string, any>;
-  onMeta: (meta: { conversation_id: string; character_id: number; character_name: string; mode: string }) => void;
-  onToken: (token: string) => void;
-  onError: (error: string) => void;
-}
-async function streamChat(opts: StreamChatOpts): Promise<void> {
-  const res = await fetch(opts.url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(opts.body),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `HTTP ${res.status}`);
-  }
-  const reader = res.body?.getReader();
-  if (!reader) throw new Error('No response body');
-  const decoder = new TextDecoder();
-  let buf = '';
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    // Process complete SSE messages from buffer
-    const parts = buf.split('\n\n');
-    buf = parts.pop() || ''; // keep incomplete chunk
-    for (const part of parts) {
-      for (const line of part.split('\n')) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.slice(6));
-            if (data.type === 'meta') opts.onMeta(data);
-            else if (data.type === 'token') opts.onToken(data.content);
-            else if (data.type === 'done') return;
-            else if (data.type === 'error') { opts.onError(data.content); return; }
-          } catch { /* skip malformed */ }
-        }
-      }
-    }
-  }
-}
-
-const modeLabels: Record<InteractionMode, string> = {
-  'story-locked': 'Story-Locked',
-  'post-end': 'Post-End',
-  casual: 'Casual Companion',
-  'multi-character': 'Multi-Character',
-  agent: 'Agent Persona',
+const CHAR_EMOJIS: Record<string, string> = {
+  crono: '🔴',
+  marle: '🩷',
+  lucca: '🟡',
+  robo: '🟢',
+  frog: '🟩',
+  ayla: '🟤',
+  magus: '🟣',
 };
 
-const modeColors: Record<InteractionMode, string> = {
-  'story-locked': 'bg-primary',
-  'post-end': 'bg-amber-600',
-  casual: 'bg-emerald-600',
-  'multi-character': 'bg-accent',
-  agent: 'bg-slate-600',
+const ERA_LABELS: Record<string, string> = {
+  crono: '1000 AD — Present',
+  marle: '1000 AD — Present',
+  lucca: '1000 AD — Present',
+  robo: '2300 AD — Future',
+  frog: '600 AD — Middle Ages',
+  ayla: '65,000,000 BC — Prehistory',
+  magus: '12,000 BC — Dark Age',
 };
 
 export default function ChatPage() {
   const navigate = useNavigate();
-  const { conversationId } = useParams();
-  const [searchParams] = useSearchParams();
-  const { state, dispatch } = useChat();
-  const { state: appState } = useApp();
 
-  const currentProjectId = appState.currentProject?.id ?? appState.projects[0]?.id ?? 0;
-
-  // Get characters from context (loaded by ProjectDetail/AppContext)
-  const allCharacters = useMemo(() => {
-    return appState.characters.filter((c) => c.project_id === currentProjectId);
-  }, [appState.characters, currentProjectId]);
-
-  const conversations = state.conversations;
-
-  const convId = conversationId ?? state.activeConversationId;
-  const activeConversation = conversations.find((c) => c.id === convId);
-
-  const initialCharParam = searchParams.get('char');
-  const initialCommitParam = searchParams.get('commit');
-
+  const [projectId, setProjectId] = useState<number | null>(null);
+  const [characters, setCharacters] = useState<any[]>([]);
+  const [selectedChar, setSelectedChar] = useState<any>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [sending, setSending] = useState(false);
-  const [regenerating, setRegenerating] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const selectedChars = useMemo(() => {
-    if (activeConversation) return activeConversation.character_ids;
-    if (state.selectedCharacterIds.length) return state.selectedCharacterIds;
-    if (initialCharParam) return [Number(initialCharParam)];
-    if (allCharacters.length > 0) return [allCharacters[0].id];
-    return [];
-  }, [activeConversation, state.selectedCharacterIds, initialCharParam, allCharacters]);
-
-  const selectedCommit = useMemo(() => {
-    if (activeConversation) return activeConversation.commit_id;
-    if (state.selectedCommitId) return state.selectedCommitId;
-    if (initialCommitParam) return Number(initialCommitParam);
-    return null;
-  }, [activeConversation, state.selectedCommitId, initialCommitParam]);
-
-  const mode = (activeConversation?.mode ?? state.mode ?? 'story-locked') as InteractionMode;
-
-  const effectiveCommitId = selectedCommit ?? activeConversation?.commit_id ?? null;
-  // Default to casual mode when no commit is selected (story-locked requires a commit)
-  const effectiveMode = (mode === 'story-locked' && !effectiveCommitId) ? 'casual' : mode;
-
-  const primaryCharId = selectedChars[0];
-  const primaryChar = allCharacters.find((c) => c.id === primaryCharId);
-  const charObjs = allCharacters.filter((c) => selectedChars.includes(c.id));
-  const accentColor = getCharacterAccent(primaryCharId, appState.darkMode);
-
+  // Load characters from latest project
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation?.messages]);
+    const loadProject = async () => {
+      try {
+        const projects = await apiClient.getProjects();
+        if (projects.length === 0) return;
+        const latest = projects[projects.length - 1];
+        setProjectId(latest.id);
+        const chars = await apiClient.getCharacters(latest.id);
+        setCharacters(chars);
+        if (chars.length > 0) setSelectedChar(chars[0]);
+      } catch (err) {
+        console.error('Failed to load project:', err);
+      }
+    };
+    loadProject();
+  }, []);
 
-  const handleSend = async () => {
-    if (!input.trim() || sending) return;
-    const text = input.trim();
+  // Auto-scroll
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const sendMessage = useCallback(async () => {
+    if (!input.trim() || !selectedChar || !projectId || loading) return;
+
+    const userMsg: ChatMessage = {
+      role: 'user',
+      content: input.trim(),
+      timestamp: Date.now(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
     setInput('');
+    setLoading(true);
 
-    const existingConvId = activeConversation?.id;
-    const userMsg = { role: 'user' as const, content: text };
-    if (existingConvId) {
-      dispatch({
-        type: 'SEND_MESSAGE',
-        payload: { conversationId: existingConvId, message: userMsg },
-      });
-    }
-
-    setSending(true);
     try {
-      const settings = getLlmSettings();
+      const resp = await apiClient.chat(
+        projectId,
+        selectedChar.id,
+        userMsg.content,
+      );
 
-      // Build the request body
-      const baseBody = {
-        conversation_id: existingConvId ?? null,
-        project_id: currentProjectId,
-        character_ids: selectedChars,
-        commit_id: effectiveCommitId ?? undefined,
-        mode: effectiveMode,
-        message: text,
+      const botMsg: ChatMessage = {
+        role: 'assistant',
+        content: resp.response || '(No response)',
+        character_name: resp.character_name || selectedChar.name,
+        timestamp: Date.now(),
       };
-
-      let convId = existingConvId;
-      let assistantText = '';
-      let charId: number | undefined;
-      let charName: string | undefined;
-      let responseMode: InteractionMode | string = effectiveMode;
-
-      if (settings.provider === 'openrouter') {
-        if (!settings.openrouterApiKey) {
-          toast.error('OpenRouter API key not set — go to Settings → Provider');
-          setSending(false);
-          return;
-        }
-        // Streaming via OpenRouter
-        await streamChat({
-          url: '/api/chat/openrouter/stream',
-          body: { ...baseBody, model: settings.openrouterModel, api_key: settings.openrouterApiKey },
-          onMeta: (meta) => {
-            convId = meta.conversation_id;
-            charId = meta.character_id;
-            charName = meta.character_name;
-            responseMode = meta.mode;
-          },
-          onToken: (token) => { assistantText += token; },
-          onError: (err) => { throw new Error(err); },
-        });
-      } else {
-        // Streaming via Ollama
-        await streamChat({
-          url: '/api/chat/stream',
-          body: baseBody,
-          onMeta: (meta) => {
-            convId = meta.conversation_id;
-            charId = meta.character_id;
-            charName = meta.character_name;
-            responseMode = meta.mode;
-          },
-          onToken: (token) => { assistantText += token; },
-          onError: (err) => { throw new Error(err); },
-        });
-      }
-
-      // Create or update conversation in context
-      const assistantMsg = {
-        role: 'assistant' as const,
-        content: assistantText,
-        character_id: charId,
-        character_name: charName,
-      };
-
-      if (!convId) {
-        throw new Error('No conversation ID received from server');
-      }
-
-      if (!existingConvId) {
-        const newConv = {
-          id: convId,
-          project_id: currentProjectId,
-          character_ids: selectedChars,
-          commit_id: effectiveCommitId ?? null,
-          mode: responseMode as InteractionMode,
-          title: `Chat with ${charObjs.map((c) => c.name).join(', ')}`,
-          messages: [userMsg, assistantMsg],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        dispatch({ type: 'CREATE_CONVERSATION', payload: newConv });
-      } else {
-        dispatch({
-          type: 'RECEIVE_MESSAGE',
-          payload: { conversationId: existingConvId, message: assistantMsg },
-        });
-      }
+      setMessages((prev) => [...prev, botMsg]);
     } catch (err: any) {
-      console.error('[Chat] Send error:', err);
-      toast.error(`Chat error: ${err.message}`);
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const handleRegenerate = async () => {
-    if (!activeConversation || regenerating) return;
-    const msgs = activeConversation.messages;
-    let lastUserIdx = -1;
-    for (let i = msgs.length - 1; i >= 0; i--) {
-      if (msgs[i].role === 'user') { lastUserIdx = i; break; }
-    }
-    if (lastUserIdx === -1) return;
-
-    const lastUserMsg = msgs[lastUserIdx].content;
-    setRegenerating(true);
-    try {
-      const settings = getLlmSettings();
-
-      const baseBody = {
-        conversation_id: activeConversation.id,
-        project_id: currentProjectId,
-        character_ids: selectedChars,
-        commit_id: effectiveCommitId ?? undefined,
-        mode: effectiveMode,
-        message: `__regenerate__ ${lastUserMsg}`,
+      const errMsg: ChatMessage = {
+        role: 'assistant',
+        content: `Error: ${err.message || 'Failed to get response'}`,
+        character_name: 'System',
+        timestamp: Date.now(),
       };
-
-      let assistantText = '';
-      let charId: number | undefined;
-      let charName: string | undefined;
-
-      if (settings.provider === 'openrouter') {
-        if (!settings.openrouterApiKey) {
-          toast.error('OpenRouter API key not set');
-          setRegenerating(false);
-          return;
-        }
-        await streamChat({
-          url: '/api/chat/openrouter/stream',
-          body: { ...baseBody, model: settings.openrouterModel, api_key: settings.openrouterApiKey },
-          onMeta: (meta) => { charId = meta.character_id; charName = meta.character_name; },
-          onToken: (token) => { assistantText += token; },
-          onError: (err) => { throw new Error(err); },
-        });
-      } else {
-        await streamChat({
-          url: '/api/chat/stream',
-          body: baseBody,
-          onMeta: (meta) => { charId = meta.character_id; charName = meta.character_name; },
-          onToken: (token) => { assistantText += token; },
-          onError: (err) => { throw new Error(err); },
-        });
-      }
-
-      const trimmedMsgs = msgs.slice(0, lastUserIdx + 1);
-      trimmedMsgs.push({
-        role: 'assistant' as const,
-        content: assistantText,
-        character_id: charId,
-        character_name: charName,
-      });
-
-      const updatedConv = { ...activeConversation, messages: trimmedMsgs, updated_at: new Date().toISOString() };
-      dispatch({ type: 'DELETE_CONVERSATION', payload: activeConversation.id });
-      dispatch({ type: 'CREATE_CONVERSATION', payload: updatedConv });
-      toast.success('Response regenerated');
-    } catch (err: any) {
-      toast.error(`Regenerate failed: ${err.message}`);
+      setMessages((prev) => [...prev, errMsg]);
     } finally {
-      setRegenerating(false);
+      setLoading(false);
     }
-  };
+  }, [input, selectedChar, projectId, loading]);
 
-  const handleDeleteConv = (id: string) => {
-    dispatch({ type: 'DELETE_CONVERSATION', payload: id });
-    toast.success('Conversation deleted');
-  };
-
-  const handleExport = () => {
-    if (!activeConversation) return;
-    const data = JSON.stringify(activeConversation, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `conversation-${activeConversation.id}.json`;
-    a.click();
-    toast.success('Conversation exported');
-  };
+  const clearChat = () => setMessages([]);
 
   return (
-    <div className="fixed inset-0 flex bg-background" style={{ left: '16rem' }}>
-      {/* Ambient background layer */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          opacity: appState.darkMode ? 0.05 : 0.03,
-          background: `radial-gradient(circle at 70% 30%, ${accentColor} 0%, transparent 60%), radial-gradient(circle at 30% 70%, ${accentColor}88 0%, transparent 50%)`,
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Left Sidebar: Character Selector & Conversations */}
-      <div className="w-72 border-r border-border flex flex-col bg-secondary/20 z-10">
-        <div className="p-3 border-b border-border">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <MessageSquare size={14} />
-              Conversations
-            </h3>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => {
-                if (allCharacters.length === 0 || currentProjectId === 0) {
-                  toast.error('No project or characters available');
-                  return;
-                }
-                const newConv = {
-                  id: `conv-${Date.now()}`,
-                  project_id: currentProjectId,
-                  character_ids: [allCharacters[0].id],
-                  commit_id: null,
-                  mode: 'story-locked' as InteractionMode,
-                  title: `Chat with ${allCharacters[0].name}`,
-                  messages: [],
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                };
-                dispatch({ type: 'CREATE_CONVERSATION', payload: newConv });
-                navigate(`/chat/${newConv.id}`);
-              }}
-            >
-              <Plus size={16} />
-            </Button>
-          </div>
-          <div className="space-y-1">
-            {allCharacters.map((char) => {
-              const charAccent = getCharacterAccent(char.id, appState.darkMode);
-              const charAvatar = getCharacterAvatar(char.id);
-              return (
-                <button
-                  key={char.id}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
-                    selectedChars.includes(char.id)
-                      ? 'bg-primary/20 text-primary'
-                      : 'hover:bg-secondary text-muted-foreground'
-                  }`}
-                  onClick={() => {
-                    const newChars = selectedChars.includes(char.id)
-                      ? selectedChars.filter((c) => c !== char.id)
-                      : [...selectedChars, char.id];
-                    dispatch({ type: 'SELECT_CHARACTERS', payload: newChars });
-                  }}
-                >
-                  <div
-                    className="w-5 h-5 rounded-full overflow-hidden border"
-                    style={{ borderColor: charAccent }}
-                  >
-                    <img
-                      src={charAvatar}
-                      alt={char.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <span className="truncate">{char.name}</span>
-                  {selectedChars.includes(char.id) && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+    <div className="h-[calc(100vh-3rem)] flex flex-col max-w-5xl mx-auto">
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 pb-4 border-b border-border shrink-0">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} />
+        </Button>
+        <div className="flex-1">
+          <h1 className="font-serif text-lg font-semibold">Character Chat</h1>
+          {selectedChar && (
+            <p className="text-xs text-muted-foreground">
+              Talking to {selectedChar.name} — {ERA_LABELS[selectedChar.slug] || ''}
+            </p>
+          )}
         </div>
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1">
-            {conversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={`group flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer text-xs transition-colors ${
-                  convId === conv.id ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-muted-foreground'
-                }`}
-                onClick={() => navigate(`/chat/${conv.id}`)}
-              >
-                <MessageSquare size={14} className="shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="truncate font-medium">{conv.title}</div>
-                  <div className="truncate text-[10px] opacity-70">
-                    {conv.messages.length} msgs • {conv.mode}
-                  </div>
-                </div>
-                <button
-                  className="opacity-0 group-hover:opacity-100 hover:text-destructive p-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteConv(conv.id);
-                  }}
-                >
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+        <Button variant="ghost" size="icon" onClick={clearChat} title="Clear chat">
+          <Trash2 size={16} />
+        </Button>
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 z-10 relative">
-        {/* Top Bar */}
-        <div className="border-b border-border px-4 py-3 flex items-center gap-4 bg-card/30 shrink-0">
-          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate('/')}>
-            <ArrowLeft size={18} />
-          </Button>
+      <div className="flex-1 flex min-h-0 gap-4 pt-4">
+        {/* ── Character Selector (left sidebar) ── */}
+        <div className="w-56 shrink-0 space-y-2 overflow-y-auto">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-2">
+            Party Members
+          </p>
+          {characters.map((char) => {
+            const emoji = CHAR_EMOJIS[char.slug] || '⚪';
+            const isActive = selectedChar?.id === char.id;
+            return (
+              <button
+                key={char.id}
+                onClick={() => {
+                  setSelectedChar(char);
+                  setMessages([]);
+                }}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-sm transition-colors ${
+                  isActive
+                    ? 'bg-primary/10 text-primary font-medium border border-primary/20'
+                    : 'hover:bg-muted/50 text-foreground border border-transparent'
+                }`}
+              >
+                <span className="text-lg">{emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="truncate">{char.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    {char.role}
+                  </p>
+                </div>
+                {char.is_active && (
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                )}
+              </button>
+            );
+          })}
 
-          {/* Character Avatars */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="flex -space-x-2">
-              {charObjs.map((char) => {
-                const charAccent = getCharacterAccent(char.id, appState.darkMode);
-                const charAvatar = getCharacterAvatar(char.id);
-                return (
-                  <div
-                    key={char.id}
-                    className="w-8 h-8 rounded-full border-2 border-background overflow-hidden"
-                    style={{ borderColor: charAccent }}
-                    title={char.name}
-                  >
-                    <img
-                      src={charAvatar}
-                      alt={char.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+          {/* Save Info */}
+          {characters.length > 0 && projectId && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-2">
+                Save Data
+              </p>
+              <div className="space-y-1.5 px-1 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Clock size={11} />
+                  <span>21h 20m played</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Swords size={11} />
+                  <span>7 characters</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Zap size={11} />
+                  <span>ATB System</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Chat Area ── */}
+        <div className="flex-1 flex flex-col min-w-0 rounded-2xl border border-border bg-card/50">
+          {messages.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center space-y-3 px-8">
+                <div className="text-4xl">
+                  {selectedChar ? CHAR_EMOJIS[selectedChar.slug] || '⚪' : '⏳'}
+                </div>
+                <div>
+                  <p className="font-serif text-lg font-semibold">
+                    {selectedChar ? `Talk to ${selectedChar.name}` : 'Select a character'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
+                    {selectedChar
+                      ? `They know about your party, inventory, and how far you've progressed. Their knowledge depends on the story.`
+                      : 'Choose a character from the left to start chatting.'}
+                  </p>
+                </div>
+                {selectedChar && (
+                  <div className="flex flex-wrap justify-center gap-1.5 mt-4">
+                    {['Tell me about yourself', 'What do you see around you?', 'How strong are you?', 'Who are your friends?'].map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => setInput(q)}
+                        className="px-3 py-1 rounded-full text-[11px] border border-border/60 text-muted-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        {q}
+                      </button>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-medium truncate">
-                {charObjs.map((c) => c.name).join(', ') || 'No character selected'}
-              </div>
-              <div className="text-xs text-muted-foreground truncate">
-                {modeLabels[mode]} • Project #{currentProjectId}
+                )}
               </div>
             </div>
-          </div>
-
-          {/* Mode Selector */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 shrink-0">
-                <div className={`w-2 h-2 rounded-full ${modeColors[mode]}`} />
-                {modeLabels[mode]}
-                <ChevronDown size={14} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[180px]">
-              {(Object.keys(modeLabels) as InteractionMode[]).map((m) => (
-                <DropdownMenuItem key={m} onClick={() => dispatch({ type: 'SET_MODE', payload: m })}>
-                  <div className={`w-2 h-2 rounded-full ${modeColors[m]} mr-2`} />
-                  {modeLabels[m]}
-                </DropdownMenuItem>
+          ) : (
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+              {messages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {msg.role === 'assistant' && (
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+                      <span className="text-sm">
+                        {msg.character_name ? CHAR_EMOJIS[msg.character_name.toLowerCase()] || '⏳' : '⏳'}
+                      </span>
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                      msg.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted/60 text-foreground'
+                    }`}
+                    style={{ color: msg.role === 'assistant' ? '#000000' : undefined }}
+                  >
+                    {msg.role === 'assistant' && (
+                      <p className="text-[10px] font-semibold text-primary/60 mb-1">
+                        {msg.character_name}
+                      </p>
+                    )}
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                  {msg.role === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-1">
+                      <User size={14} className="text-accent" />
+                    </div>
+                  )}
+                </div>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Knowledge Gate Badge */}
-          {mode === 'story-locked' && (
-            <Badge variant="outline" className="gap-1 text-amber-400 border-amber-400/30 shrink-0">
-              <Shield size={12} />
-              Knowledge Gate Active
-            </Badge>
-          )}
-
-          {activeConversation && activeConversation.messages.length > 0 && (
-            <Button
-              variant="ghost" size="icon" className="shrink-0"
-              onClick={handleRegenerate}
-              disabled={regenerating}
-              title="Regenerate last response"
-            >
-              <RotateCcw size={16} className={regenerating ? 'animate-spin' : ''} />
-            </Button>
-          )}
-
-          <Button variant="ghost" size="icon" className="shrink-0" onClick={handleExport} title="Export conversation">
-            <Download size={16} />
-          </Button>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
-          <div className="space-y-4 max-w-3xl mx-auto">
-            {(activeConversation?.messages ?? []).length === 0 && (
-              <div className="text-center py-16 text-muted-foreground">
-                <Bot size={32} className="mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Start a conversation with {primaryChar?.name ?? 'a character'}...</p>
-                <p className="text-xs mt-1 opacity-60">Ask about the story, request hints, or just chat.</p>
-              </div>
-            )}
-            {(activeConversation?.messages ?? []).map((msg, i) => {
-              const msgAccent = msg.character_id
-                ? getCharacterAccent(msg.character_id, appState.darkMode)
-                : accentColor;
-              const msgAvatar = msg.character_id ? getCharacterAvatar(msg.character_id) : undefined;
-              return (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`flex gap-2 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <div
-                      className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold overflow-hidden ${
-                        msg.role === 'user'
-                          ? 'bg-secondary text-muted-foreground'
-                          : 'bg-primary/20 text-primary'
-                      }`}
-                    >
-                      {msg.role === 'user' ? (
-                        <User size={12} />
-                      ) : msgAvatar ? (
-                        <img src={msgAvatar} alt={msg.character_name || ''} className="w-full h-full object-cover" />
-                      ) : (
-                        <Bot size={12} />
-                      )}
-                    </div>
-                    <div
-                      className={`rounded-lg px-3 py-2 text-sm leading-relaxed ${
-                        msg.role === 'user'
-                          ? 'bg-secondary text-foreground'
-                          : msg.role === 'system'
-                          ? 'bg-amber-500/10 text-amber-700 text-xs italic'
-                          : 'border'
-                      }`}
-                      style={
-                        msg.role === 'assistant'
-                          ? {
-                              backgroundColor: msg.character_id ? `${msgAccent}15` : 'rgba(200,200,200,0.3)',
-                              borderColor: msg.character_id ? `${msgAccent}30` : 'rgba(150,150,150,0.3)',
-                              color: '#000000',
-                            }
-                          : undefined
-                      }
-                    >
-                      {msg.role === 'assistant' && msg.character_name && (
-                        <div
-                          className="text-[10px] font-semibold mb-1"
-                          style={{ color: msgAccent }}
-                        >
-                          {msg.character_name}
-                        </div>
-                      )}
-                      <div className="whitespace-pre-wrap">{msg.content}</div>
+              {loading && (
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-sm animate-pulse">⏳</span>
+                  </div>
+                  <div className="bg-muted/60 rounded-2xl px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
-              );
-            })}
-            {sending && primaryChar && (
-              <div className="flex justify-start">
-                <div className="flex gap-2">
-                  <div
-                    className="w-7 h-7 rounded-full overflow-hidden border-2 flex items-center justify-center"
-                    style={{ borderColor: accentColor }}
-                  >
-                    <img
-                      src={getCharacterAvatar(primaryCharId)}
-                      alt={primaryChar.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="rounded-lg px-3 py-2 text-sm border flex items-center gap-1" style={{ backgroundColor: 'rgba(200,200,200,0.3)', borderColor: 'rgba(150,150,150,0.3)', color: '#000000' }}>
-                    <Sparkles size={12} className="animate-pulse" />
-                    Thinking...
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
+              )}
+            </div>
+          )}
 
-        {/* Input Area */}
-        <div className="border-t border-border px-4 py-3 bg-card/30 shrink-0">
-          <div className="max-w-3xl mx-auto flex gap-2">
-            <Input
-              placeholder={primaryChar ? `Message ${primaryChar.name}...` : 'Select a character to chat...'}
-              className="bg-secondary/50"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              disabled={sending || !allCharacters.length}
-            />
-            <Button
-              size="icon"
-              className="bg-primary hover:bg-primary/90 shrink-0"
-              onClick={handleSend}
-              disabled={sending || !input.trim() || !allCharacters.length}
-            >
-              <Send size={16} />
-            </Button>
+          {/* ── Input Bar ── */}
+          <div className="p-3 border-t border-border shrink-0">
+            <div className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                placeholder={selectedChar ? `Message ${selectedChar.name}...` : 'Select a character first'}
+                disabled={!selectedChar || loading}
+                className="flex-1"
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={!input.trim() || !selectedChar || loading}
+                size="icon"
+              >
+                <Send size={16} />
+              </Button>
+            </div>
+            <div className="flex items-center justify-between mt-1.5 px-1">
+              <p className="text-[10px] text-muted-foreground">
+                {characters.length === 0
+                  ? 'Upload a save file first →'
+                  : `${selectedChar?.name || '?'} • ${messages.length} messages`}
+              </p>
+              <p className="text-[10px] text-muted-foreground/50">
+                Enter to send • Shift+Enter for new line
+              </p>
+            </div>
           </div>
         </div>
       </div>

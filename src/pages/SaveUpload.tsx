@@ -31,7 +31,7 @@ export default function SaveUpload() {
 
   const handleCreateProject = async () => {
     if (!file) return;
-    const res = await api.createProjectFromSave(file, 'Final Fantasy Tactics');
+    const res = await api.createProjectFromSave(file, 'Chrono Trigger');
     if (res) {
       setCreated(res);
       // Add project to context so it's available when we navigate
@@ -40,7 +40,7 @@ export default function SaveUpload() {
         payload: {
           id: res.project_id,
           name: res.project_name,
-          description: 'Uploaded from FFT save file',
+          description: 'Uploaded from CT save file',
           sources: [],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -60,10 +60,10 @@ export default function SaveUpload() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Sword className="w-8 h-8 text-amber-500" />
-          Upload FFT Save
+          Upload CT Save
         </h1>
         <p className="text-muted-foreground mt-2">
-          Upload a Final Fantasy Tactics save file to extract party data, story progress, and character info.
+          Upload a Chrono Trigger save file to extract party data, story progress, and character info.
           Supports both the 2MB fftsave.bin archive and 40KB resume files.
         </p>
       </div>

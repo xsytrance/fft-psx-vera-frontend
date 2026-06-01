@@ -23,7 +23,7 @@ type AppAction =
   | { type: 'TOGGLE_DARK_MODE' };
 
 const savedDark = typeof window !== 'undefined'
-  ? window.localStorage.getItem('ivalicevera-theme-dark')
+  ? window.localStorage.getItem('chronovera-theme-dark')
   : null;
 
 const initialState: AppState = {
