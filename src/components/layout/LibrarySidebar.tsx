@@ -57,7 +57,7 @@ export default function LibrarySidebar({ onClose }: { onClose?: () => void }) {
         <div className="flex items-center gap-2.5 text-sidebar-primary">
           <Watch size={22} strokeWidth={1.8} />
           <h1 className="font-serif text-xl font-semibold tracking-tight">
-            ChronoVera
+            FFT PSX Vera
           </h1>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function LibrarySidebar({ onClose }: { onClose?: () => void }) {
 
           <div className="flex items-center gap-1.5 text-[10px] text-sidebar-foreground/50">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>ChronoVera</span>
+            <span>FFT PSX Vera</span>
           </div>
         </div>
       </div>

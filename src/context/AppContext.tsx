@@ -23,7 +23,7 @@ type AppAction =
   | { type: 'TOGGLE_DARK_MODE' };
 
 const savedDark = typeof window !== 'undefined'
-  ? window.localStorage.getItem('chronovera-theme-dark')
+  ? window.localStorage.getItem('fftpsxvera-theme-dark')
   : null;
 
 const initialState: AppState = {

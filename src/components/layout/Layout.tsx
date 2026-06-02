@@ -43,7 +43,7 @@ export default function Layout() {
           >
             <Menu size={20} />
           </button>
-          <h1 className="font-serif text-lg font-semibold tracking-tight">ChronoVera</h1>
+          <h1 className="font-serif text-lg font-semibold tracking-tight">FFT PSX Vera</h1>
           <div className="flex-1" />
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />

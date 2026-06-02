@@ -26,7 +26,7 @@ import { useApp } from '../context/AppContext';
 import { mockCharacters, mockCommits } from '../data/mockData';
 import { toast } from 'sonner';
 
-const STORAGE_KEY = 'chronovera-llm-settings';
+const STORAGE_KEY = 'fftpsxvera-llm-settings';
 
 interface LlmSettings {
   provider: 'ollama' | 'openrouter';
@@ -712,13 +712,13 @@ export default function SettingsPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="font-serif text-xl font-semibold text-foreground flex items-center gap-2">
                         <Info size={18} className="text-primary" />
-                        About ChronoVera
+                        About FFT PSX Vera
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Literary description */}
                       <p className="font-serif italic text-[15px] text-muted-foreground leading-relaxed">
-                        ChronoVera is a Chrono Trigger save analyzer and character
+                        FFT PSX Vera is a Final Fantasy Tactics save analyzer and character
                         chat platform. Upload your CT save files to extract party data, story
                         progress, and chat with characters at any point in the War of the Lions
                         while enforcing knowledge boundaries through the Zodiac Stone system.

@@ -45,13 +45,13 @@ interface Conversation {
 // ── Constants ──
 
 const ERA_LABELS: Record<string, string> = {
-  crono: '1000 AD',
-  marle: '1000 AD',
-  lucca: '1000 AD',
+  crono: 'Ivalice',
+  marle: 'Ivalice',
+  lucca: 'Ivalice',
   robo: '2300 AD',
-  frog: '600 AD',
-  ayla: '65M BC',
-  magus: '12K BC',
+  frog: 'Melmond',
+  ayla: '65 Million BC',
+  magus: '12000 BC',
 };
 
 const QUICK_PROMPTS = [

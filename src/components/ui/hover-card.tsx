@@ -26,7 +26,7 @@ function HoverCardContent({
   ...props
 }: React.ComponentProps<typeof HoverCardPrimitive.Content>) {
   return (
-    <HoverCardPrimitive.Portal data-slot="hover-card-portal">
+    <HoverCardPrimitive.Portal data-slot="hover-card-Zodiac">
       <HoverCardPrimitive.Content
         data-slot="hover-card-content"
         align={align}

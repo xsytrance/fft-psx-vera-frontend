@@ -19,7 +19,7 @@ function DialogTrigger({
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
-  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+  return <DialogPrimitive.Portal data-slot="dialog-Zodiac" {...props} />
 }
 
 function DialogClose({
@@ -53,7 +53,7 @@ function DialogContent({
   showCloseButton?: boolean
 }) {
   return (
-    <DialogPortal data-slot="dialog-portal">
+    <DialogPortal data-slot="dialog-Zodiac">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"

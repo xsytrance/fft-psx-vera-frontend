@@ -31,7 +31,7 @@ export default function SaveUpload() {
 
   const handleCreateProject = async () => {
     if (!file) return;
-    const res = await api.createProjectFromSave(file, 'Chrono Trigger');
+    const res = await api.createProjectFromSave(file, 'Final Fantasy Tactics');
     if (res) {
       setCreated(res);
       dispatch({
@@ -58,11 +58,11 @@ export default function SaveUpload() {
       <div>
         <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
           <Sword className="w-7 h-7 md:w-8 md:h-8 text-amber-500" />
-          Upload CT Save
+          Upload FFT Save
         </h1>
         <p className="text-muted-foreground mt-2 text-sm">
-          Upload a Chrono Trigger save file to extract party data, story progress, and character info.
-          Supports ZSNES / SNES9x save states (.zst, .zs?).
+          Upload a Final Fantasy Tactics PSX save file to extract party data, story progress, and character info.
+          Supports DuckStation / ePSXe memory card files (.mcr, .mcd, .mcs).
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export default function SaveUpload() {
         <input
           ref={fileRef}
           type="file"
-          accept=".zst,.zs1,.zs2,.zs3,.zs4,.zs5,.zs6,.zs7,.zs8,.zs9,.sav,.bin"
+          accept=".mcr,.mcd,.mcs,.sav,.bin"
           onChange={handleFile}
           className="hidden"
         />
@@ -99,9 +99,9 @@ export default function SaveUpload() {
           >
             <Upload className="w-10 h-10 md:w-12 md:h-12 text-muted-foreground mx-auto" />
             <div>
-              <p className="font-medium text-sm md:text-base">Click to upload a save file</p>
+                <p className="font-medium text-sm md:text-base">Click to upload a memory card file</p>
               <p className="text-xs md:text-sm text-muted-foreground">
-                Supports .zst, .zs1-.zs9, .sav, .bin
+                Supports .mcr, .mcd, .mcs, .sav, .bin
               </p>
             </div>
           </button>
@@ -117,7 +117,7 @@ export default function SaveUpload() {
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 text-sm"
           >
             {api.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileUp className="w-5 h-5" />}
-            Parse Save
+            Parse Memory Card
           </button>
           <button
             onClick={handleCreateProject}

@@ -1,7 +1,7 @@
 /**
- * theme.ts — ChronoVera "Ivalice" Theme Utilities
+ * theme.ts — FFT PSX Vera "Ivalice" Theme Utilities
  *
- * CT-themed accent colors, zodiac sign mappings, and character avatars.
+ * FFT-themed accent colors, zodiac sign mappings, and character avatars.
  * Each major character is associated with a Zodiac Stone / Auracite reference.
  */
 
@@ -89,7 +89,7 @@ export const zodiacStones: Record<string, ZodiacInfo> = {
 
 /* ── Theme (Dark / Light) Helpers ──────────────────────────────────────── */
 
-const THEME_STORAGE_KEY = 'chronovera-theme-dark';
+const THEME_STORAGE_KEY = 'fftpsxvera-theme-dark';
 
 /** Read the saved preference, or fall back to system preference. */
 export function getInitialDarkMode(): boolean {

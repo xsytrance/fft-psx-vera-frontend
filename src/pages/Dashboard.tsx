@@ -42,14 +42,14 @@ export default function Dashboard() {
         <div className="absolute inset-0 bg-portal-glow opacity-30 pointer-events-none" />
         <div className="relative">
           <p className="text-[10px] md:text-xs font-medium uppercase tracking-[0.2em] text-primary/70 mb-1 md:mb-2">
-            Time Awaits
+            War of the Lions
           </p>
           <h1 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-2">
-            ChronoVera
+            FFT PSX Vera
           </h1>
           <p className="text-muted-foreground max-w-xl text-xs md:text-sm leading-relaxed">
-            Upload your Chrono Trigger save file, chat with characters at any point
-            in the timeline — from Prehistory to the End of Time.
+            Upload your Final Fantasy Tactics save file, chat with characters at any point
+            in the timeline — from the present to the darkest past.
           </p>
           <div className="flex flex-wrap gap-2 mt-3 md:mt-4">
             <Button size="sm" className="gap-2 text-xs md:text-sm" onClick={() => navigate('/save/upload')}>
@@ -69,8 +69,8 @@ export default function Dashboard() {
         {[
           { label: 'Projects', value: projectCount, icon: Globe, color: 'text-portal' },
           { label: 'Characters', value: stats.characters, icon: Users, color: 'text-era-gold' },
-          { label: 'Eras Spanned', value: 7, icon: Clock, color: 'era-past' },
-          { label: 'Play Hours', value: '—', icon: Zap, color: 'era-dark' },
+          { label: 'Chapters', value: 7, icon: Clock, color: 'era-past' },
+          { label: 'Battle Time', value: '—', icon: Zap, color: 'era-dark' },
         ].map((s) => (
           <Card key={s.label} className="p-3 md:p-4 flex items-center gap-2 md:gap-3">
             <s.icon size={18} className={`${s.color} md:w-5 md:h-5`} />
@@ -91,12 +91,12 @@ export default function Dashboard() {
               <Upload size={18} className="text-portal" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold mb-1">Upload Save File</h3>
+              <h3 className="text-sm font-semibold mb-1">Upload Memory Card</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                Parses ZSNES / SNES9x save states. Extracts party stats, equipment, inventory, and story progress.
+                Parses PSX memory card saves. Extracts party stats, equipment, inventory, and story progress.
               </p>
               <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => navigate('/save/upload')}>
-                <Upload size={12} /> Upload .zst / .zs?
+                <Upload size={12} /> Upload .mcr / .mcd?
               </Button>
             </div>
           </div>
@@ -109,9 +109,9 @@ export default function Dashboard() {
               <Users size={18} className="text-era-gold" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold mb-1">Talk to Characters</h3>
+              <h3 className="text-sm font-semibold mb-1">Talk to FFT Characters</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                Crono, Marle, Lucca, Robo, Frog, Ayla, Magus — each with unique personality and era knowledge.
+                Ramza, Delita, Agrias, Mustadio, Rapha, Marach, Meliadoul — each with unique personality and era knowledge.
               </p>
               <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => navigate('/chat')}>
                 <MessageSquare size={12} /> Open Chat
@@ -121,21 +121,21 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* ── CT Lore Quick Reference ── */}
+      {/* ── FFT Lore Quick Reference ── */}
       {latestProject && (
         <Card className="p-4 md:p-5">
-          <h3 className="text-sm font-semibold text-primary/80 mb-3">World of Chrono Trigger</h3>
+          <h3 className="text-sm font-semibold text-primary/80 mb-3">World of Final Fantasy Tactics</h3>
           <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-            A rift in time. A creature from beyond the stars. Seven heroes spanning
-            65 million years to prevent the Day of Lavos. From the prehistoric age through
-            the Middle Ages, the present, the apocalyptic future, and the darkness before
-            time itself.
+            The War of the Lions. A kingdom torn by royal succession, manipulated by the corrupt
+            Church of Glabados and the ancient Lucavi demons. From the battlefields of Ivalice
+            to the depths of the Zodiac Stones &mdash; every choice shapes the fate of the realm.
           </p>
           <div className="flex flex-wrap gap-1.5">
             {[
-              'Time Gate', 'Lavos', 'Chrono Trigger', 'Masamune', 'Chrono Cross',
-              'Epoch', 'End of Time', 'Millennial Fair', 'Active Time Battle',
-              'Dual Tech', 'Triple Tech', 'Time Travel',
+              'War of the Lions', 'Lucavi', 'Zodiac Stones', 'Church of Glabados',
+              'Corpse Brigade', 'Ramza Beoulve', 'Delita Heiral', 'Agrias Oaks',
+              'Mustadio Bunansa', 'Meliadoul Tengille', 'Orlande', 'Wiegraf',
+              'Auracite', 'Goug Machine City', 'Orbonne Monastery',
             ].map((tag) => (
               <span
                 key={tag}

@@ -135,7 +135,7 @@ export async function sendChatMessage(data: {
   });
 }
 
-// ── ChronoVera Chat (simplified) ──────────────────────────────────────────────
+// ── FFT PSX Vera Chat (simplified) ──────────────────────────────────────────────
 
 export async function chat(
   projectId: number,
@@ -154,7 +154,7 @@ export async function chat(
   });
 }
 
-// ── CT Save File ────────────────────────────────────────────────────────────
+// ── FFT Save File ────────────────────────────────────────────────────────────
 
 export async function uploadSave(file: File): Promise<{
   success: boolean;

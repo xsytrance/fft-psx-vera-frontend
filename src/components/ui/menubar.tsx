@@ -35,7 +35,7 @@ function MenubarGroup({
 function MenubarPortal({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
-  return <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} />
+  return <MenubarPrimitive.Portal data-slot="menubar-Zodiac" {...props} />
 }
 
 function MenubarRadioGroup({

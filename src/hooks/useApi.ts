@@ -70,7 +70,7 @@ export function useApi() {
     return { status: 'complete', progress: 100, message: 'Ready' };
   }, []);
 
-  // ── CT Save File ─────────────────────────────────────────────────────────
+  // ── FFT Save File ─────────────────────────────────────────────────────────
 
   const uploadSave = useCallback((file: File) => call(() => api.uploadSave(file)), [call]);
   const createProjectFromSave = useCallback((file: File, projectName: string) => call(() => api.createProjectFromSave(file, projectName)), [call]);
