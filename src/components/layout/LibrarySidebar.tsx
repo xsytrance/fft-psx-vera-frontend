@@ -15,9 +15,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import ProjectChip from '../ui/ProjectChip';
+import CharacterAvatar from '../CharacterAvatar';
 import { useApp } from '../../context/AppContext';
-import { getCharacterAccent } from '../../lib/theme';
-import { getCharacterAvatar } from '../../lib/theme';
 
 function useNavItems(projectId: number | undefined) {
   const pid = projectId ?? 1;
@@ -142,10 +141,7 @@ export default function LibrarySidebar({ onClose }: { onClose?: () => void }) {
             <div className="flex gap-2 px-2 overflow-x-auto pb-1">
               {characters
                 .filter((char) => !project || char.project_id === project.id)
-                .map((char) => {
-                const accent = getCharacterAccent(char.id, isDark);
-                const avatar = getCharacterAvatar(char.id);
-                return (
+                .map((char) => (
                   <motion.button
                     key={char.id}
                     whileHover={{ scale: 1.15 }}
@@ -154,29 +150,15 @@ export default function LibrarySidebar({ onClose }: { onClose?: () => void }) {
                     className="flex flex-col items-center gap-1 shrink-0"
                     title={char.name}
                   >
-                    <div
-                      className="w-10 h-10 rounded-full overflow-hidden border-2"
-                      style={{
-                        borderColor: accent,
-                        boxShadow: `0 0 0 2px ${accent}33`,
-                      }}
-                    >
-                      <img
-                        src={avatar}
-                        alt={char.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
+                    <CharacterAvatar slug={char.slug} name={char.name} size="lg" />
                     <span className="text-[10px] text-muted-foreground truncate max-w-[48px]">
                       {char.name.split(' ')[0]}
                     </span>
                   </motion.button>
-                );
-              })}
-            </div>
-          </section>
-        )}
+                ))}
+              </div>
+            </section>
+          )}
       </div>
 
       {/* ── Bottom Actions ── */}

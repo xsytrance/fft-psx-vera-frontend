@@ -12,6 +12,7 @@ import {
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { useApp } from '../context/AppContext';
+import CharacterAvatar from '../components/CharacterAvatar';
 import * as apiClient from '../lib/api';
 
 export default function Dashboard() {
