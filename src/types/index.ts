@@ -27,4 +27,5 @@ export interface ChatMessage {
   content: string;
   character_name?: string;
   timestamp: number;
+  streaming?: boolean;
 }
