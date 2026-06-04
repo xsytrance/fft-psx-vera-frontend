@@ -13,7 +13,6 @@ export default function ProjectView() {
     if (p) {
       setProject(p);
     } else {
-      // Fetch from API
       fetch(`/api/projects/${id}`)
         .then(r => r.json())
         .then(data => setProject(data))
@@ -36,6 +35,15 @@ export default function ProjectView() {
         <h1>{project.name}</h1>
         <p className="phase">{project.story_phase}</p>
       </div>
+
+      {characters.length >= 2 && (
+        <div className="quick-actions">
+          <Link to={`/project/${project.id}/group-chat`} className="btn-group-chat">
+            {"\uD83D\uDDBC\uFE0F"} Council Chat
+            <span className="btn-subtitle">Talk to multiple characters at once</span>
+          </Link>
+        </div>
+      )}
 
       <section className="roster">
         <h2>Party Roster</h2>
@@ -61,7 +69,7 @@ export default function ProjectView() {
                   <p>{char.role || 'Party Member'}</p>
                   {char.level > 0 && <span className="char-level">Lv.{char.level}</span>}
                 </div>
-                <div className="char-card-arrow">→</div>
+                <div className="char-card-arrow">{"\u2192"}</div>
               </Link>
             ))}
           </div>

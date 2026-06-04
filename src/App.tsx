@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import ProjectView from './pages/ProjectView';
 import CharacterDetail from './pages/CharacterDetail';
 import ChatPage from './pages/ChatPage';
+import GroupChatPage from './pages/GroupChatPage';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/project/:id" element={<ProjectView />} />
+            <Route path="/project/:id/group-chat" element={<GroupChatPage />} />
             <Route path="/project/:id/character/:charId" element={<CharacterDetail />} />
             <Route path="/project/:id/character/:charId/chat" element={<ChatPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
