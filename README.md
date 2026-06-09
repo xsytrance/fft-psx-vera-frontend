@@ -1,73 +1,109 @@
-# React + TypeScript + Vite
+# FFT PSX Vera Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React/Vite frontend for FFT PSX Vera, the save-fed Final Fantasy Tactics companion app. The UI lets users create projects from PSX memory-card saves, chat with save-file characters, inspect Save Truth, and verify that model answers stay grounded in actual parsed save data.
 
-Currently, two official plugins are available:
+## Current features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Project list and project detail views.
+- PSX memory-card upload flow backed by the FFT PSX Vera backend.
+- Character chat UI for save-file/lore-backed personas.
+- Save Truth audit panel showing parsed current player-state facts.
+- Per-character equipment display sourced from parsed save data.
+- Prompt inspector action to confirm actual save facts reach the character prompt.
+- Equipment truth test action that asks the model about gear and scores the answer against parsed equipment.
+- Static parser/download instructions for emulator save workflows.
 
-## React Compiler
+## Save Truth Audit UI
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The project page consumes backend Save Truth APIs to make hallucination debugging visible instead of guessing from chat output alone.
 
-## Expanding the ESLint configuration
+Primary data path:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+PSX .mcd/.mcr -> backend parser -> Project.save_data -> Save Truth endpoint -> ProjectView.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The UI should distinguish:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Parser truth: what the memory-card parser extracted.
+- Persisted truth: what the backend stored for the project.
+- Prompt truth: what the LLM receives in its generated prompt.
+- Model truth: whether the model response includes the expected equipment.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Equipment QA controls
+
+On a project/character flow, the frontend supports these backend QA endpoints:
+
+- `GET /api/projects/{project_id}/save-truth`
+  - Fetches parsed save facts for audit display.
+- `GET /api/projects/{project_id}/characters/{character_id}/prompt-inspector`
+  - Shows/checks the generated prompt and whether it contains save-derived equipment.
+- `POST /api/projects/{project_id}/characters/{character_id}/equipment-truth-test`
+  - Runs a model-backed truth test and reports missing expected items.
+
+Known verified gear from the PRIME local test card:
+
+```text
+/home/xsyprime/Downloads/epsxe000.mcd
+Ramza: Feather Hat, Leather Outfit, Battle Boots, Long Sword
 ```
+
+The expected pass condition is that the prompt and model answer include those actual equipped items, not generic Squire gear recommendations.
+
+## Backend dependency
+
+Default backend repo:
+
+```text
+/home/xsyprime/projects/fft-psx-vera
+```
+
+Relevant backend docs:
+
+- `docs/save-equipment-grounding.md`
+- `docs/status/2026-06-09-save-equipment-grounding-sitrep.md`
+- `SAVE_TRUTH_SCHEMA.md`
+- `SAVE_CORPUS.md`
+
+Backend must expose the normal app APIs plus the Save Truth / prompt inspector / equipment truth test endpoints listed above.
+
+## Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run dev server:
+
+```bash
+npm run dev
+```
+
+Build:
+
+```bash
+npm run build
+```
+
+Lint:
+
+```bash
+npm run lint
+```
+
+## Verification checklist
+
+Before claiming a frontend save-truth change is done:
+
+1. `npm run build` passes.
+2. The Save Truth panel fetches `/save-truth` without crashing.
+3. The character equipment displayed in the UI matches backend parsed gear.
+4. Prompt inspector reports the actual save-equipment label and item names.
+5. Equipment truth test returns `pass=true` for the real save-file character.
+6. Any backend/frontend commit hashes used for verification are recorded in the backend `docs/status/` note.
+
+## Deployment notes
+
+This is a Vite app. GitHub Pages/static hosting should build `dist/` from `npm run build`. If static tools or parser downloads are added, put public assets under `public/` and link them visibly from the UI.
