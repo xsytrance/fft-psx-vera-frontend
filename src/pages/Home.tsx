@@ -90,6 +90,22 @@ export default function Home() {
         </a>
       </section>
 
+      <section className="parser-instructions">
+        <span className="parser-eyebrow">HOW TO USE</span>
+        <h2>Run the parser locally</h2>
+        <ol>
+          <li>Download <code>duckstation_fft_parser.py</code>.</li>
+          <li>Find your DuckStation/ePSXe raw PS1 card, usually a <code>.mcd</code> or <code>.mcr</code> file.</li>
+          <li>Run: <code>python3 duckstation_fft_parser.py /path/to/epsxe000.mcd</code></li>
+          <li>For machine-readable output: <code>python3 duckstation_fft_parser.py /path/to/epsxe000.mcd --json</code></li>
+          <li>To compare two FFT save slots: <code>python3 duckstation_fft_parser.py /path/to/epsxe000.mcd --diff-slots 1 2</code></li>
+        </ol>
+        <p>
+          It is read-only: it validates the card, lists FFT save IDs, shows confirmed character/equipment bytes,
+          and never writes back to your memory card.
+        </p>
+      </section>
+
       <section className="features">
         <div className="feature">
           <span className="feature-icon">💾</span>

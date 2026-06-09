@@ -4,7 +4,19 @@
 Supports DuckStation/ePSXe-style raw memory cards (.mcd/.mcr): 128 KiB,
 magic bytes b"MC", 15 directory entries, 15 payload blocks of 8192 bytes.
 
-This parser is intentionally read-only. It does not modify save files.
+Usage:
+    python3 duckstation_fft_parser.py /path/to/epsxe000.mcd
+    python3 duckstation_fft_parser.py /path/to/epsxe000.mcd --json
+    python3 duckstation_fft_parser.py /path/to/epsxe000.mcd --diff-slots 1 2
+
+Options:
+    --json                    Emit the full parse as JSON.
+    --include-zero-inventory  Include all 256 inventory count bytes, even zeroes.
+    --scan-extra-characters   Experimental dynamic character-name scan.
+    --diff-slots A B          Compare FFT equipment/inventory between two directory slots.
+
+This parser is intentionally read-only. It validates and reports; it does not
+modify save files or write back to the memory card.
 """
 from __future__ import annotations
 
