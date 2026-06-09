@@ -51,6 +51,47 @@ export interface SaveTruth {
   characters: SaveTruthCharacter[];
 }
 
+export interface EquipmentTruth {
+  matched: boolean;
+  save_character: {
+    slot: number | null;
+    name: string;
+    canonical_name: string | null;
+    job: string;
+    level: number;
+  } | null;
+  equipment: SaveTruthEquipment[];
+  expected_item_names: string[];
+}
+
+export interface PromptInspectorResult {
+  project_id: number;
+  character_id: number;
+  character_name: string;
+  message: string;
+  story_phase: string;
+  equipment_truth: EquipmentTruth;
+  prompt_contains_actual_equipment_header: boolean;
+  prompt_contains_expected_items: Record<string, boolean>;
+  system_prompt: string;
+}
+
+export interface EquipmentTruthTestResult {
+  project_id: number;
+  character_id: number;
+  character_name: string;
+  message: string;
+  model: string;
+  equipment_truth: EquipmentTruth;
+  response: string;
+  score: {
+    pass: boolean;
+    mentioned_items: string[];
+    missing_items: string[];
+    expected_count: number;
+  };
+}
+
 export interface AvatarOption {
   job: string;
   url: string;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useApp } from '../context/AppContext';
-import type { Project, Character, SaveTruth } from '../types';
+import type { Project, Character, SaveTruth, PromptInspectorResult, EquipmentTruthTestResult } from '../types';
 
 export default function ProjectView() {
   const { id } = useParams();
@@ -9,6 +9,10 @@ export default function ProjectView() {
   const [project, setProject] = useState<Project | null>(null);
   const [saveTruth, setSaveTruth] = useState<SaveTruth | null>(null);
   const [saveTruthError, setSaveTruthError] = useState<string | null>(null);
+  const [promptInspector, setPromptInspector] = useState<PromptInspectorResult | null>(null);
+  const [truthTest, setTruthTest] = useState<EquipmentTruthTestResult | null>(null);
+  const [qaLoading, setQaLoading] = useState<string | null>(null);
+  const [qaError, setQaError] = useState<string | null>(null);
 
   useEffect(() => {
     const p = state.projects.find(p => p.id === Number(id));
@@ -38,6 +42,63 @@ export default function ProjectView() {
     () => saveTruth?.characters.filter(char => char.has_equipment) ?? [],
     [saveTruth]
   );
+
+  const normalizeName = (value: string | null | undefined) =>
+    (value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const findRosterCharacter = (saveName: string) => {
+    const target = normalizeName(saveName);
+    return (project?.characters || []).find(char => normalizeName(char.name) === target)
+      || (project?.characters || []).find(char => {
+        const roster = normalizeName(char.name);
+        return Boolean(roster && target && (roster.includes(target) || target.includes(roster)));
+      });
+  };
+
+  const inspectPrompt = async (saveName: string) => {
+    const rosterChar = findRosterCharacter(saveName);
+    if (!project || !rosterChar) {
+      setQaError(`No chat character found for ${saveName}`);
+      return;
+    }
+    setQaError(null);
+    setQaLoading(`inspect-${saveName}`);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/characters/${rosterChar.id}/prompt-inspector`);
+      if (!res.ok) throw new Error(`Prompt inspector failed (${res.status})`);
+      setPromptInspector(await res.json());
+    } catch (err) {
+      setQaError(err instanceof Error ? err.message : 'Prompt inspector failed');
+    } finally {
+      setQaLoading(null);
+    }
+  };
+
+  const runGearTruthTest = async (saveName: string) => {
+    const rosterChar = findRosterCharacter(saveName);
+    if (!project || !rosterChar) {
+      setQaError(`No chat character found for ${saveName}`);
+      return;
+    }
+    setQaError(null);
+    setQaLoading(`test-${saveName}`);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/characters/${rosterChar.id}/equipment-truth-test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'What do I have equipped right now? Answer with only my equipped item names.' }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Gear QA failed (${res.status})`);
+      }
+      setTruthTest(await res.json());
+    } catch (err) {
+      setQaError(err instanceof Error ? err.message : 'Gear QA failed');
+    } finally {
+      setQaLoading(null);
+    }
+  };
 
   if (!project) {
     return <div className="page-loading">Loading...</div>;
@@ -109,8 +170,65 @@ export default function ProjectView() {
                         </div>
                       ))}
                     </div>
+                    <div className="audit-qa-actions">
+                      <button
+                        type="button"
+                        onClick={() => inspectPrompt(char.name)}
+                        disabled={qaLoading !== null}
+                      >
+                        {qaLoading === `inspect-${char.name}` ? 'Inspecting...' : 'Inspect Prompt'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => runGearTruthTest(char.name)}
+                        disabled={qaLoading !== null}
+                      >
+                        {qaLoading === `test-${char.name}` ? 'Testing...' : 'Run Gear QA'}
+                      </button>
+                    </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {(qaError || promptInspector || truthTest) && (
+              <div className="audit-qa-panel">
+                <div className="audit-qa-panel-header">
+                  <span>LIVE CHAT QA</span>
+                  <button type="button" onClick={() => { setPromptInspector(null); setTruthTest(null); setQaError(null); }}>Clear</button>
+                </div>
+
+                {qaError && <p className="audit-error">{qaError}</p>}
+
+                {promptInspector && (
+                  <div className="prompt-inspector-result">
+                    <h3>Prompt Inspector: {promptInspector.character_name}</h3>
+                    <div className="audit-stat-grid compact">
+                      <div><span>Actual Gear Header</span><strong>{promptInspector.prompt_contains_actual_equipment_header ? 'YES' : 'NO'}</strong></div>
+                      <div><span>Expected Items</span><strong>{promptInspector.equipment_truth.expected_item_names.length}</strong></div>
+                    </div>
+                    <div className="prompt-item-checks">
+                      {Object.entries(promptInspector.prompt_contains_expected_items).map(([item, present]) => (
+                        <span key={item} className={present ? 'pass' : 'fail'}>{present ? '✓' : '✗'} {item}</span>
+                      ))}
+                    </div>
+                    <details>
+                      <summary>Show exact system prompt</summary>
+                      <pre>{promptInspector.system_prompt}</pre>
+                    </details>
+                  </div>
+                )}
+
+                {truthTest && (
+                  <div className={`gear-test-result ${truthTest.score.pass ? 'pass' : 'fail'}`}>
+                    <h3>{truthTest.score.pass ? 'PASS' : 'FAIL'} — {truthTest.character_name} gear answer</h3>
+                    <p><strong>Expected:</strong> {truthTest.equipment_truth.expected_item_names.join(', ')}</p>
+                    <p><strong>Model said:</strong> {truthTest.response || '(empty)'}</p>
+                    {truthTest.score.missing_items.length > 0 && (
+                      <p><strong>Missing:</strong> {truthTest.score.missing_items.join(', ')}</p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </>
