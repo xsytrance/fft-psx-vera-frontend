@@ -75,11 +75,25 @@ export default function Home() {
         {error && <div className="error-banner">⚠️ {error}</div>}
       </section>
 
+      <section className="parser-download">
+        <div>
+          <span className="parser-eyebrow">NEW TOOL</span>
+          <h2>DuckStation FFT save parser</h2>
+          <p>
+            Read-only Python parser for raw PS1 memory-card saves: validates .mcd/.mcr files,
+            lists FFT slots, extracts confirmed equipment bytes, and diffs original vs edited saves.
+          </p>
+        </div>
+        <a className="btn-primary" href="/tools/duckstation_fft_parser.py" download>
+          ⬇ Download parser
+        </a>
+      </section>
+
       <section className="features">
         <div className="feature">
           <span className="feature-icon">💾</span>
           <h3>Save Analysis</h3>
-          <p>Auto-detects your party, level, job class, and story progress from any PSX save file.</p>
+          <p>Auto-detects your party, equipment, level, job class, and story progress from PSX save files.</p>
         </div>
         <div className="feature">
           <span className="feature-icon">💬</span>

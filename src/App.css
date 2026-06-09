@@ -233,6 +233,26 @@ img { max-width: 100%; display: block; }
 .dropzone p { color: var(--text-dim); font-size: 0.85rem; }
 .dropzone .formats { font-size: 0.7rem; margin-top: 0.75rem; opacity: 0.5; }
 
+.parser-download {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(212, 168, 67, 0.12), rgba(59, 130, 246, 0.08));
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  border-radius: var(--radius);
+}
+.parser-download h2 { font-size: 1.1rem; margin: 0.15rem 0 0.35rem; }
+.parser-download p { color: var(--text-secondary); font-size: 0.85rem; max-width: 520px; }
+.parser-eyebrow { color: var(--gold); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; }
+
+@media (max-width: 640px) {
+  .parser-download { flex-direction: column; align-items: flex-start; }
+}
+
 .error-banner {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
