@@ -16,6 +16,41 @@ export interface Project {
   characters: Character[];
 }
 
+export interface SaveTruthEquipment {
+  slot: string;
+  item_id: number | null;
+  item_id_hex: string | null;
+  item_name: string;
+}
+
+export interface SaveTruthCharacter {
+  id: number;
+  slot: number;
+  name: string;
+  canonical_name: string | null;
+  job: string;
+  level: number;
+  hp: number;
+  mp: number;
+  equipment: SaveTruthEquipment[];
+  has_equipment: boolean;
+  equipment_count: number;
+}
+
+export interface SaveTruth {
+  project_id: number;
+  project_name: string;
+  story_progress: Record<string, unknown>;
+  story_phase: string;
+  character_count: number;
+  saved_character_count: number;
+  characters_with_equipment: number;
+  gold: number;
+  inventory_count: number;
+  save_file_path: string | null;
+  characters: SaveTruthCharacter[];
+}
+
 export interface AvatarOption {
   job: string;
   url: string;
