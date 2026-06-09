@@ -32,6 +32,9 @@ export default function Layout() {
               <Link to={`/project/${projectId}/group-chat`} className={pathname.includes('/group-chat') ? 'active' : ''}>
                 <span className="nav-icon">🏛️</span> Council
               </Link>
+              <Link to={`/project/${projectId}/dream-team`} className={pathname.includes('/dream-team') ? 'active' : ''}>
+                <span className="nav-icon">⚔️</span> Dream Team
+              </Link>
             </>
           )}
         </div>

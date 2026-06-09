@@ -7,6 +7,9 @@ import ProjectView from './pages/ProjectView';
 import CharacterDetail from './pages/CharacterDetail';
 import ChatPage from './pages/ChatPage';
 import GroupChatPage from './pages/GroupChatPage';
+import DreamTeamList from './pages/DreamTeamList';
+import DreamTeamBuilder from './pages/DreamTeamBuilder';
+import DreamTeamChat from './pages/DreamTeamChat';
 
 export default function App() {
   return (
@@ -20,6 +23,9 @@ export default function App() {
             <Route path="/project/:id/group-chat" element={<GroupChatPage />} />
             <Route path="/project/:id/character/:charId" element={<CharacterDetail />} />
             <Route path="/project/:id/character/:charId/chat" element={<ChatPage />} />
+            <Route path="/project/:id/dream-team" element={<DreamTeamList />} />
+            <Route path="/project/:id/dream-team/:teamId" element={<DreamTeamBuilder />} />
+            <Route path="/project/:id/dream-team/:teamId/chat" element={<DreamTeamChat />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
