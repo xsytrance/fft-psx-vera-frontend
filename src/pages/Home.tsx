@@ -6,6 +6,7 @@ import type { Project } from '../types';
 export default function Home() {
   const navigate = useNavigate();
   const { dispatch } = useApp();
+  const parserDownloadUrl = `${import.meta.env.BASE_URL}tools/duckstation_fft_parser.py`;
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [dragOver, setDragOver] = useState(false);
@@ -84,7 +85,7 @@ export default function Home() {
             lists FFT slots, extracts confirmed equipment bytes, and diffs original vs edited saves.
           </p>
         </div>
-        <a className="btn-primary" href="/tools/duckstation_fft_parser.py" download>
+        <a className="btn-primary" href={parserDownloadUrl} download>
           ⬇ Download parser
         </a>
       </section>
