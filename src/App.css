@@ -414,6 +414,34 @@ img { max-width: 100%; display: block; }
 }
 .audit-stat-grid span { display: block; color: var(--text-dim); font-size: 0.7rem; margin-bottom: 0.2rem; }
 .audit-stat-grid strong { color: var(--text); font-size: 0.9rem; }
+.audit-pass-text { color: #22c55e !important; }
+.audit-fail-text { color: var(--red) !important; }
+.audit-validation-panel {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(10, 14, 23, 0.6);
+  border: 1px solid rgba(212, 168, 67, 0.24);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+}
+.audit-validation-panel strong { color: var(--gold); }
+.audit-validation-panel ul { margin: 0.35rem 0 0 1rem; color: var(--text-secondary); }
+.save-truth-json { margin-bottom: 1rem; }
+.save-truth-json summary { color: var(--gold); cursor: pointer; font-size: 0.82rem; font-weight: 700; }
+.save-truth-json pre {
+  max-height: 320px;
+  overflow: auto;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  font-size: 0.72rem;
+}
 .audit-character-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

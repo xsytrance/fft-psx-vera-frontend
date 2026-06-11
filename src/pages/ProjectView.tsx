@@ -146,11 +146,39 @@ export default function ProjectView() {
         {saveTruth && (
           <>
             <div className="audit-stat-grid">
-              <div><span>Story Phase</span><strong>{saveTruth.story_phase}</strong></div>
+              <div><span>Schema</span><strong>{saveTruth.schema_version || 'missing'}</strong></div>
+              <div>
+                <span>Validation</span>
+                <strong className={saveTruth.validation.valid ? 'audit-pass-text' : 'audit-fail-text'}>
+                  {saveTruth.validation.valid ? 'VALID' : 'INVALID'}
+                </strong>
+              </div>
               <div><span>Characters</span><strong>{saveTruth.character_count}</strong></div>
               <div><span>Inventory</span><strong>{saveTruth.inventory_count}</strong></div>
               <div><span>Gil</span><strong>{saveTruth.gold}</strong></div>
             </div>
+
+            {(saveTruth.validation.errors.length > 0 || saveTruth.validation.warnings.length > 0) && (
+              <div className="audit-validation-panel">
+                {saveTruth.validation.errors.length > 0 && (
+                  <div>
+                    <strong>Schema errors</strong>
+                    <ul>{saveTruth.validation.errors.map(error => <li key={error}>{error}</li>)}</ul>
+                  </div>
+                )}
+                {saveTruth.validation.warnings.length > 0 && (
+                  <div>
+                    <strong>Schema warnings</strong>
+                    <ul>{saveTruth.validation.warnings.map(warning => <li key={warning}>{warning}</li>)}</ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <details className="save-truth-json">
+              <summary>Show normalized SaveTruth JSON</summary>
+              <pre>{JSON.stringify(saveTruth.save_truth, null, 2)}</pre>
+            </details>
 
             {auditedCharacters.length === 0 ? (
               <p className="audit-warning">No confirmed equipment is stored for this project yet. Characters must not guess gear.</p>

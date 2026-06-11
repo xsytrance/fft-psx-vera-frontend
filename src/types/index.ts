@@ -37,9 +37,32 @@ export interface SaveTruthCharacter {
   equipment_count: number;
 }
 
+export interface SaveTruthValidation {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+export interface NormalizedSaveTruth {
+  schema_version: string;
+  source?: Record<string, unknown>;
+  player_state?: Record<string, unknown>;
+  story?: Record<string, unknown>;
+  party?: {
+    characters?: Record<string, unknown>[];
+  };
+  inventory?: Record<string, unknown>;
+  confidence?: Record<string, unknown>;
+  provenance?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 export interface SaveTruth {
   project_id: number;
   project_name: string;
+  schema_version: string | null;
+  save_truth: NormalizedSaveTruth;
+  validation: SaveTruthValidation;
   story_progress: Record<string, unknown>;
   story_phase: string;
   character_count: number;
