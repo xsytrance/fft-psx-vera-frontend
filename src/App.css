@@ -282,7 +282,46 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-sm);
   color: var(--red);
   font-size: 0.85rem;
-  text-align: center;
+  text-align: left;
+}
+
+.upload-debug {
+  margin-top: 0.75rem;
+  color: var(--text);
+}
+.upload-debug summary {
+  cursor: pointer;
+  color: var(--gold);
+  font-weight: 600;
+}
+.upload-debug dl {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+.upload-debug dl div {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.5rem;
+}
+.upload-debug dt {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.upload-debug dd {
+  margin: 0;
+  word-break: break-word;
+}
+.upload-debug pre {
+  max-height: 12rem;
+  overflow: auto;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.72rem;
+  white-space: pre-wrap;
 }
 
 /* ── Features ──────────────────────────────────────────────────────────────── */

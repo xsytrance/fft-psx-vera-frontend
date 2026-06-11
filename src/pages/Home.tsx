@@ -3,31 +3,74 @@ import { useNavigate } from 'react-router';
 import { useApp } from '../context/AppContext';
 import type { Project } from '../types';
 
+type UploadDebug = {
+  endpoint: string;
+  fileName: string;
+  fileSize: number;
+  status?: number;
+  statusText?: string;
+  requestId?: string;
+  responseBody?: unknown;
+  note?: string;
+};
+
 export default function Home() {
   const navigate = useNavigate();
   const { dispatch } = useApp();
   const parserDownloadUrl = `${import.meta.env.BASE_URL}tools/duckstation_fft_parser.py`;
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [debug, setDebug] = useState<UploadDebug | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
     setUploading(true);
     setError('');
+    setDebug(null);
+
+    const endpoint = '/api/upload';
+    const baseDebug: UploadDebug = {
+      endpoint,
+      fileName: file.name,
+      fileSize: file.size,
+    };
+
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const r = await fetch('/api/upload', { method: 'POST', body: fd });
-      if (!r.ok) {
-        const err = await r.json().catch(() => ({ detail: r.statusText }));
-        throw new Error(err.detail || 'Upload failed');
+      const r = await fetch(endpoint, { method: 'POST', body: fd });
+      const text = await r.text();
+      let body: any = text;
+      try {
+        body = text ? JSON.parse(text) : null;
+      } catch {
+        // Keep raw text for debug output.
       }
-      const data: Project = await r.json();
+
+      if (!r.ok) {
+        setDebug({
+          ...baseDebug,
+          status: r.status,
+          statusText: r.statusText,
+          requestId: r.headers.get('x-request-id') || undefined,
+          responseBody: body,
+          note: 'Upload reached the API/dev proxy, but parsing or proxying failed.',
+        });
+        throw new Error(body?.detail || body?.error || r.statusText || 'Upload failed');
+      }
+
+      const data: Project = body;
       dispatch({ type: 'ADD_PROJECT', payload: data });
       navigate(`/project/${data.id}`);
     } catch (e: any) {
-      setError(e.message);
+      const message = e?.message || 'Upload failed';
+      setError(message);
+      setDebug(current => current || {
+        ...baseDebug,
+        responseBody: message,
+        note: 'Browser/dev-server failure before a usable API response arrived. Check Vite proxy target and backend port.',
+      });
     } finally {
       setUploading(false);
     }
@@ -73,7 +116,26 @@ export default function Home() {
           <p>or click to browse</p>
           <p className="formats">.zip · .mcr · .mcd · .mcs</p>
         </div>
-        {error && <div className="error-banner">⚠️ {error}</div>}
+        {error && (
+          <div className="error-banner">
+            <strong>⚠️ {error}</strong>
+            {debug && (
+              <details className="upload-debug" open>
+                <summary>Debug details</summary>
+                <dl>
+                  <div><dt>Endpoint</dt><dd>{debug.endpoint}</dd></div>
+                  <div><dt>File</dt><dd>{debug.fileName} ({debug.fileSize.toLocaleString()} bytes)</dd></div>
+                  {debug.status && <div><dt>Status</dt><dd>{debug.status} {debug.statusText}</dd></div>}
+                  {debug.requestId && <div><dt>Request ID</dt><dd>{debug.requestId}</dd></div>}
+                  {debug.note && <div><dt>Note</dt><dd>{debug.note}</dd></div>}
+                </dl>
+                {debug.responseBody != null && (
+                  <pre>{typeof debug.responseBody === 'string' ? debug.responseBody : JSON.stringify(debug.responseBody, null, 2)}</pre>
+                )}
+              </details>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="parser-download">

@@ -8,10 +8,10 @@ export default defineConfig({
   base: process.env.GITHUB_PAGES ? '/fft-psx-vera-frontend/' : '/',
   plugins: [inspectAttr(), react()],
   server: {
-    port: 3000,
+    port: Number(process.env.VITE_DEV_PORT || 5173),
     proxy: {
       '/api': {
-        target: 'http://localhost:8787',
+        target: process.env.VITE_API_TARGET || 'http://localhost:9091',
         changeOrigin: true,
       },
     },
