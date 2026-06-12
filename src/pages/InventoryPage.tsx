@@ -1,8 +1,161 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
-import type { InventoryResponse } from '../types';
+import type { InventoryEquippedBy, InventoryItem, InventoryResponse } from '../types';
 
 const VALID_TYPES = ['All', 'Weapon', 'Shield', 'Helmet', 'Armor', 'Accessory', 'Consumable', 'Key Item', 'Unknown'];
+
+function formatStatLabel(key: string) {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function meaningfulStats(stats?: Record<string, number>) {
+  if (!stats) return [];
+  return Object.entries(stats).filter(([, value]) => typeof value === 'number' && value !== 0);
+}
+
+function isUnknownItem(item: InventoryItem) {
+  return item.item_name.startsWith('Unknown_0x') || item.type === 'Unknown';
+}
+
+function equippedByLabel(eq: InventoryEquippedBy) {
+  if (typeof eq === 'string') return eq;
+  const alias = eq.canonical_name && eq.canonical_name !== eq.character_name ? ` (${eq.canonical_name})` : '';
+  const slot = eq.equipment_slot ? ` - ${eq.equipment_slot}` : '';
+  const saveSlot = eq.save_slot !== undefined && eq.save_slot !== null ? ` - save slot ${eq.save_slot}` : '';
+  return `${eq.character_name}${alias}${slot}${saveSlot}`;
+}
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  if (value === undefined || value === null || value === '') return null;
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-amber-900/20 py-2 text-sm">
+      <span className="text-amber-500/80">{label}</span>
+      <span className="text-right text-amber-100">{value}</span>
+    </div>
+  );
+}
+
+function ItemDetailDrawer({ item, onClose }: { item: InventoryItem; onClose: () => void }) {
+  const stats = meaningfulStats(item.stats);
+  const unknown = isUnknownItem(item);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 md:items-stretch md:justify-end" onClick={onClose}>
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="inventory-item-detail-title"
+        className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-amber-800/40 bg-slate-950 p-5 shadow-2xl md:h-full md:max-h-none md:w-[480px] md:rounded-none md:border-y-0 md:border-r-0"
+        onClick={event => event.stopPropagation()}
+      >
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <p className="mb-1 text-xs uppercase tracking-widest text-amber-500/70">Item details</p>
+            <h2 id="inventory-item-detail-title" className="text-2xl font-serif font-bold text-amber-100">
+              {item.item_name}
+            </h2>
+            <div className="mt-2 flex flex-wrap gap-2 text-xs">
+              <span className="rounded border border-amber-800/40 bg-amber-950/40 px-2 py-1 text-amber-300">{item.item_id_hex || 'No ID'}</span>
+              <span className="rounded border border-blue-800/40 bg-blue-950/40 px-2 py-1 text-blue-300">{item.type}</span>
+              {item.confidence && <span className="rounded border border-emerald-800/40 bg-emerald-950/30 px-2 py-1 text-emerald-300">{item.confidence}</span>}
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Close item details"
+            onClick={onClose}
+            className="rounded border border-amber-800/50 px-3 py-1 text-lg text-amber-300 hover:bg-amber-900/30"
+          >
+            x
+          </button>
+        </div>
+
+        {unknown && (
+          <div className="mb-4 rounded border border-yellow-700/50 bg-yellow-950/20 p-3 text-sm text-yellow-200">
+            This item ID was parsed from the save, but metadata is incomplete. Unknown parsed data is still valuable.
+          </div>
+        )}
+
+        <section className="mb-5 rounded border border-amber-900/30 bg-slate-900/50 p-3">
+          <DetailRow label="Count in bag" value={`x${item.count}`} />
+          <DetailRow label="Item ID" value={item.item_id_hex} />
+          <DetailRow label="Source offset" value={item.source_offset !== undefined && item.source_offset !== null ? `0x${Number(item.source_offset).toString(16).toUpperCase()}` : null} />
+          <DetailRow label="Price" value={item.price !== undefined && item.price !== null ? `${item.price} gil` : null} />
+        </section>
+
+        <section className="mb-5">
+          <h3 className="mb-2 font-semibold text-amber-200">Description</h3>
+          <p className="rounded border border-amber-900/30 bg-slate-900/50 p-3 text-sm text-amber-100/80">
+            {item.description || 'No item description available yet.'}
+          </p>
+        </section>
+
+        <section className="mb-5">
+          <h3 className="mb-2 font-semibold text-amber-200">Stats</h3>
+          {stats.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {stats.map(([key, value]) => (
+                <div key={key} className="rounded border border-amber-900/30 bg-slate-900/50 p-2">
+                  <div className="text-xs text-amber-500/70">{formatStatLabel(key)}</div>
+                  <div className="font-mono text-lg text-amber-100">{value}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded border border-amber-900/30 bg-slate-900/50 p-3 text-sm text-amber-400/70">No stat modifiers recorded.</p>
+          )}
+        </section>
+
+        <section className="mb-5">
+          <h3 className="mb-2 font-semibold text-amber-200">Effects</h3>
+          {item.effects && item.effects.length > 0 ? (
+            <ul className="space-y-2 text-sm text-amber-100/80">
+              {item.effects.map((effect, idx) => <li key={`${effect}-${idx}`} className="rounded border border-amber-900/30 bg-slate-900/50 p-2">{effect}</li>)}
+            </ul>
+          ) : (
+            <p className="rounded border border-amber-900/30 bg-slate-900/50 p-3 text-sm text-amber-400/70">No special effects recorded.</p>
+          )}
+        </section>
+
+        <section className="mb-5">
+          <h3 className="mb-2 font-semibold text-amber-200">Locations</h3>
+          {item.locations && item.locations.length > 0 ? (
+            <ul className="space-y-2 text-sm text-amber-100/80">
+              {item.locations.map((location, idx) => <li key={`${location}-${idx}`} className="rounded border border-amber-900/30 bg-slate-900/50 p-2">{location}</li>)}
+            </ul>
+          ) : (
+            <p className="rounded border border-amber-900/30 bg-slate-900/50 p-3 text-sm text-amber-400/70">No location metadata recorded yet.</p>
+          )}
+        </section>
+
+        <section className="mb-5">
+          <h3 className="mb-2 font-semibold text-amber-200">Also currently equipped by</h3>
+          {item.equipped_by && item.equipped_by.length > 0 ? (
+            <ul className="space-y-2 text-sm text-blue-200">
+              {item.equipped_by.map((eq, idx) => (
+                <li key={`${equippedByLabel(eq)}-${idx}`} className="rounded border border-blue-800/40 bg-blue-950/30 p-2">
+                  {equippedByLabel(eq)}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded border border-blue-900/30 bg-slate-900/50 p-3 text-sm text-blue-300/70">No equipped cross-references for this item.</p>
+          )}
+          <p className="mt-2 text-xs text-amber-500/70">
+            Equipped references are cross-checks only. They are not subtracted from bag inventory counts.
+          </p>
+        </section>
+
+        <details className="rounded border border-amber-900/30 bg-slate-900/50 p-3 text-xs text-amber-300/70">
+          <summary className="cursor-pointer font-semibold text-amber-300">Raw parser/enrichment JSON</summary>
+          <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap break-words">{JSON.stringify(item, null, 2)}</pre>
+        </details>
+      </aside>
+    </div>
+  );
+}
 
 export default function InventoryPage() {
   const { id } = useParams();
@@ -13,6 +166,7 @@ export default function InventoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All');
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
 
   const projectId = Number(id);
 
@@ -36,6 +190,15 @@ export default function InventoryPage() {
 
     fetchInventory();
   }, [projectId]);
+
+  useEffect(() => {
+    if (!selectedItem) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedItem(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedItem]);
 
   const filteredItems = inventory?.items.filter(item => {
     const description = item.description || '';
@@ -68,7 +231,6 @@ export default function InventoryPage() {
     );
   }
 
-  // Split empty states: truly no inventory vs filters hide all results
   const hasAnyItems = inventory && inventory.items.length > 0;
   
   if (!hasAnyItems) {
@@ -116,7 +278,6 @@ export default function InventoryPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-serif font-bold text-amber-100">Current Inventory</h1>
@@ -133,7 +294,6 @@ export default function InventoryPage() {
         </Link>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-3 mb-6">
         <input
           type="text"
@@ -153,30 +313,41 @@ export default function InventoryPage() {
         </select>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredItems.map(item => (
-          <div 
+          <button 
+            type="button"
             key={`${item.item_id_hex}-${item.item_name}`}
-            className="bg-slate-900/80 border border-amber-800/30 rounded-lg p-4 hover:border-amber-600/50 transition-colors group"
+            onClick={() => setSelectedItem(item)}
+            className="text-left bg-slate-900/80 border border-amber-800/30 rounded-lg p-4 hover:border-amber-600/50 focus:outline-none focus:ring-2 focus:ring-amber-500/70 transition-colors group"
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
                 <h3 className="font-bold text-amber-200 group-hover:text-amber-100 transition-colors">
                   {item.item_name}
                 </h3>
-                <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-amber-900/40 text-amber-400 rounded border border-amber-800/30">
-                  {item.type}
-                </span>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  <span className="inline-block px-2 py-0.5 text-xs bg-amber-900/40 text-amber-400 rounded border border-amber-800/30">
+                    {item.type}
+                  </span>
+                  <span className="inline-block px-2 py-0.5 text-xs bg-slate-800/80 text-amber-300/80 rounded border border-amber-900/30">
+                    {item.item_id_hex || 'No ID'}
+                  </span>
+                </div>
               </div>
               <span className="text-2xl font-bold text-emerald-400">x{item.count}</span>
             </div>
+
+            {isUnknownItem(item) && (
+              <p className="mb-2 rounded border border-yellow-700/40 bg-yellow-950/20 px-2 py-1 text-[11px] text-yellow-200/80">
+                Parsed ID; metadata incomplete.
+              </p>
+            )}
 
             <p className="text-xs text-amber-300/60 mb-3 line-clamp-2 min-h-[2.5rem]">
               {item.description || 'No item description available yet.'}
             </p>
 
-            {/* Equipped By */}
             {item.equipped_by && item.equipped_by.length > 0 && (
               <div className="mb-3 pt-3 border-t border-amber-800/20">
                 <p className="text-[10px] uppercase tracking-wider text-amber-500/70 mb-1.5">Equipped by</p>
@@ -193,28 +364,21 @@ export default function InventoryPage() {
               </div>
             )}
 
-            {/* Stats snippet if any are non-zero */}
             {(() => {
-              const stats = item.stats as { pa?: number; ma?: number; evade?: number } | undefined;
-              const pa = stats?.pa ?? 0;
-              const ma = stats?.ma ?? 0;
-              const evade = stats?.evade ?? 0;
-              if (pa > 0 || ma > 0 || evade > 0) {
-                return (
-                  <div className="flex flex-wrap gap-2 text-[10px] text-amber-400/60 font-mono">
-                    {pa > 0 && <span>PA: {pa}</span>}
-                    {ma > 0 && <span>MA: {ma}</span>}
-                    {evade > 0 && <span>Ev: {evade}</span>}
-                  </div>
-                );
-              }
-              return null;
+              const stats = meaningfulStats(item.stats).slice(0, 3);
+              if (stats.length === 0) return null;
+              return (
+                <div className="flex flex-wrap gap-2 text-[10px] text-amber-400/60 font-mono">
+                  {stats.map(([key, value]) => <span key={key}>{formatStatLabel(key)}: {value}</span>)}
+                </div>
+              );
             })()}
-          </div>
+
+            <div className="mt-3 text-xs font-semibold text-amber-400/80 group-hover:text-amber-200">View details</div>
+          </button>
         ))}
       </div>
 
-      {/* Debug details */}
       <details className="mt-6 rounded border border-amber-800/30 bg-slate-950/40 p-3 text-xs text-amber-400/70">
         <summary className="cursor-pointer font-semibold text-amber-300">Inventory contract details</summary>
         <div className="mt-3 grid gap-1 text-left font-mono">
@@ -225,7 +389,8 @@ export default function InventoryPage() {
         </div>
       </details>
 
-      {/* Footer note */}
+      {selectedItem && <ItemDetailDrawer item={selectedItem} onClose={() => setSelectedItem(null)} />}
+
       <div className="mt-8 pt-4 border-t border-amber-800/20 text-center text-xs text-amber-500/50">
         Inventory counts are parser-verified from your uploaded save file. 
         Equipped items are cross-referenced and NOT subtracted from bag totals.
