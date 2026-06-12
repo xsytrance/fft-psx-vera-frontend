@@ -51,7 +51,7 @@ export interface NormalizedSaveTruth {
   party?: {
     characters?: Record<string, unknown>[];
   };
-  inventory?: Record<string, unknown>;
+  inventory?: SaveTruthInventoryItem[];
   confidence?: Record<string, unknown>;
   provenance?: Record<string, unknown>;
   [key: string]: unknown;
