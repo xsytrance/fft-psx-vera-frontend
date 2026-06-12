@@ -192,3 +192,35 @@ export interface GroupChatResponses {
   characters: string[];
   mode: string;
 }
+
+export interface InventoryItem {
+  item_id: number | string;
+  item_id_hex: string;
+  item_name: string;
+  type: string;
+  count: number;
+  description: string;
+  price: number;
+  stats: {
+    pa: number;
+    ma: number;
+    evade: number;
+    evade_magic: number;
+    speed: number;
+    jump: number;
+  };
+  effects: string[];
+  locations: string[];
+  equipped_by: string[];
+  source_offset?: number;
+  confidence?: string;
+}
+
+export interface InventoryResponse {
+  project_id: number;
+  has_save_truth: boolean;
+  total_unique_items: number;
+  total_item_count: number;
+  items: InventoryItem[];
+  item_db_path: string;
+}
