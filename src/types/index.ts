@@ -193,34 +193,59 @@ export interface GroupChatResponses {
   mode: string;
 }
 
-export interface InventoryItem {
-  item_id: number | string;
-  item_id_hex: string;
+export interface SaveTruthInventoryItem {
+  item_id: number | string | null;
+  item_id_hex: string | null;
   item_name: string;
-  type: string;
   count: number;
-  description: string;
-  price: number;
-  stats: {
-    pa: number;
-    ma: number;
-    evade: number;
-    evade_magic: number;
-    speed: number;
-    jump: number;
-  };
-  effects: string[];
-  locations: string[];
-  equipped_by: string[];
-  source_offset?: number;
+  category?: string;
+  subcategory?: string | null;
+  source_offset?: number | null;
   confidence?: string;
+}
+
+export interface InventoryCategorySummary {
+  key: string;
+  label: string;
+  item_count: number;
+  total_quantity: number;
+}
+
+export type InventoryEquippedBy = string | {
+  character_name: string;
+  canonical_name?: string | null;
+  save_slot?: number | string | null;
+  equipment_slot?: string | null;
+};
+
+export interface InventoryItem extends SaveTruthInventoryItem {
+  type: string;
+  description?: string | null;
+  price?: number | null;
+  stats?: Record<string, number>;
+  effects?: string[];
+  locations?: string[];
+  equipped_by: InventoryEquippedBy[];
+  sort_key?: string;
 }
 
 export interface InventoryResponse {
   project_id: number;
+  project_name?: string;
+  story_phase?: string;
+  schema_version?: string | null;
   has_save_truth: boolean;
-  total_unique_items: number;
-  total_item_count: number;
+  gold?: number;
+  inventory_count: number;
+  total_quantity: number;
+  total_unique_items?: number;
+  total_item_count?: number;
+  categories: InventoryCategorySummary[];
   items: InventoryItem[];
-  item_db_path: string;
+  warnings: string[];
+  source?: {
+    save_file_path?: string | null;
+    source_file?: string | null;
+  };
+  item_db_path?: string;
 }

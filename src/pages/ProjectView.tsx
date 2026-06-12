@@ -116,18 +116,19 @@ export default function ProjectView() {
         <p className="phase">{project.story_phase}</p>
       </div>
 
-      {characters.length >= 2 && (
-        <div className="quick-actions">
+      <div className="quick-actions">
+        {characters.length >= 2 && (
           <Link to={`/project/${project.id}/group-chat`} className="btn-group-chat">
-            {"\uD83D\uDDC\uFE0F"} Council Chat
+            🗺️ Council Chat
             <span className="btn-subtitle">Talk to multiple characters at once</span>
           </Link>
-          <Link to={`/project/${project.id}/inventory`} className="btn-inventory">
-            {"\uD83C\uDF92"} Current Inventory
-            <span className="btn-subtitle">View parsed save-file gear and items</span>
-          </Link>
-        </div>
-      )}
+        )}
+
+        <Link to={`/project/${project.id}/inventory`} className="btn-inventory">
+          🎒 Current Inventory
+          <span className="btn-subtitle">View parsed save-file gear and items</span>
+        </Link>
+      </div>
 
       <section className="save-truth-audit">
         <div className="audit-header">

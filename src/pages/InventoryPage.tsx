@@ -41,8 +41,9 @@ export default function InventoryPage() {
   }, [projectId]);
 
   const filteredItems = inventory?.items.filter(item => {
+    const description = item.description || '';
     const matchesSearch = item.item_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase());
+                          description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = filterType === 'All' || item.type === filterType;
     return matchesSearch && matchesType;
   }) || [];
@@ -70,21 +71,44 @@ export default function InventoryPage() {
     );
   }
 
-  if (!inventory || filteredItems.length === 0) {
+  // Split empty states: truly no inventory vs filters hide all results
+  const hasAnyItems = inventory && inventory.items.length > 0;
+  
+  if (!hasAnyItems) {
     return (
       <div className="p-6 text-center">
         <div className="max-w-md mx-auto text-amber-400/70 border border-amber-800/30 bg-amber-950/20 rounded-lg p-8">
           <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
-          <h3 className="text-xl font-serif font-bold mb-2">Your party's pockets are empty.</h3>
-          <p className="text-sm mb-6">No items found matching your filters. Time to raid some treasures or visit an Outfitter!</p>
+          <h3 className="text-xl font-serif font-bold mb-2">No inventory entries parsed yet.</h3>
+          <p className="text-sm mb-6">Characters must not guess your item list. The parser found no items in this save.</p>
           <Link 
             to={`/project/${projectId}`}
             className="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-amber-100 rounded text-sm transition-colors"
           >
             Back to Project
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (filteredItems.length === 0) {
+    return (
+      <div className="p-6 text-center">
+        <div className="max-w-md mx-auto text-amber-400/70 border border-amber-800/30 bg-amber-950/20 rounded-lg p-8">
+          <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          <h3 className="text-xl font-serif font-bold mb-2">No items match your filters.</h3>
+          <p className="text-sm mb-6">Try adjusting your search query or category filter.</p>
+          <button 
+            onClick={() => { setSearchQuery(''); setFilterType('All'); }}
+            className="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-amber-100 rounded text-sm transition-colors"
+          >
+            Clear Filters
+          </button>
         </div>
       </div>
     );
@@ -149,7 +173,7 @@ export default function InventoryPage() {
             </div>
 
             <p className="text-xs text-amber-300/60 mb-3 line-clamp-2 min-h-[2.5rem]">
-              {item.description}
+              {item.description || 'No item description available yet.'}
             </p>
 
             {/* Equipped By */}
@@ -157,24 +181,33 @@ export default function InventoryPage() {
               <div className="mb-3 pt-3 border-t border-amber-800/20">
                 <p className="text-[10px] uppercase tracking-wider text-amber-500/70 mb-1.5">Equipped by</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {item.equipped_by.map(charName => (
-                    <span key={charName} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-900/30 border border-blue-800/40 rounded text-[10px] text-blue-300">
-                      <CharacterAvatar name={charName} size={14} />
-                      {charName}
-                    </span>
-                  ))}
+                  {item.equipped_by.map((eq, idx) => {
+                    const charName = typeof eq === 'string' ? eq : eq.character_name;
+                    return (
+                      <span key={`${charName}-${idx}`} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-900/30 border border-blue-800/40 rounded text-[10px] text-blue-300">
+                        {typeof eq !== 'string' && charName ? <CharacterAvatar name={charName} size={14} /> : null}
+                        {charName}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* Stats snippet if any are non-zero */}
-            {(item.stats.pa > 0 || item.stats.ma > 0 || item.stats.evade > 0) && (
-              <div className="flex flex-wrap gap-2 text-[10px] text-amber-400/60 font-mono">
-                {item.stats.pa > 0 && <span>PA: {item.stats.pa}</span>}
-                {item.stats.ma > 0 && <span>MA: {item.stats.ma}</span>}
-                {item.stats.evade > 0 && <span>Ev: {item.stats.evade}</span>}
-              </div>
-            )}
+            {(() => {
+              const stats = item.stats as { pa?: number; ma?: number; evade?: number } | undefined;
+              if ((stats?.pa ?? 0) > 0 || (stats?.ma ?? 0) > 0 || (stats?.evade ?? 0) > 0) {
+                return (
+                  <div className="flex flex-wrap gap-2 text-[10px] text-amber-400/60 font-mono">
+                    {(stats?.pa ?? 0) > 0 && <span>PA: {stats.pa}</span>}
+                    {(stats?.ma ?? 0) > 0 && <span>MA: {stats.ma}</span>}
+                    {(stats?.evade ?? 0) > 0 && <span>Ev: {stats.evade}</span>}
+                  </div>
+                );
+              }
+              return null;
+            })()}
           </div>
         ))}
       </div>
