@@ -251,3 +251,56 @@ export interface InventoryResponse {
   };
   item_db_path?: string;
 }
+
+export interface InventoryDiffItem {
+  item_id_hex?: string | null;
+  item_name: string;
+  type?: string | null;
+  before_count: number;
+  after_count: number;
+  delta: number;
+}
+
+export interface InventoryEquipmentDiff {
+  character_name: string;
+  equipment_slot?: string | null;
+  item_id_hex?: string | null;
+  item_name?: string | null;
+}
+
+export interface InventoryEquipmentChangedDiff {
+  character_name: string;
+  equipment_slot?: string | null;
+  before: {
+    item_id_hex?: string | null;
+    item_name?: string | null;
+  };
+  after: {
+    item_id_hex?: string | null;
+    item_name?: string | null;
+  };
+}
+
+export interface InventoryLatestDiffResponse {
+  project_id: number;
+  has_diff: boolean;
+  diff: {
+    generated_at?: string;
+    before_source?: string | null;
+    after_source?: string | null;
+    gold?: {
+      before: number;
+      after: number;
+      delta: number;
+    } | null;
+    items_added: InventoryDiffItem[];
+    items_removed: InventoryDiffItem[];
+    items_increased: InventoryDiffItem[];
+    items_decreased: InventoryDiffItem[];
+    equipment_added: InventoryEquipmentDiff[];
+    equipment_removed: InventoryEquipmentDiff[];
+    equipment_changed?: InventoryEquipmentChangedDiff[];
+    warnings: string[];
+  } | null;
+  message?: string;
+}

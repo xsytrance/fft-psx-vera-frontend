@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
-import type { InventoryEquippedBy, InventoryItem, InventoryResponse } from '../types';
+import type { InventoryDiffItem, InventoryEquipmentChangedDiff, InventoryEquipmentDiff, InventoryEquippedBy, InventoryItem, InventoryLatestDiffResponse, InventoryResponse } from '../types';
 
 const VALID_TYPES = ['All', 'Weapon', 'Shield', 'Helmet', 'Armor', 'Accessory', 'Consumable', 'Key Item', 'Unknown'];
 
@@ -34,6 +34,109 @@ type AskPartyResponse = {
 };
 
 const DEFAULT_ITEM_QUESTION = 'What can you tell me about this item from our inventory?';
+
+function formatDelta(delta: number) {
+  return delta > 0 ? `+${delta}` : `${delta}`;
+}
+
+function DiffItemList({ title, items, tone }: { title: string; items: InventoryDiffItem[]; tone: string }) {
+  if (!items.length) return null;
+  return (
+    <div>
+      <h4 className={`mb-2 text-sm font-semibold ${tone}`}>{title}</h4>
+      <ul className="space-y-1 text-sm">
+        {items.map((item, idx) => (
+          <li key={`${title}-${item.item_id_hex || item.item_name}-${idx}`} className="rounded border border-amber-900/30 bg-slate-900/60 px-3 py-2 text-amber-100/90">
+            <span className="font-semibold">{item.item_name}</span>
+            {item.item_id_hex && <span className="ml-2 font-mono text-xs text-amber-400/70">{item.item_id_hex}</span>}
+            <span className="ml-2 text-xs text-amber-500/80">{item.before_count} → {item.after_count}</span>
+            <span className="ml-2 font-mono text-xs text-emerald-300">{formatDelta(item.delta)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function EquipmentDiffList({ title, items, tone }: { title: string; items: InventoryEquipmentDiff[]; tone: string }) {
+  if (!items.length) return null;
+  return (
+    <div>
+      <h4 className={`mb-2 text-sm font-semibold ${tone}`}>{title}</h4>
+      <ul className="space-y-1 text-sm">
+        {items.map((item, idx) => (
+          <li key={`${title}-${item.character_name}-${item.equipment_slot}-${item.item_id_hex}-${idx}`} className="rounded border border-blue-900/30 bg-slate-900/60 px-3 py-2 text-blue-100/90">
+            <span className="font-semibold">{item.character_name}</span>
+            {item.equipment_slot && <span className="ml-2 text-xs text-blue-300/70">{item.equipment_slot}</span>}
+            <span className="ml-2">{item.item_name || 'Unknown parsed item ID'}</span>
+            {item.item_id_hex && <span className="ml-2 font-mono text-xs text-blue-300/70">{item.item_id_hex}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function EquipmentChangedList({ items }: { items: InventoryEquipmentChangedDiff[] }) {
+  if (!items.length) return null;
+  return (
+    <div>
+      <h4 className="mb-2 text-sm font-semibold text-purple-300">Changed equipment</h4>
+      <ul className="space-y-1 text-sm">
+        {items.map((item, idx) => (
+          <li key={`${item.character_name}-${item.equipment_slot}-${idx}`} className="rounded border border-purple-900/30 bg-slate-900/60 px-3 py-2 text-purple-100/90">
+            <span className="font-semibold">{item.character_name}</span>
+            {item.equipment_slot && <span className="ml-2 text-xs text-purple-300/70">{item.equipment_slot}</span>}
+            <span className="ml-2">{item.before.item_name || 'Unknown parsed item ID'} → {item.after.item_name || 'Unknown parsed item ID'}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function InventoryDiffPanel({ diffResponse, loading, error }: { diffResponse: InventoryLatestDiffResponse | null; loading: boolean; error: string | null }) {
+  const diff = diffResponse?.diff;
+  const hasAnyChange = Boolean(diff && (
+    diff.items_added.length || diff.items_removed.length || diff.items_increased.length || diff.items_decreased.length ||
+    diff.equipment_added.length || diff.equipment_removed.length || (diff.equipment_changed?.length ?? 0) || diff.gold
+  ));
+
+  return (
+    <details className="mt-6 rounded border border-emerald-800/30 bg-slate-950/40 p-3 text-sm text-emerald-100/80">
+      <summary className="cursor-pointer font-semibold text-emerald-300">Latest Inventory Changes</summary>
+      <div className="mt-3 space-y-4">
+        {loading && <p className="text-emerald-300/70">Loading latest inventory diff...</p>}
+        {error && <p className="rounded border border-red-800/40 bg-red-950/30 p-2 text-red-200">{error}</p>}
+        {!loading && !error && !diffResponse?.has_diff && (
+          <p className="text-emerald-300/70">{diffResponse?.message || 'No inventory diff has been recorded yet. Refresh this save to compare changes.'}</p>
+        )}
+        {diff && !hasAnyChange && <p className="text-emerald-300/70">Latest refresh recorded no inventory, equipment, or gil changes.</p>}
+        {diff?.gold && (
+          <div className="rounded border border-yellow-800/40 bg-yellow-950/20 p-3 text-yellow-100">
+            Gil: {diff.gold.before} → {diff.gold.after} <span className="font-mono">({formatDelta(diff.gold.delta)})</span>
+          </div>
+        )}
+        {diff && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <DiffItemList title="Gained" items={diff.items_added} tone="text-emerald-300" />
+            <DiffItemList title="Lost" items={diff.items_removed} tone="text-red-300" />
+            <DiffItemList title="Increased" items={diff.items_increased} tone="text-emerald-300" />
+            <DiffItemList title="Decreased" items={diff.items_decreased} tone="text-orange-300" />
+            <EquipmentDiffList title="Newly equipped" items={diff.equipment_added} tone="text-blue-300" />
+            <EquipmentDiffList title="Unequipped" items={diff.equipment_removed} tone="text-orange-300" />
+            <EquipmentChangedList items={diff.equipment_changed || []} />
+          </div>
+        )}
+        {diff?.warnings && diff.warnings.length > 0 && (
+          <div className="rounded border border-yellow-800/40 bg-yellow-950/20 p-2 text-xs text-yellow-200">
+            {diff.warnings.map((warning, idx) => <div key={`${warning}-${idx}`}>{warning}</div>)}
+          </div>
+        )}
+      </div>
+    </details>
+  );
+}
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   if (value === undefined || value === null || value === '') return null;
@@ -254,6 +357,9 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All');
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [latestDiff, setLatestDiff] = useState<InventoryLatestDiffResponse | null>(null);
+  const [diffLoading, setDiffLoading] = useState(false);
+  const [diffError, setDiffError] = useState<string | null>(null);
 
   const projectId = Number(id);
 
@@ -276,6 +382,27 @@ export default function InventoryPage() {
     };
 
     fetchInventory();
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!projectId) return;
+
+    const fetchLatestDiff = async () => {
+      setDiffLoading(true);
+      setDiffError(null);
+      try {
+        const res = await fetch(`/api/projects/${projectId}/inventory/diff/latest`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch latest inventory diff`);
+        const data: InventoryLatestDiffResponse = await res.json();
+        setLatestDiff(data);
+      } catch (err) {
+        setDiffError(err instanceof Error ? err.message : 'Failed to load latest inventory diff');
+      } finally {
+        setDiffLoading(false);
+      }
+    };
+
+    fetchLatestDiff();
   }, [projectId]);
 
   useEffect(() => {
@@ -465,6 +592,8 @@ export default function InventoryPage() {
           </button>
         ))}
       </div>
+
+      <InventoryDiffPanel diffResponse={latestDiff} loading={diffLoading} error={diffError} />
 
       <details className="mt-6 rounded border border-amber-800/30 bg-slate-950/40 p-3 text-xs text-amber-400/70">
         <summary className="cursor-pointer font-semibold text-amber-300">Inventory contract details</summary>
