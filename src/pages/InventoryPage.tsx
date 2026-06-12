@@ -27,6 +27,14 @@ function equippedByLabel(eq: InventoryEquippedBy) {
   return `${eq.character_name}${alias}${slot}${saveSlot}`;
 }
 
+type AskPartyResponse = {
+  question: string;
+  responses: Array<{ character_id: number; character_name: string; text: string }>;
+  warnings?: string[];
+};
+
+const DEFAULT_ITEM_QUESTION = 'What can you tell me about this item from our inventory?';
+
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   if (value === undefined || value === null || value === '') return null;
   return (
@@ -37,9 +45,44 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   );
 }
 
-function ItemDetailDrawer({ item, onClose }: { item: InventoryItem; onClose: () => void }) {
+function ItemDetailDrawer({ item, projectId, onClose }: { item: InventoryItem; projectId: number; onClose: () => void }) {
   const stats = meaningfulStats(item.stats);
   const unknown = isUnknownItem(item);
+  const [askQuestion, setAskQuestion] = useState('');
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
+  const [askResult, setAskResult] = useState<AskPartyResponse | null>(null);
+
+  const askParty = async () => {
+    setAskLoading(true);
+    setAskError(null);
+    setAskResult(null);
+    try {
+      const question = askQuestion.trim() || DEFAULT_ITEM_QUESTION;
+      const res = await fetch(`/api/projects/${projectId}/inventory/items/ask-party`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          item_id: item.item_id,
+          item_id_hex: item.item_id_hex,
+          item_name: item.item_name,
+          question,
+          mode: 'campfire',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const detail = typeof data.detail === 'string' ? data.detail : 'Party could not answer about this item.';
+        throw new Error(detail);
+      }
+      setAskResult(data as AskPartyResponse);
+    } catch (err) {
+      const fallback = 'This item could not be verified in the current parsed save, so the party will not comment on it.';
+      setAskError(err instanceof Error ? err.message : fallback);
+    } finally {
+      setAskLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 md:items-stretch md:justify-end" onClick={onClose}>
@@ -146,6 +189,50 @@ function ItemDetailDrawer({ item, onClose }: { item: InventoryItem; onClose: () 
           <p className="mt-2 text-xs text-amber-500/70">
             Equipped references are cross-checks only. They are not subtracted from bag inventory counts.
           </p>
+        </section>
+
+        <section className="mb-5 rounded border border-purple-800/40 bg-purple-950/20 p-3">
+          <h3 className="mb-2 font-semibold text-purple-200">Ask Party About This Item</h3>
+          <p className="mb-3 text-xs text-purple-200/70">
+            The answer is grounded in parser-confirmed inventory data. Characters cannot invent item counts or ownership.
+          </p>
+          <textarea
+            value={askQuestion}
+            onChange={event => setAskQuestion(event.target.value)}
+            placeholder={DEFAULT_ITEM_QUESTION}
+            rows={3}
+            className="mb-3 w-full resize-none rounded border border-purple-800/40 bg-slate-950 p-2 text-sm text-purple-100 placeholder-purple-300/40 focus:outline-none focus:ring-2 focus:ring-purple-600/60"
+          />
+          <button
+            type="button"
+            onClick={askParty}
+            disabled={askLoading}
+            className="rounded bg-purple-700 px-3 py-2 text-sm font-semibold text-purple-50 hover:bg-purple-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {askLoading ? 'Asking party...' : 'Ask Party'}
+          </button>
+
+          {askError && (
+            <div className="mt-3 rounded border border-red-800/50 bg-red-950/30 p-3 text-sm text-red-200">
+              {askError}
+            </div>
+          )}
+
+          {askResult && (
+            <div className="mt-4 space-y-3">
+              {askResult.warnings && askResult.warnings.length > 0 && (
+                <div className="rounded border border-yellow-800/50 bg-yellow-950/20 p-2 text-xs text-yellow-200">
+                  {askResult.warnings.map((warning, idx) => <div key={`${warning}-${idx}`}>{warning}</div>)}
+                </div>
+              )}
+              {askResult.responses.map(response => (
+                <div key={`${response.character_id}-${response.character_name}`} className="rounded border border-purple-800/40 bg-slate-900/70 p-3">
+                  <div className="mb-1 text-sm font-semibold text-purple-200">{response.character_name}</div>
+                  <p className="whitespace-pre-wrap text-sm text-purple-50/90">{response.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         <details className="rounded border border-amber-900/30 bg-slate-900/50 p-3 text-xs text-amber-300/70">
@@ -389,7 +476,7 @@ export default function InventoryPage() {
         </div>
       </details>
 
-      {selectedItem && <ItemDetailDrawer item={selectedItem} onClose={() => setSelectedItem(null)} />}
+      {selectedItem && <ItemDetailDrawer item={selectedItem} projectId={projectId} onClose={() => setSelectedItem(null)} />}
 
       <div className="mt-8 pt-4 border-t border-amber-800/20 text-center text-xs text-amber-500/50">
         Inventory counts are parser-verified from your uploaded save file. 
