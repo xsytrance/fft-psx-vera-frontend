@@ -214,6 +214,17 @@ export default function InventoryPage() {
         ))}
       </div>
 
+      {/* Debug details */}
+      <details className="mt-6 rounded border border-amber-800/30 bg-slate-950/40 p-3 text-xs text-amber-400/70">
+        <summary className="cursor-pointer font-semibold text-amber-300">Inventory contract details</summary>
+        <div className="mt-3 grid gap-1 text-left font-mono">
+          <div>inventory_schema_version: {inventory.inventory_schema_version || 'unknown'}</div>
+          <div>schema_version: {inventory.schema_version || 'null'}</div>
+          <div>source.inventory_source: {inventory.source?.inventory_source || 'unknown'}</div>
+          <div>warnings: {inventory.warnings?.length ?? 0}</div>
+        </div>
+      </details>
+
       {/* Footer note */}
       <div className="mt-8 pt-4 border-t border-amber-800/20 text-center text-xs text-amber-500/50">
         Inventory counts are parser-verified from your uploaded save file. 
