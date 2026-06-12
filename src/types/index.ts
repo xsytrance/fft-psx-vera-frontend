@@ -234,6 +234,7 @@ export interface InventoryResponse {
   project_name?: string;
   story_phase?: string;
   schema_version?: string | null;
+  inventory_schema_version?: string;
   has_save_truth: boolean;
   gold?: number;
   inventory_count: number;
@@ -244,6 +245,7 @@ export interface InventoryResponse {
   items: InventoryItem[];
   warnings: string[];
   source?: {
+    inventory_source?: 'save_truth' | 'legacy' | string;
     save_file_path?: string | null;
     source_file?: string | null;
   };

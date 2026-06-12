@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
-import { useApp } from '../context/AppContext';
-import type { InventoryItem, InventoryResponse } from '../types';
-import CharacterAvatar from '../components/CharacterAvatar';
+import type { InventoryResponse } from '../types';
 
 const VALID_TYPES = ['All', 'Weapon', 'Shield', 'Helmet', 'Armor', 'Accessory', 'Consumable', 'Key Item', 'Unknown'];
 
 export default function InventoryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { state } = useApp();
   
   const [inventory, setInventory] = useState<InventoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -114,6 +111,9 @@ export default function InventoryPage() {
     );
   }
 
+  const uniqueItemCount = inventory?.inventory_count ?? inventory?.total_unique_items ?? 0;
+  const totalQuantity = inventory?.total_quantity ?? inventory?.total_item_count ?? 0;
+
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -121,7 +121,7 @@ export default function InventoryPage() {
         <div>
           <h1 className="text-2xl font-serif font-bold text-amber-100">Current Inventory</h1>
           <p className="text-sm text-amber-400/70 mt-1">
-            {inventory.total_unique_items} unique items &middot; {inventory.total_item_count} total
+            {uniqueItemCount} unique items &middot; {totalQuantity} total
             {inventory.has_save_truth && <span className="ml-2 text-emerald-400">(Parser-verified Save Truth)</span>}
           </p>
         </div>
@@ -185,7 +185,6 @@ export default function InventoryPage() {
                     const charName = typeof eq === 'string' ? eq : eq.character_name;
                     return (
                       <span key={`${charName}-${idx}`} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-900/30 border border-blue-800/40 rounded text-[10px] text-blue-300">
-                        {typeof eq !== 'string' && charName ? <CharacterAvatar name={charName} size={14} /> : null}
                         {charName}
                       </span>
                     );
@@ -197,12 +196,15 @@ export default function InventoryPage() {
             {/* Stats snippet if any are non-zero */}
             {(() => {
               const stats = item.stats as { pa?: number; ma?: number; evade?: number } | undefined;
-              if ((stats?.pa ?? 0) > 0 || (stats?.ma ?? 0) > 0 || (stats?.evade ?? 0) > 0) {
+              const pa = stats?.pa ?? 0;
+              const ma = stats?.ma ?? 0;
+              const evade = stats?.evade ?? 0;
+              if (pa > 0 || ma > 0 || evade > 0) {
                 return (
                   <div className="flex flex-wrap gap-2 text-[10px] text-amber-400/60 font-mono">
-                    {(stats?.pa ?? 0) > 0 && <span>PA: {stats.pa}</span>}
-                    {(stats?.ma ?? 0) > 0 && <span>MA: {stats.ma}</span>}
-                    {(stats?.evade ?? 0) > 0 && <span>Ev: {stats.evade}</span>}
+                    {pa > 0 && <span>PA: {pa}</span>}
+                    {ma > 0 && <span>MA: {ma}</span>}
+                    {evade > 0 && <span>Ev: {evade}</span>}
                   </div>
                 );
               }
