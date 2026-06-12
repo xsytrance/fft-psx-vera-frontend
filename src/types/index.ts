@@ -304,3 +304,54 @@ export interface InventoryLatestDiffResponse {
   } | null;
   message?: string;
 }
+
+export interface SaveMemoryGoldFact {
+  before: number;
+  after: number;
+  delta: number;
+}
+
+export interface SaveMemoryEvent {
+  event_id: string;
+  schema_version?: string;
+  event_type: string;
+  generated_at?: string;
+  source?: string;
+  project_id?: number;
+  story_phase?: string | null;
+  title: string;
+  summary: string;
+  facts: {
+    gold?: SaveMemoryGoldFact | null;
+    items_added?: InventoryDiffItem[];
+    items_removed?: InventoryDiffItem[];
+    items_increased?: InventoryDiffItem[];
+    items_decreased?: InventoryDiffItem[];
+    equipment_added?: InventoryEquipmentDiff[];
+    equipment_removed?: InventoryEquipmentDiff[];
+    equipment_changed?: InventoryEquipmentChangedDiff[];
+  };
+  warnings?: string[];
+}
+
+export interface SaveMemoryResponse {
+  project_id: number;
+  schema_version: string;
+  has_memory: boolean;
+  events: SaveMemoryEvent[];
+  latest_event?: SaveMemoryEvent | null;
+  message?: string;
+  warnings?: string[];
+}
+
+export interface CampfireResponse {
+  project_id: number;
+  event: SaveMemoryEvent;
+  question: string;
+  responses: Array<{
+    character_id: number;
+    character_name: string;
+    text: string;
+  }>;
+  warnings?: string[];
+}

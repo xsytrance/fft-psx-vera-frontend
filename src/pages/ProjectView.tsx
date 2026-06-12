@@ -128,6 +128,11 @@ export default function ProjectView() {
           🎒 Current Inventory
           <span className="btn-subtitle">View parsed save-file gear and items</span>
         </Link>
+
+        <Link to={`/project/${project.id}/campfire`} className="btn-inventory">
+          🔥 Campfire
+          <span className="btn-subtitle">Discuss latest save memory with the party</span>
+        </Link>
       </div>
 
       <section className="save-truth-audit">
