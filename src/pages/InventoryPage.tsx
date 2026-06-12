@@ -449,8 +449,8 @@ export default function InventoryPage() {
   
   if (!hasAnyItems) {
     return (
-      <div className="p-6 text-center">
-        <div className="max-w-md mx-auto text-amber-400/70 border border-amber-800/30 bg-amber-950/20 rounded-lg p-8">
+      <div className="p-4 md:p-6 max-w-7xl mx-auto">
+        <div className="max-w-md mx-auto text-center text-amber-400/70 border border-amber-800/30 bg-amber-950/20 rounded-lg p-8">
           <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
@@ -463,14 +463,15 @@ export default function InventoryPage() {
             Back to Project
           </Link>
         </div>
+        <InventoryDiffPanel diffResponse={latestDiff} loading={diffLoading} error={diffError} />
       </div>
     );
   }
 
   if (filteredItems.length === 0) {
     return (
-      <div className="p-6 text-center">
-        <div className="max-w-md mx-auto text-amber-400/70 border border-amber-800/30 bg-amber-950/20 rounded-lg p-8">
+      <div className="p-4 md:p-6 max-w-7xl mx-auto">
+        <div className="max-w-md mx-auto text-center text-amber-400/70 border border-amber-800/30 bg-amber-950/20 rounded-lg p-8">
           <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
@@ -483,6 +484,7 @@ export default function InventoryPage() {
             Clear Filters
           </button>
         </div>
+        <InventoryDiffPanel diffResponse={latestDiff} loading={diffLoading} error={diffError} />
       </div>
     );
   }
