@@ -163,6 +163,15 @@ export default function CampfirePage() {
         </div>
       </div>
 
+      {latest && (
+        <details className="mb-6 rounded border border-slate-800 bg-slate-950/50 p-4 text-xs text-slate-400">
+          <summary className="cursor-pointer font-semibold text-slate-200">Inspect Save Memory Schema</summary>
+          <pre className="mt-3 max-h-64 overflow-auto rounded bg-black/50 p-3 text-[10px] text-slate-300 whitespace-pre-wrap">
+            {JSON.stringify(latest, null, 2)}
+          </pre>
+        </details>
+      )}
+
       {loading && <div className="rounded border border-amber-900/30 bg-slate-950/40 p-6 text-amber-300/70">Reading save memory...</div>}
       {error && <div className="rounded border border-red-800/40 bg-red-950/30 p-6 text-red-200">{error}</div>}
 
@@ -217,6 +226,21 @@ export default function CampfirePage() {
                     <p className="whitespace-pre-wrap text-sm text-purple-50/90">{response.text}</p>
                   </div>
                 ))}
+                {campfireResult.prompt_inspections && campfireResult.prompt_inspections.length > 0 && (
+                  <details className="mt-6 rounded border border-slate-800 bg-slate-950/50 p-4 text-xs text-slate-400">
+                    <summary className="cursor-pointer font-semibold text-slate-200">Prompt Inspector</summary>
+                    <div className="mt-3 space-y-4">
+                      {campfireResult.prompt_inspections.map((insp, idx) => (
+                        <div key={idx}>
+                          <h4 className="mb-2 font-semibold text-amber-300">System Prompt: {insp.character_name}</h4>
+                          <pre className="max-h-64 overflow-auto rounded bg-black/50 p-3 text-[10px] text-amber-100/80 whitespace-pre-wrap">
+                            {insp.system_prompt}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
             )}
           </section>

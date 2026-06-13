@@ -353,5 +353,9 @@ export interface CampfireResponse {
     character_name: string;
     text: string;
   }>;
+  prompt_inspections?: Array<{
+    character_name: string;
+    system_prompt: string;
+  }>;
   warnings?: string[];
 }
