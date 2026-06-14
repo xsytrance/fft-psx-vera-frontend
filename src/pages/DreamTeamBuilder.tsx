@@ -2,18 +2,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router';
 import type { DreamTeam, DreamTeamMember, AvailableCharacter, JobInfo, EquipmentData } from '../types';
 
-// FFT-themed color scheme
+// Tactical-fantasy palette — references the design tokens from App.css so the
+// builder stays in step with the rest of the app (no hardcoded colors).
 const FFT_THEME = {
-  primary: '#1a1a2e',
-  accent: '#c9a227',
-  gold: '#d4af37',
-  dark: '#0f0f1a',
-  card: '#16213e',
-  text: '#e8e8e8',
-  muted: '#8892a0',
-  border: '#2a3a5c',
-  success: '#4ade80',
-  danger: '#f87171',
+  primary: 'var(--bg-elevated)',
+  accent: 'var(--bronze)',
+  gold: 'var(--gold)',
+  dark: 'var(--bg)',
+  card: 'var(--bg-card)',
+  text: 'var(--text)',
+  muted: 'var(--text-secondary)',
+  border: 'var(--border)',
+  success: 'var(--confirm)',
+  danger: 'var(--danger)',
 };
 
 export default function DreamTeamBuilder() {

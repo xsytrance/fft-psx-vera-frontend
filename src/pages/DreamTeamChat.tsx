@@ -2,17 +2,18 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router';
 import type { DreamTeam } from '../types';
 
+// Tactical-fantasy palette — references the design tokens from App.css.
 const FFT_THEME = {
-  primary: '#1a1a2e',
-  accent: '#c9a227',
-  gold: '#d4af37',
-  dark: '#0f0f1a',
-  card: '#16213e',
-  text: '#e8e8e8',
-  muted: '#8892a0',
-  border: '#2a3a5c',
-  user: '#1a3a5c',
-  char: '#2a1a3c',
+  primary: 'var(--bg-elevated)',
+  accent: 'var(--bronze)',
+  gold: 'var(--gold)',
+  dark: 'var(--bg)',
+  card: 'var(--bg-card)',
+  text: 'var(--text)',
+  muted: 'var(--text-secondary)',
+  border: 'var(--border)',
+  user: 'var(--blue-dim)',
+  char: 'var(--bg-card)',
 };
 
 export default function DreamTeamChat() {
@@ -231,7 +232,7 @@ export default function DreamTeamChat() {
               padding: '1rem 1.25rem',
               borderRadius: msg.isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
               border: msg.isUser ? 'none' : `1px solid ${FFT_THEME.border}`,
-              color: msg.isUser ? '#fff' : FFT_THEME.text,
+              color: msg.isUser ? 'var(--text-strong)' : FFT_THEME.text,
             }}>
               {!msg.isUser && (
                 <div style={{
