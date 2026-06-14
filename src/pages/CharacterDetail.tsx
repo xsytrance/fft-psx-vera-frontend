@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { MessageSquare } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -8,16 +8,18 @@ import type { Character, AvatarOption } from '../types';
 export default function CharacterDetail() {
   const { id, charId } = useParams();
   const { state } = useApp();
-  const [character, setCharacter] = useState<Character | null>(null);
   const [avatars, setAvatars] = useState<AvatarOption[]>([]);
   const [showPicker, setShowPicker] = useState(false);
+  const [avatarOverride, setAvatarOverride] = useState<string | null>(null);
 
-  useEffect(() => {
-    const pid = Number(id);
-    const project = state.projects.find(p => p.id === pid);
-    const char = project?.characters?.find(c => c.id === Number(charId));
-    if (char) setCharacter(char);
+  const baseCharacter = useMemo(() => {
+    const project = state.projects.find(p => p.id === Number(id));
+    return project?.characters?.find(c => c.id === Number(charId)) ?? null;
   }, [id, charId, state.projects]);
+
+  const character: Character | null = baseCharacter
+    ? { ...baseCharacter, avatar_url: avatarOverride ?? baseCharacter.avatar_url }
+    : null;
 
   useEffect(() => {
     if (showPicker) {
@@ -36,7 +38,7 @@ export default function CharacterDetail() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ avatar_url: url }),
     });
-    setCharacter(prev => prev ? { ...prev, avatar_url: url } : null);
+    setAvatarOverride(url);
     setShowPicker(false);
   };
 
@@ -50,7 +52,7 @@ export default function CharacterDetail() {
     });
     if (r.ok) {
       const data = await r.json();
-      setCharacter(prev => prev ? { ...prev, avatar_url: data.url } : null);
+      setAvatarOverride(data.url);
       setShowPicker(false);
     }
   };

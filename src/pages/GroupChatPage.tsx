@@ -158,22 +158,23 @@ export default function GroupChatPage() {
                   timestamp: Date.now(),
                 }]);
               }
-            } catch (_) {
+            } catch {
               // Skip malformed JSON
             }
           }
         }
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
         setMessages(prev => prev.map(m =>
           m.streaming ? { ...m, streaming: false } : m
         ));
       } else {
+        const message = err instanceof Error ? err.message : String(err);
         setMessages(prev => [...prev, {
           id: `err-${Date.now()}`,
           role: 'assistant',
-          content: `(Error: ${err.message})`,
+          content: `(Error: ${message})`,
           character_name: 'System',
           timestamp: Date.now(),
         }]);

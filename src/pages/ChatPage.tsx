@@ -121,15 +121,16 @@ export default function ChatPage() {
           }
         }
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
         // User stopped streaming — keep whatever we have
         setMessages(prev => prev.map(m =>
           m.id === aiMsgId ? { ...m, streaming: false } : m
         ));
       } else {
+        const message = err instanceof Error ? err.message : String(err);
         setMessages(prev => prev.map(m =>
-          m.id === aiMsgId ? { ...m, content: `(Error: ${err.message})`, streaming: false } : m
+          m.id === aiMsgId ? { ...m, content: `(Error: ${message})`, streaming: false } : m
         ));
       }
     } finally {

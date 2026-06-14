@@ -44,7 +44,7 @@ export default function Home() {
       fd.append('file', file);
       const r = await fetch(endpoint, { method: 'POST', body: fd });
       const text = await r.text();
-      let body: any = text;
+      let body: unknown = text;
       try {
         body = text ? JSON.parse(text) : null;
       } catch {
@@ -60,14 +60,15 @@ export default function Home() {
           responseBody: body,
           note: 'Upload reached the API/dev proxy, but parsing or proxying failed.',
         });
-        throw new Error(body?.detail || body?.error || r.statusText || 'Upload failed');
+        const errBody = (body ?? null) as { detail?: string; error?: string } | null;
+        throw new Error(errBody?.detail || errBody?.error || r.statusText || 'Upload failed');
       }
 
-      const data: Project = body;
+      const data = body as Project;
       dispatch({ type: 'ADD_PROJECT', payload: data });
       navigate(`/project/${data.id}`);
-    } catch (e: any) {
-      const message = e?.message || 'Upload failed';
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Upload failed';
       setError(message);
       setDebug(current => current || {
         ...baseDebug,

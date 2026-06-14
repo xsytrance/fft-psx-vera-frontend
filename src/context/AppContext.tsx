@@ -47,6 +47,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={{ state, dispatch }}>{children}</Ctx.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useApp() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error('useApp must be used within AppProvider');

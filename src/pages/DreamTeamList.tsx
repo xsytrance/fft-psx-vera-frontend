@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router';
 import type { DreamTeam } from '../types';
 
@@ -9,7 +9,7 @@ export default function DreamTeamList() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
 
-  const loadTeams = async () => {
+  const loadTeams = useCallback(async () => {
     try {
       const res = await fetch(`/api/projects/${projectId}/dream-teams`);
       if (res.ok) {
@@ -21,9 +21,9 @@ export default function DreamTeamList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
-  useEffect(() => { loadTeams(); }, [projectId]);
+  useEffect(() => { loadTeams(); }, [loadTeams]);
 
   const handleCreate = async () => {
     setCreating(true);
