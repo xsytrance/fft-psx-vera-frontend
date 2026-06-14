@@ -1012,6 +1012,10 @@ h3 { font-size: 1.02rem; }
 .timeline-summary { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem; line-height: 1.5; }
 .timeline-facts { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
 .timeline-warn { margin-top: 0.7rem; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); background: rgba(217, 169, 63, 0.1); border: 1px solid rgba(217, 169, 63, 0.28); color: var(--caution); font-size: 0.8rem; }
+.timeline-discuss { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ember); border: 1px solid rgba(232, 116, 59, 0.3); background: rgba(232, 116, 59, 0.08); padding: 0.3rem 0.6rem; border-radius: 99px; transition: all var(--transition); }
+.timeline-discuss:hover { background: rgba(232, 116, 59, 0.16); border-color: rgba(232, 116, 59, 0.5); color: var(--ember-bright); }
+.campfire-event-picker { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.campfire-event-picker .dt-input { max-width: 460px; }
 
 /* ════════════════════════════════════════════════════════════════════════════
    SETTINGS — the companion's appearance & grounding
