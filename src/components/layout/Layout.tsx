@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { Home, Library, Users, Landmark, Swords, Menu, X } from 'lucide-react';
+import { Home, Library, Users, Landmark, Swords, Menu, X, Settings } from 'lucide-react';
 import Sigil from '../ui/Sigil';
 
 export default function Layout() {
@@ -54,6 +54,9 @@ export default function Layout() {
           </Link>
           <Link to="/dashboard" className={pathname.startsWith('/dashboard') ? 'active' : ''}>
             <span className="nav-icon"><Library size={16} /></span> Campaigns
+          </Link>
+          <Link to="/settings" className={pathname.startsWith('/settings') ? 'active' : ''}>
+            <span className="nav-icon"><Settings size={16} /></span> Settings
           </Link>
         </div>
 

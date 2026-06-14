@@ -93,6 +93,109 @@
   --sidebar-accent-foreground: 41 33% 87%;
   --sidebar-border: 221 24% 19%;
   --sidebar-ring: 41 56% 54%;
+
+  /* Theme-switchable Tailwind scales — Obsidian (dark) values, identical to the
+     previous hard-coded ramps. Light overrides live in html[data-theme="light"]. */
+  --c-amber-50:251 244 227; --c-amber-100:243 230 196; --c-amber-200:233 213 155; --c-amber-300:221 192 116; --c-amber-400:208 169 79; --c-amber-500:201 162 75; --c-amber-600:176 133 55; --c-amber-700:138 109 46; --c-amber-800:95 74 32; --c-amber-900:61 48 21; --c-amber-950:34 26 11;
+  --c-slate-50:238 241 246; --c-slate-100:221 226 236; --c-slate-200:192 199 214; --c-slate-300:154 163 180; --c-slate-400:111 122 142; --c-slate-500:81 91 110; --c-slate-600:59 68 88; --c-slate-700:42 51 70; --c-slate-800:27 34 51; --c-slate-900:20 25 37; --c-slate-950:11 15 24;
+  --c-emerald-50:226 251 246; --c-emerald-100:194 243 234; --c-emerald-200:147 231 218; --c-emerald-300:95 214 199; --c-emerald-400:60 194 180; --c-emerald-500:37 169 156; --c-emerald-600:29 138 128; --c-emerald-700:26 111 104; --c-emerald-800:19 79 75; --c-emerald-900:14 51 49; --c-emerald-950:7 32 31;
+  --c-orange-50:253 238 228; --c-orange-100:251 217 195; --c-orange-200:247 183 147; --c-orange-300:243 151 106; --c-orange-400:239 125 73; --c-orange-500:232 116 59; --c-orange-600:199 90 38; --c-orange-700:168 80 31; --c-orange-800:110 52 20; --c-orange-900:69 32 12; --c-orange-950:40 18 6;
+  --c-purple-50:241 236 250; --c-purple-100:224 212 243; --c-purple-200:200 179 232; --c-purple-300:173 143 219; --c-purple-400:154 123 209; --c-purple-500:133 95 194; --c-purple-600:111 72 173; --c-purple-700:91 59 143; --c-purple-800:65 42 100; --c-purple-900:42 27 66; --c-purple-950:25 15 41;
+  --c-blue-50:236 241 251; --c-blue-100:211 222 244; --c-blue-200:176 195 232; --c-blue-300:138 163 214; --c-blue-400:111 143 214; --c-blue-500:82 116 191; --c-blue-600:63 92 160; --c-blue-700:50 74 128; --c-blue-800:36 51 85; --c-blue-900:26 37 64; --c-blue-950:16 23 40;
+  --c-red-50:251 234 233; --c-red-100:246 206 203; --c-red-200:237 166 161; --c-red-300:224 124 116; --c-red-400:224 86 79; --c-red-500:207 64 57; --c-red-600:176 49 44; --c-red-700:140 39 35; --c-red-800:94 26 23; --c-red-900:59 17 15; --c-red-950:34 9 8;
+  --c-yellow-50:251 246 227; --c-yellow-100:247 236 194; --c-yellow-200:239 217 143; --c-yellow-300:230 196 95; --c-yellow-400:220 177 63; --c-yellow-500:205 160 50; --c-yellow-600:169 129 41; --c-yellow-700:131 99 34; --c-yellow-800:87 64 22; --c-yellow-900:56 41 14; --c-yellow-950:32 23 6;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PARCHMENT THEME (light) — a daylight war ledger. Opt-in via data-theme;
+   Obsidian (dark) remains the default. Accents deepen for contrast on parchment.
+   ════════════════════════════════════════════════════════════════════════════ */
+html[data-theme="light"] {
+  --bg: #e9e0cb;
+  --bg-elevated: #f1ead7;
+  --bg-card: #f5efde;
+  --bg-hover: #e2d8bf;
+  --bg-input: #fbf8ee;
+  --bg-sunken: #ddd2b6;
+
+  --border: #cdbf9c;
+  --border-hover: #b29c6f;
+  --border-gold: rgba(135, 106, 38, 0.42);
+  --hairline: rgba(135, 106, 38, 0.18);
+
+  --text: #2c2820;
+  --text-strong: #1a160f;
+  --text-secondary: #5d553f;
+  --text-dim: #857a59;
+  --text-faint: #857a59;
+
+  --gold: #9c7b22;
+  --bronze: #876a26;
+  --gold-dim: #5e4a1f;
+  --ember: #bf5420;
+  --ember-bright: #c75a26;
+  --ember-dim: #8a3f15;
+  --aether: #1c857b;
+  --aether-dim: #134f4b;
+  --arcane: #6a45a5;
+  --arcane-dim: #412a64;
+  --burgundy: #a3322c;
+  --danger: #b23029;
+  --caution: #93701a;
+  --confirm: #2f8f55;
+  --blue: #3f5ca0;
+  --blue-dim: #ccd6ec;
+  --green: #2f8f55;
+  --red: #b23029;
+
+  /* shadcn semantic tokens (light) */
+  --background: 43 35% 85%;
+  --foreground: 43 16% 14%;
+  --card: 45 48% 91%;
+  --card-foreground: 43 16% 14%;
+  --popover: 45 48% 91%;
+  --popover-foreground: 43 16% 14%;
+  --primary: 41 56% 37%;
+  --primary-foreground: 45 55% 96%;
+  --secondary: 43 30% 81%;
+  --secondary-foreground: 43 16% 14%;
+  --muted: 43 30% 81%;
+  --muted-foreground: 43 19% 31%;
+  --accent: 174 66% 32%;
+  --accent-foreground: 45 55% 96%;
+  --destructive: 4 62% 43%;
+  --destructive-foreground: 0 0% 98%;
+  --border-token: 43 28% 71%;
+  --input: 43 28% 71%;
+  --ring: 41 56% 37%;
+
+  --sidebar-background: 44 40% 88%;
+  --sidebar-foreground: 43 18% 22%;
+  --sidebar-primary: 41 56% 37%;
+  --sidebar-primary-foreground: 45 55% 96%;
+  --sidebar-accent: 43 32% 83%;
+  --sidebar-accent-foreground: 43 16% 14%;
+  --sidebar-border: 43 28% 71%;
+  --sidebar-ring: 41 56% 37%;
+
+  /* Tailwind scales (light = inverted ramps so dark-first markup adapts) */
+  --c-amber-50:34 26 11; --c-amber-100:61 48 21; --c-amber-200:95 74 32; --c-amber-300:138 109 46; --c-amber-400:176 133 55; --c-amber-500:201 162 75; --c-amber-600:208 169 79; --c-amber-700:221 192 116; --c-amber-800:233 213 155; --c-amber-900:243 230 196; --c-amber-950:251 244 227;
+  --c-slate-50:11 15 24; --c-slate-100:20 25 37; --c-slate-200:27 34 51; --c-slate-300:42 51 70; --c-slate-400:59 68 88; --c-slate-500:81 91 110; --c-slate-600:111 122 142; --c-slate-700:154 163 180; --c-slate-800:192 199 214; --c-slate-900:221 226 236; --c-slate-950:238 241 246;
+  --c-emerald-50:7 32 31; --c-emerald-100:14 51 49; --c-emerald-200:19 79 75; --c-emerald-300:26 111 104; --c-emerald-400:29 138 128; --c-emerald-500:37 169 156; --c-emerald-600:60 194 180; --c-emerald-700:95 214 199; --c-emerald-800:147 231 218; --c-emerald-900:194 243 234; --c-emerald-950:226 251 246;
+  --c-orange-50:40 18 6; --c-orange-100:69 32 12; --c-orange-200:110 52 20; --c-orange-300:168 80 31; --c-orange-400:199 90 38; --c-orange-500:232 116 59; --c-orange-600:239 125 73; --c-orange-700:243 151 106; --c-orange-800:247 183 147; --c-orange-900:251 217 195; --c-orange-950:253 238 228;
+  --c-purple-50:25 15 41; --c-purple-100:42 27 66; --c-purple-200:65 42 100; --c-purple-300:91 59 143; --c-purple-400:111 72 173; --c-purple-500:133 95 194; --c-purple-600:154 123 209; --c-purple-700:173 143 219; --c-purple-800:200 179 232; --c-purple-900:224 212 243; --c-purple-950:241 236 250;
+  --c-blue-50:16 23 40; --c-blue-100:26 37 64; --c-blue-200:36 51 85; --c-blue-300:50 74 128; --c-blue-400:63 92 160; --c-blue-500:82 116 191; --c-blue-600:111 143 214; --c-blue-700:138 163 214; --c-blue-800:176 195 232; --c-blue-900:211 222 244; --c-blue-950:236 241 251;
+  --c-red-50:34 9 8; --c-red-100:59 17 15; --c-red-200:94 26 23; --c-red-300:140 39 35; --c-red-400:176 49 44; --c-red-500:207 64 57; --c-red-600:224 86 79; --c-red-700:224 124 116; --c-red-800:237 166 161; --c-red-900:246 206 203; --c-red-950:251 234 233;
+  --c-yellow-50:32 23 6; --c-yellow-100:56 41 14; --c-yellow-200:87 64 22; --c-yellow-300:131 99 34; --c-yellow-400:169 129 41; --c-yellow-500:205 160 50; --c-yellow-600:220 177 63; --c-yellow-700:230 196 95; --c-yellow-800:239 217 143; --c-yellow-900:247 236 194; --c-yellow-950:251 246 227;
+}
+
+html[data-theme="light"] body {
+  /* lighten the atmospheric glows so parchment stays clean */
+  background-image:
+    radial-gradient(1100px 620px at 10% -10%, rgba(28, 133, 123, 0.05), transparent 60%),
+    radial-gradient(1000px 720px at 105% 110%, rgba(191, 84, 32, 0.05), transparent 62%),
+    linear-gradient(rgba(135, 106, 38, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(135, 106, 38, 0.035) 1px, transparent 1px);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -818,9 +921,31 @@ h3 { font-size: 1.02rem; }
 .slot-number { font-family: var(--font-mono); letter-spacing: 0.08em; }
 
 /* ════════════════════════════════════════════════════════════════════════════
+   SETTINGS — the companion's appearance & grounding
+   ════════════════════════════════════════════════════════════════════════════ */
+.page-settings { padding: 0 2rem 3rem; max-width: 880px; }
+.page-settings .panel h2 { font-size: 1.15rem; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.theme-option {
+  text-align: left; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--bg-elevated); padding: 0.9rem; cursor: pointer;
+  display: flex; flex-direction: column; gap: 0.7rem; transition: all var(--transition);
+}
+.theme-option:hover { border-color: var(--border-gold); transform: translateY(-2px); }
+.theme-option.active { border-color: var(--border-gold); box-shadow: 0 0 0 1px var(--border-gold), inset 3px 0 0 -1px var(--bronze); }
+.theme-swatch { height: 68px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: flex-end; gap: 6px; padding: 8px; overflow: hidden; }
+.theme-swatch i { display: block; width: 26px; height: 26px; border-radius: 50%; }
+.theme-option-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.theme-option-head strong { font-family: var(--font-serif); font-size: 1.05rem; color: var(--text-strong); display: inline-flex; align-items: center; }
+.theme-option-head .chk { color: var(--aether); display: inline-flex; }
+.theme-option p { color: var(--text-secondary); font-size: 0.8rem; }
+
+/* ════════════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ════════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
+  .page-settings { padding: 0 1rem 1.5rem; }
+  .settings-grid { grid-template-columns: 1fr; }
   .mobile-topbar { display: flex; }
   .nav-backdrop { display: block; }
   .nav-close { display: flex; }

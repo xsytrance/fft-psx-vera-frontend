@@ -1,0 +1,73 @@
+<svg width="980" height="600" viewBox="0 0 980 600" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+  <defs>
+    <radialGradient id="vg" cx="50%" cy="42%" r="62%"><stop offset="0%" stop-color="#1a2030"/><stop offset="55%" stop-color="#10131c"/><stop offset="100%" stop-color="#070910"/></radialGradient>
+    <linearGradient id="br" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0d690"/><stop offset="48%" stop-color="#c9a24b"/><stop offset="100%" stop-color="#8a6d2e"/></linearGradient>
+    <g id="sg"><path d="M21 5 H43 L59 21 V43 L43 59 H21 L5 43 V21 Z" fill="url(#vg)" stroke="url(#br)" stroke-width="2.5" stroke-linejoin="round"/><rect x="19" y="37.5" width="26" height="2.4" rx="1.2" fill="url(#br)"/><path d="M20 36 L32 16 L44 36" fill="none" stroke="url(#br)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="44.5" r="3" fill="#4fd1c5"/></g>
+  </defs>
+
+  <rect width="980" height="600" fill="#0a0e14"/>
+
+  <!-- sidebar -->
+  <rect x="0" y="0" width="200" height="600" fill="#0c111b"/>
+  <line x1="200" y1="0" x2="200" y2="600" stroke="#232c3d"/>
+  <g transform="translate(18,16) scale(0.5)"><use href="#sg"/></g>
+  <text x="56" y="32" fill="#f5efe0" font-family="Georgia, serif" font-size="13" font-weight="700" letter-spacing="1">FFT PSX VERA</text>
+  <text x="20" y="78" fill="#687387" font-family="monospace" font-size="8.5" letter-spacing="2">ARCHIVE</text>
+  <g font-size="12.5" fill="#9aa3b4"><text x="48" y="104">Home</text><text x="48" y="134">Campaigns</text></g>
+  <rect x="14" y="146" width="172" height="28" rx="8" fill="#1b1606" fill-opacity="0.5" stroke="#c9a24b" stroke-opacity="0.35"/>
+  <circle cx="30" cy="160" r="5.5" fill="none" stroke="#d8b25a" stroke-width="1.3"/>
+  <text x="48" y="164" fill="#d8b25a" font-size="12.5" font-weight="600">Settings</text>
+
+  <!-- content -->
+  <text x="232" y="46" fill="#c9a24b" font-family="monospace" font-size="10" letter-spacing="2.5">— COMPANION SETTINGS</text>
+  <text x="232" y="76" fill="#f5efe0" font-family="Georgia, serif" font-size="26" font-weight="700">Settings</text>
+
+  <!-- appearance panel -->
+  <g transform="translate(232,100)">
+    <rect width="716" height="200" rx="12" fill="#141925" stroke="#232c3d"/>
+    <text x="20" y="32" fill="#c9a24b" font-family="monospace" font-size="9.5" letter-spacing="2">— APPEARANCE</text>
+    <text x="20" y="54" fill="#f5efe0" font-family="Georgia, serif" font-size="16" font-weight="700">Theme</text>
+    <text x="20" y="74" fill="#9aa3b4" font-size="11.5">Parser truth, save data, and grounding never change with the theme.</text>
+
+    <!-- Obsidian (active) -->
+    <g transform="translate(20,90)">
+      <rect width="330" height="92" rx="10" fill="#0f131d" stroke="#c9a24b" stroke-opacity="0.5"/>
+      <rect width="3" height="92" rx="2" fill="#c9a24b"/>
+      <rect x="14" y="12" width="302" height="34" rx="6" fill="#0a0e14" stroke="#232c3d"/>
+      <circle cx="32" cy="29" r="9" fill="#c9a24b"/><circle cx="56" cy="29" r="9" fill="#4fd1c5"/><circle cx="80" cy="29" r="9" fill="#e8743b"/><circle cx="104" cy="29" r="9" fill="#e9e2d2"/>
+      <text x="14" y="68" fill="#f5efe0" font-family="Georgia, serif" font-size="13" font-weight="700">☾ Obsidian</text>
+      <g transform="translate(300,58)" stroke="#4fd1c5" stroke-width="2"><path d="M0 5 L4 9 L11 0" fill="none"/></g>
+      <text x="14" y="84" fill="#9aa3b4" font-size="10">Moonlit war-room. Bronze trim on obsidian.</text>
+    </g>
+    <!-- Parchment -->
+    <g transform="translate(366,90)">
+      <rect width="330" height="92" rx="10" fill="#0f131d" stroke="#232c3d"/>
+      <rect x="14" y="12" width="302" height="34" rx="6" fill="#e9e0cb" stroke="#cdbf9c"/>
+      <circle cx="32" cy="29" r="9" fill="#876a26"/><circle cx="56" cy="29" r="9" fill="#1c857b"/><circle cx="80" cy="29" r="9" fill="#bf5420"/><circle cx="104" cy="29" r="9" fill="#2c2820"/>
+      <text x="14" y="68" fill="#f5efe0" font-family="Georgia, serif" font-size="13" font-weight="700">☀ Parchment</text>
+      <text x="14" y="84" fill="#9aa3b4" font-size="10">Daylight ledger. Dark ink on parchment.</text>
+    </g>
+  </g>
+
+  <!-- Parchment live-preview -->
+  <text x="232" y="332" fill="#687387" font-family="monospace" font-size="9.5" letter-spacing="2">— PARCHMENT THEME · LIVE PREVIEW</text>
+  <g transform="translate(232,344)">
+    <rect width="716" height="232" rx="12" fill="#e9e0cb"/>
+    <rect width="716" height="232" rx="12" fill="none" stroke="#cdbf9c"/>
+    <!-- sealed ledger card in light -->
+    <g transform="translate(20,20)">
+      <rect width="676" height="192" rx="10" fill="#f5efde" stroke="#876a26" stroke-opacity="0.42"/>
+      <rect width="3" height="192" rx="2" fill="#876a26" opacity="0.6"/>
+      <text x="20" y="30" fill="#876a26" font-family="monospace" font-size="10" letter-spacing="2">— SAVE TRUTH AUDIT</text>
+      <text x="20" y="54" fill="#1a160f" font-family="Georgia, serif" font-size="17" font-weight="700">What the party actually knows from this save</text>
+      <g transform="translate(20,68)"><rect width="206" height="24" rx="12" fill="#1c857b" fill-opacity="0.12" stroke="#1c857b" stroke-opacity="0.5"/><circle cx="15" cy="12" r="3.4" fill="#1c857b"/><text x="28" y="16" fill="#1c857b" font-family="monospace" font-size="9.5" letter-spacing="1">PARSER-VERIFIED SAVE TRUTH</text></g>
+      <!-- stat chips -->
+      <g transform="translate(20,108)" font-family="monospace">
+        <g><rect width="150" height="50" rx="8" fill="#efe7d4" stroke="#cdbf9c"/><text x="12" y="22" fill="#857a59" font-size="9">VALIDATION</text><text x="12" y="40" fill="#2f8f55" font-size="14">VALID</text></g>
+        <g transform="translate(160,0)"><rect width="150" height="50" rx="8" fill="#efe7d4" stroke="#cdbf9c"/><text x="12" y="22" fill="#857a59" font-size="9">CHARACTERS</text><text x="12" y="40" fill="#2c2820" font-size="14">5</text></g>
+        <g transform="translate(320,0)"><rect width="150" height="50" rx="8" fill="#efe7d4" stroke="#cdbf9c"/><text x="12" y="22" fill="#857a59" font-size="9">INVENTORY</text><text x="12" y="40" fill="#2c2820" font-size="14">42</text></g>
+        <g transform="translate(480,0)"><rect width="176" height="50" rx="8" fill="#efe7d4" stroke="#cdbf9c"/><text x="12" y="22" fill="#857a59" font-size="9">GIL</text><text x="12" y="40" fill="#2c2820" font-size="14">18,400</text></g>
+      </g>
+    </g>
+  </g>
+</svg>

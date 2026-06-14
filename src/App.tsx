@@ -12,6 +12,7 @@ import DreamTeamBuilder from './pages/DreamTeamBuilder';
 import DreamTeamChat from './pages/DreamTeamChat';
 import InventoryPage from './pages/InventoryPage';
 import CampfirePage from './pages/CampfirePage';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/project/:id" element={<ProjectView />} />
             <Route path="/project/:id/inventory" element={<InventoryPage />} />
             <Route path="/project/:id/campfire" element={<CampfirePage />} />

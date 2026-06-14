@@ -56,58 +56,17 @@ module.exports = {
           ring: "hsl(var(--sidebar-ring))",
         },
 
-        // ── Retuned literal scales → the "Aetherium War-Ledger" identity.
-        //    The Inventory/Campfire pages use these scale names directly, so
-        //    retuning them shifts the whole palette without touching JSX. ─────
-
-        // amber → antique bronze / gold (ledgers, primary records)
-        amber: {
-          50: "#fbf4e3", 100: "#f3e6c4", 200: "#e9d59b", 300: "#ddc074",
-          400: "#d0a94f", 500: "#c9a24b", 600: "#b08537", 700: "#8a6d2e",
-          800: "#5f4a20", 900: "#3d3015", 950: "#221a0b",
-        },
-        // slate → obsidian / moonlit slate (surfaces, frames)
-        slate: {
-          50: "#eef1f6", 100: "#dde2ec", 200: "#c0c7d6", 300: "#9aa3b4",
-          400: "#6f7a8e", 500: "#515b6e", 600: "#3b4458", 700: "#2a3346",
-          800: "#1b2233", 900: "#141925", 950: "#0b0f18",
-        },
-        // emerald → aether teal (memory / parser-verified)
-        emerald: {
-          50: "#e2fbf6", 100: "#c2f3ea", 200: "#93e7da", 300: "#5fd6c7",
-          400: "#3cc2b4", 500: "#25a99c", 600: "#1d8a80", 700: "#1a6f68",
-          800: "#134f4b", 900: "#0e3331", 950: "#07201f",
-        },
-        // orange → ember (campfire / character warmth)
-        orange: {
-          50: "#fdeee4", 100: "#fbd9c3", 200: "#f7b793", 300: "#f3976a",
-          400: "#ef7d49", 500: "#e8743b", 600: "#c75a26", 700: "#a8501f",
-          800: "#6e3414", 900: "#45200c", 950: "#281206",
-        },
-        // purple → arcane amethyst (the LLM / spellbound layer)
-        purple: {
-          50: "#f1ecfa", 100: "#e0d4f3", 200: "#c8b3e8", 300: "#ad8fdb",
-          400: "#9a7bd1", 500: "#855fc2", 600: "#6f48ad", 700: "#5b3b8f",
-          800: "#412a64", 900: "#2a1b42", 950: "#190f29",
-        },
-        // blue → muted steel (equipment cross-references)
-        blue: {
-          50: "#ecf1fb", 100: "#d3def4", 200: "#b0c3e8", 300: "#8aa3d6",
-          400: "#6f8fd6", 500: "#5274bf", 600: "#3f5ca0", 700: "#324a80",
-          800: "#243355", 900: "#1a2540", 950: "#101728",
-        },
-        // red → burgundy (danger)
-        red: {
-          50: "#fbeae9", 100: "#f6cecb", 200: "#eda6a1", 300: "#e07c74",
-          400: "#e0564f", 500: "#cf4039", 600: "#b0312c", 700: "#8c2723",
-          800: "#5e1a17", 900: "#3b110f", 950: "#220908",
-        },
-        // yellow → caution gold (warnings)
-        yellow: {
-          50: "#fbf6e3", 100: "#f7ecc2", 200: "#efd98f", 300: "#e6c45f",
-          400: "#dcb13f", 500: "#cda032", 600: "#a98129", 700: "#836322",
-          800: "#574016", 900: "#38290e", 950: "#201706",
-        },
+        // ── Literal scales, now CSS-variable-driven so they flip between the
+        //    Obsidian (dark) and Parchment (light) themes. The dark values are
+        //    byte-identical to the previous ramps; light values live in App.css. ─
+        amber: { 50: "rgb(var(--c-amber-50) / <alpha-value>)", 100: "rgb(var(--c-amber-100) / <alpha-value>)", 200: "rgb(var(--c-amber-200) / <alpha-value>)", 300: "rgb(var(--c-amber-300) / <alpha-value>)", 400: "rgb(var(--c-amber-400) / <alpha-value>)", 500: "rgb(var(--c-amber-500) / <alpha-value>)", 600: "rgb(var(--c-amber-600) / <alpha-value>)", 700: "rgb(var(--c-amber-700) / <alpha-value>)", 800: "rgb(var(--c-amber-800) / <alpha-value>)", 900: "rgb(var(--c-amber-900) / <alpha-value>)", 950: "rgb(var(--c-amber-950) / <alpha-value>)" },
+        slate: { 50: "rgb(var(--c-slate-50) / <alpha-value>)", 100: "rgb(var(--c-slate-100) / <alpha-value>)", 200: "rgb(var(--c-slate-200) / <alpha-value>)", 300: "rgb(var(--c-slate-300) / <alpha-value>)", 400: "rgb(var(--c-slate-400) / <alpha-value>)", 500: "rgb(var(--c-slate-500) / <alpha-value>)", 600: "rgb(var(--c-slate-600) / <alpha-value>)", 700: "rgb(var(--c-slate-700) / <alpha-value>)", 800: "rgb(var(--c-slate-800) / <alpha-value>)", 900: "rgb(var(--c-slate-900) / <alpha-value>)", 950: "rgb(var(--c-slate-950) / <alpha-value>)" },
+        emerald: { 50: "rgb(var(--c-emerald-50) / <alpha-value>)", 100: "rgb(var(--c-emerald-100) / <alpha-value>)", 200: "rgb(var(--c-emerald-200) / <alpha-value>)", 300: "rgb(var(--c-emerald-300) / <alpha-value>)", 400: "rgb(var(--c-emerald-400) / <alpha-value>)", 500: "rgb(var(--c-emerald-500) / <alpha-value>)", 600: "rgb(var(--c-emerald-600) / <alpha-value>)", 700: "rgb(var(--c-emerald-700) / <alpha-value>)", 800: "rgb(var(--c-emerald-800) / <alpha-value>)", 900: "rgb(var(--c-emerald-900) / <alpha-value>)", 950: "rgb(var(--c-emerald-950) / <alpha-value>)" },
+        orange: { 50: "rgb(var(--c-orange-50) / <alpha-value>)", 100: "rgb(var(--c-orange-100) / <alpha-value>)", 200: "rgb(var(--c-orange-200) / <alpha-value>)", 300: "rgb(var(--c-orange-300) / <alpha-value>)", 400: "rgb(var(--c-orange-400) / <alpha-value>)", 500: "rgb(var(--c-orange-500) / <alpha-value>)", 600: "rgb(var(--c-orange-600) / <alpha-value>)", 700: "rgb(var(--c-orange-700) / <alpha-value>)", 800: "rgb(var(--c-orange-800) / <alpha-value>)", 900: "rgb(var(--c-orange-900) / <alpha-value>)", 950: "rgb(var(--c-orange-950) / <alpha-value>)" },
+        purple: { 50: "rgb(var(--c-purple-50) / <alpha-value>)", 100: "rgb(var(--c-purple-100) / <alpha-value>)", 200: "rgb(var(--c-purple-200) / <alpha-value>)", 300: "rgb(var(--c-purple-300) / <alpha-value>)", 400: "rgb(var(--c-purple-400) / <alpha-value>)", 500: "rgb(var(--c-purple-500) / <alpha-value>)", 600: "rgb(var(--c-purple-600) / <alpha-value>)", 700: "rgb(var(--c-purple-700) / <alpha-value>)", 800: "rgb(var(--c-purple-800) / <alpha-value>)", 900: "rgb(var(--c-purple-900) / <alpha-value>)", 950: "rgb(var(--c-purple-950) / <alpha-value>)" },
+        blue: { 50: "rgb(var(--c-blue-50) / <alpha-value>)", 100: "rgb(var(--c-blue-100) / <alpha-value>)", 200: "rgb(var(--c-blue-200) / <alpha-value>)", 300: "rgb(var(--c-blue-300) / <alpha-value>)", 400: "rgb(var(--c-blue-400) / <alpha-value>)", 500: "rgb(var(--c-blue-500) / <alpha-value>)", 600: "rgb(var(--c-blue-600) / <alpha-value>)", 700: "rgb(var(--c-blue-700) / <alpha-value>)", 800: "rgb(var(--c-blue-800) / <alpha-value>)", 900: "rgb(var(--c-blue-900) / <alpha-value>)", 950: "rgb(var(--c-blue-950) / <alpha-value>)" },
+        red: { 50: "rgb(var(--c-red-50) / <alpha-value>)", 100: "rgb(var(--c-red-100) / <alpha-value>)", 200: "rgb(var(--c-red-200) / <alpha-value>)", 300: "rgb(var(--c-red-300) / <alpha-value>)", 400: "rgb(var(--c-red-400) / <alpha-value>)", 500: "rgb(var(--c-red-500) / <alpha-value>)", 600: "rgb(var(--c-red-600) / <alpha-value>)", 700: "rgb(var(--c-red-700) / <alpha-value>)", 800: "rgb(var(--c-red-800) / <alpha-value>)", 900: "rgb(var(--c-red-900) / <alpha-value>)", 950: "rgb(var(--c-red-950) / <alpha-value>)" },
+        yellow: { 50: "rgb(var(--c-yellow-50) / <alpha-value>)", 100: "rgb(var(--c-yellow-100) / <alpha-value>)", 200: "rgb(var(--c-yellow-200) / <alpha-value>)", 300: "rgb(var(--c-yellow-300) / <alpha-value>)", 400: "rgb(var(--c-yellow-400) / <alpha-value>)", 500: "rgb(var(--c-yellow-500) / <alpha-value>)", 600: "rgb(var(--c-yellow-600) / <alpha-value>)", 700: "rgb(var(--c-yellow-700) / <alpha-value>)", 800: "rgb(var(--c-yellow-800) / <alpha-value>)", 900: "rgb(var(--c-yellow-900) / <alpha-value>)", 950: "rgb(var(--c-yellow-950) / <alpha-value>)" },
       },
       borderRadius: {
         xl: "calc(var(--radius) + 4px)",
