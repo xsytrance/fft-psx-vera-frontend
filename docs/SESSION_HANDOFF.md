@@ -91,3 +91,28 @@ Everything below is live on `main` (latest: the "Phase 16" squash commit).
 1. `git fetch origin main && git checkout claude/dreamy-einstein-fd9haq && git reset --soft FETCH_HEAD` (or branch fresh from main).
 2. `npm run build` and `npm run lint` should both be clean.
 3. Get a fresh PAT from the user for pushing; squash-merge PRs.
+
+## Latest checkpoint (2026-06-14, session pause)
+Tip of `main` is a Verified squash commit. Since the phase-16 note above, also merged:
+- **`docs/kb/` — lore + character knowledge base** (the "character layer"): a
+  spoiler-gated `story-timeline.json` (4 chapters, PSX names) and
+  `characters.json` (per-character, per-chapter mood/knowledge/goals/mindset/
+  relationships; starter set of 6: Ramza, Delita, Agrias, Ovelia, Mustadio,
+  Orlandeau), with a `README.md` defining the grounding stack and spoiler rules.
+  Backend-consumed, like `docs/persona-kb.md`. Extend with the rest of the cast.
+
+### Open decisions (waiting on the user)
+- **Backend access for the persona/lore work.** This session is scoped to the
+  frontend repo only (`add_repo` not connected). To wire `docs/kb/` +
+  `docs/persona-kb.md` into the prompt builder (the ★ top backend task) and add
+  brave/faith/zodiac to the parser, the user must relaunch a session that
+  includes **`github.com/xsytrance/fft-psx-vera`**, or OK a read-only PAT clone.
+- **Expand `docs/kb/characters.json`** to the full roster (Gaffgarion, Wiegraf,
+  Rapha/Marach, Beowulf, Reis, Cloud, Meliadoul, …) — pure frontend-repo work.
+
+### How pushing worked this session (so it's repeatable)
+Local git proxy denies push and the GitHub MCP app is read-only, so all pushes
+were `git push --force https://<PAT>@github.com/...` + PR create/squash-merge via
+the REST API (`python urllib`). Repo is squash-only → every merge to `main` is
+GitHub-signed/Verified. Branch goes stale after each squash; realign with
+`git reset --soft FETCH_HEAD`.
