@@ -4,6 +4,7 @@ import { ArrowLeft, Flame, ScrollText } from 'lucide-react';
 import Eyebrow from '../components/ui/Eyebrow';
 import TruthSeal from '../components/ui/TruthSeal';
 import Badge from '../components/ui/Badge';
+import { api } from '../lib/api';
 import type { SaveMemoryEvent, SaveMemoryResponse } from '../types';
 
 function eventChips(event: SaveMemoryEvent) {
@@ -33,10 +34,7 @@ export default function TimelinePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/projects/${projectId}/save-memory`);
-      if (!res.ok) throw new Error(`Save memory unavailable (${res.status})`);
-      const data: SaveMemoryResponse = await res.json();
-      setMemory(data);
+      setMemory(await api.getSaveMemory(projectId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Save memory unavailable');
     } finally {

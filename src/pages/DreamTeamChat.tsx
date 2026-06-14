@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router';
 import MessageContent from '../components/ui/MessageContent';
+import { api } from '../lib/api';
 import type { DreamTeam } from '../types';
 
 // Tactical-fantasy palette — references the design tokens from App.css.
@@ -30,11 +31,7 @@ export default function DreamTeamChat() {
 
   const loadTeam = useCallback(async () => {
     try {
-      const res = await fetch(`/api/projects/${projectId}/dream-teams/${teamId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setTeam(data);
-      }
+      setTeam(await api.getDreamTeam(projectId!, teamId!));
     } catch (e) {
       console.error('Failed to load team', e);
     } finally {
@@ -65,15 +62,10 @@ export default function DreamTeamChat() {
 
     try {
       abortControllerRef.current = new AbortController();
-      const res = await fetch('/api/dream-team/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          team_id: parseInt(teamId!),
-          message: userText,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
+      const res = await api.streamDreamTeamChat({
+        team_id: parseInt(teamId!),
+        message: userText,
+      }, abortControllerRef.current.signal);
 
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();

@@ -3,7 +3,8 @@ import { Link, useParams } from 'react-router';
 import { ArrowLeft, Square, RotateCcw, Copy, Check, ShieldCheck, SendHorizonal } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import MessageContent from '../components/ui/MessageContent';
-import type { Character, ChatMessage, SaveTruth, SaveTruthCharacter } from '../types';
+import { api } from '../lib/api';
+import type { Character, ChatMessage, SaveTruthCharacter } from '../types';
 
 const normalizeName = (value: string | null | undefined) =>
   (value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -33,10 +34,9 @@ export default function ChatPage() {
   useEffect(() => {
     if (!id || !character) return;
     let cancelled = false;
-    fetch(`/api/projects/${id}/save-truth`)
-      .then(r => (r.ok ? r.json() : null))
-      .then((data: SaveTruth | null) => {
-        if (cancelled || !data) return;
+    api.getSaveTruth(id)
+      .then(data => {
+        if (cancelled) return;
         const target = normalizeName(character.name);
         const match = data.characters.find(c => normalizeName(c.name) === target)
           || data.characters.find(c => {
@@ -81,13 +81,7 @@ export default function ChatPage() {
     }]);
 
     try {
-      const r = await fetch('/api/chat/stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: Number(id), character_id: character.id, message: userText }),
-        signal: controller.signal,
-      });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const r = await api.streamChat({ project_id: Number(id), character_id: character.id, message: userText }, controller.signal);
       const reader = r.body?.getReader();
       if (!reader) throw new Error('No response body');
 

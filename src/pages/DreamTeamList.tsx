@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router';
+import { api } from '../lib/api';
 import type { DreamTeam } from '../types';
 
 export default function DreamTeamList() {
@@ -11,11 +12,8 @@ export default function DreamTeamList() {
 
   const loadTeams = useCallback(async () => {
     try {
-      const res = await fetch(`/api/projects/${projectId}/dream-teams`);
-      if (res.ok) {
-        const data = await res.json();
-        setTeams(data.teams);
-      }
+      const data = await api.getDreamTeams(projectId!);
+      setTeams(data.teams);
     } catch (e) {
       console.error('Failed to load teams', e);
     } finally {
@@ -28,15 +26,8 @@ export default function DreamTeamList() {
   const handleCreate = async () => {
     setCreating(true);
     try {
-      const res = await fetch(`/api/projects/${projectId}/dream-teams`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Untitled Dream Team', description: '' }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        navigate(`/project/${projectId}/dream-team/${data.id}`);
-      }
+      const data = await api.createDreamTeam(projectId!, { name: 'Untitled Dream Team', description: '' });
+      navigate(`/project/${projectId}/dream-team/${data.id}`);
     } catch (e) {
       console.error('Failed to create team', e);
     } finally {
@@ -47,7 +38,7 @@ export default function DreamTeamList() {
   const handleDelete = async (teamId: number) => {
     if (!confirm('Delete this dream team?')) return;
     try {
-      await fetch(`/api/projects/${projectId}/dream-teams/${teamId}`, { method: 'DELETE' });
+      await api.deleteDreamTeam(projectId!, teamId);
       setTeams(teams.filter(t => t.id !== teamId));
     } catch (e) {
       console.error('Failed to delete', e);
@@ -56,14 +47,11 @@ export default function DreamTeamList() {
 
   const handleShare = async (teamId: number) => {
     try {
-      const res = await fetch(`/api/dream-teams/${teamId}/generate-share-code`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        const shareUrl = `${window.location.origin}/#/shared-team/${data.share_code}`;
-        navigator.clipboard.writeText(shareUrl);
-        alert(`Share code: ${data.share_code}\nURL copied to clipboard!`);
-        loadTeams();
-      }
+      const data = await api.generateShareCode(teamId);
+      const shareUrl = `${window.location.origin}/#/shared-team/${data.share_code}`;
+      navigator.clipboard.writeText(shareUrl);
+      alert(`Share code: ${data.share_code}\nURL copied to clipboard!`);
+      loadTeams();
     } catch (e) {
       console.error('Failed to generate share code', e);
     }

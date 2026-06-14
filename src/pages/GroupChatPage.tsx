@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { Landmark, MessagesSquare, Download, Mic, Check, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import MessageContent from '../components/ui/MessageContent';
+import { api } from '../lib/api';
 import type { Character, ChatMessage } from '../types';
 
 export default function GroupChatPage() {
@@ -92,19 +93,12 @@ export default function GroupChatPage() {
     });
 
     try {
-      const r = await fetch('/api/chat/group', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          project_id: Number(id),
-          character_ids: selectedChars,
-          message: msg,
-          mode,
-        }),
-        signal: controller.signal,
-      });
-
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const r = await api.streamGroupChat({
+        project_id: Number(id),
+        character_ids: selectedChars,
+        message: msg,
+        mode,
+      }, controller.signal);
 
       const reader = r.body?.getReader();
       if (!reader) throw new Error('No response body');

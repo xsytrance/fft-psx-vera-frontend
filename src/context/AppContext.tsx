@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
+import { api } from '../lib/api';
 import type { Project } from '../types';
 
 interface AppState {
@@ -38,8 +39,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Load projects on mount
   useEffect(() => {
-    fetch('/api/projects')
-      .then(r => r.json())
+    api.getProjects()
       .then(data => dispatch({ type: 'SET_PROJECTS', payload: data }))
       .catch(() => {});
   }, []);
