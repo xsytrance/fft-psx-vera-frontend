@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FFT PSX Vera sigil">
+  <defs>
+    <radialGradient id="voidGold" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#1a2030" />
+      <stop offset="55%" stop-color="#10131c" />
+      <stop offset="100%" stop-color="#070910" />
+    </radialGradient>
+    <linearGradient id="bronze" x1="14" y1="6" x2="50" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f0d690" />
+      <stop offset="48%" stop-color="#c9a24b" />
+      <stop offset="100%" stop-color="#8a6d2e" />
+    </linearGradient>
+  </defs>
+  <!-- obsidian octagon frame: a strategist's seal -->
+  <path d="M21 5 H43 L59 21 V43 L43 59 H21 L5 43 V21 Z" fill="url(#voidGold)" stroke="url(#bronze)" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M24.5 12 H39.5 L52 24.5 V39.5 L39.5 52 H24.5 L12 39.5 V24.5 Z" fill="none" stroke="#c9a24b" stroke-opacity="0.28" stroke-width="1"/>
+  <!-- ledger bar -->
+  <rect x="19" y="37.5" width="26" height="2.4" rx="1.2" fill="url(#bronze)" />
+  <!-- ascending chevron 'V' — Vera / tactics -->
+  <path d="M20 36 L32 16 L44 36" fill="none" stroke="url(#bronze)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- aether core: the parsed save 'truth' -->
+  <circle cx="32" cy="44.5" r="3" fill="#4fd1c5" />
+  <circle cx="32" cy="44.5" r="6.2" fill="none" stroke="#4fd1c5" stroke-opacity="0.4" stroke-width="1"/>
+</svg>

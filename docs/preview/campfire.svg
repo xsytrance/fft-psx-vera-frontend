@@ -1,0 +1,67 @@
+<svg width="1000" height="820" viewBox="0 0 1000 820" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+  <defs>
+    <radialGradient id="glowE2" cx="85%" cy="0%" r="60%"><stop offset="0%" stop-color="#e8743b" stop-opacity="0.10"/><stop offset="100%" stop-color="#e8743b" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowAr" cx="10%" cy="100%" r="55%"><stop offset="0%" stop-color="#9a7bd1" stop-opacity="0.08"/><stop offset="100%" stop-color="#9a7bd1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="emberTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8743b" stop-opacity="0.10"/><stop offset="42%" stop-color="#141925" stop-opacity="0"/></linearGradient>
+    <linearGradient id="arcaneTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9a7bd1" stop-opacity="0.10"/><stop offset="42%" stop-color="#141925" stop-opacity="0"/></linearGradient>
+  </defs>
+
+  <rect width="1000" height="820" fill="#0a0e14"/>
+  <rect width="1000" height="820" fill="url(#glowE2)"/>
+  <rect width="1000" height="820" fill="url(#glowAr)"/>
+  <g stroke="#c9a24b" stroke-opacity="0.03"><line x1="0" y1="200" x2="1000" y2="200"/><line x1="0" y1="440" x2="1000" y2="440"/><line x1="340" y1="0" x2="340" y2="820"/><line x1="680" y1="0" x2="680" y2="820"/></g>
+
+  <!-- header -->
+  <g transform="translate(140,40)">
+    <text x="0" y="14" fill="#e8743b" font-family="monospace" font-size="11" letter-spacing="2.5">— PARSER-GROUNDED SAVE MEMORY</text>
+    <text x="0" y="50" fill="#f5efe0" font-family="Georgia, serif" font-size="30" font-weight="700">♦  Campfire</text>
+    <text x="0" y="76" fill="#9aa3b4" font-size="12.5">Campfire memories are drawn from parser-confirmed save changes. The party can react, but cannot invent save facts.</text>
+  </g>
+
+  <!-- sealed appendix (audit drawer, collapsed) -->
+  <g transform="translate(140,130)">
+    <rect width="720" height="34" rx="8" fill="#070a10" fill-opacity="0.55" stroke="#232c3d" stroke-dasharray="4 3"/>
+    <text x="16" y="22" fill="#c9a24b" font-family="monospace" font-size="11">⬡  Inspect Save Memory Schema</text>
+    <text x="704" y="22" fill="#687387" font-family="monospace" font-size="13" text-anchor="end">▸</text>
+  </g>
+
+  <!-- EMBER panel: the memory event -->
+  <g transform="translate(140,184)">
+    <rect width="720" height="232" rx="12" fill="#141925" stroke="#e8743b" stroke-opacity="0.32"/>
+    <rect width="720" height="232" rx="12" fill="url(#emberTop)"/>
+    <g transform="translate(22,26)">
+      <text x="0" y="10" fill="#e8743b" font-family="monospace" font-size="10.5" letter-spacing="2">— SINCE THE LAST SAVE REFRESH</text>
+      <g transform="translate(290,-4)"><rect width="156" height="22" rx="11" fill="#4fd1c5" fill-opacity="0.08" stroke="#4fd1c5" stroke-opacity="0.4"/><circle cx="14" cy="11" r="3.2" fill="#4fd1c5"/><text x="26" y="15" fill="#4fd1c5" font-family="monospace" font-size="9.5" letter-spacing="1.2">FROM YOUR SAVE</text></g>
+      <text x="0" y="40" fill="#f6dccb" font-family="Georgia, serif" font-size="21" font-weight="700">The Quartermaster's Tally</text>
+      <text x="0" y="66" fill="#e9e2d2" font-size="14">After the skirmish at the river crossing, the company restocked and re-armed.</text>
+      <!-- fact chips -->
+      <g transform="translate(0,86)" font-size="12">
+        <g><rect width="210" height="40" rx="6" fill="#0f131d" stroke="#c9a24b" stroke-opacity="0.2"/><text x="12" y="17" fill="#c9a24b" font-family="monospace" font-size="10">GAINED</text><text x="12" y="33" fill="#e9e2d2">3× Healing Draught <tspan fill="#57c98a" font-family="monospace">+3</tspan></text></g>
+        <g transform="translate(228,0)"><rect width="210" height="40" rx="6" fill="#0f131d" stroke="#4fd1c5" stroke-opacity="0.22"/><text x="12" y="17" fill="#4fd1c5" font-family="monospace" font-size="10">NEWLY EQUIPPED</text><text x="12" y="33" fill="#e9e2d2">Sera — Bronze Saber</text></g>
+        <g transform="translate(456,0)"><rect width="222" height="40" rx="6" fill="#0f131d" stroke="#d9a93f" stroke-opacity="0.28"/><text x="12" y="17" fill="#d9a93f" font-family="monospace" font-size="10">GIL</text><text x="12" y="33" fill="#e9e2d2">17,200 → 18,400 <tspan fill="#57c98a" font-family="monospace">+1,200</tspan></text></g>
+      </g>
+    </g>
+  </g>
+
+  <!-- ARCANE panel: ask at campfire -->
+  <g transform="translate(140,440)">
+    <rect width="720" height="332" rx="12" fill="#141925" stroke="#9a7bd1" stroke-opacity="0.32"/>
+    <rect width="720" height="332" rx="12" fill="url(#arcaneTop)"/>
+    <text x="22" y="40" fill="#e0d4f3" font-family="Georgia, serif" font-size="18" font-weight="700">Ask at Campfire</text>
+    <rect x="22" y="54" width="676" height="60" rx="8" fill="#0a0e14" stroke="#9a7bd1" stroke-opacity="0.35"/>
+    <text x="36" y="80" fill="#9a7bd1" fill-opacity="0.6" font-size="13">Ask the party about what changed since the last save…</text>
+    <g transform="translate(22,126)"><rect width="150" height="34" rx="7" fill="#5b3b8f"/><text x="75" y="22" fill="#f1ecfa" font-size="13" font-weight="600" text-anchor="middle">Ask at Campfire</text></g>
+
+    <!-- responses -->
+    <g transform="translate(22,178)">
+      <rect width="676" height="60" rx="8" fill="#141925" stroke="#9a7bd1" stroke-opacity="0.32"/>
+      <text x="16" y="24" fill="#c8b3e8" font-size="13" font-weight="700">Sera Wynn</text>
+      <text x="16" y="44" fill="#e9e2d2" font-size="12.5">A fresh saber and a fuller pack. We are readier than we were at dawn.</text>
+    </g>
+    <g transform="translate(22,246)">
+      <rect width="676" height="60" rx="8" fill="#141925" stroke="#9a7bd1" stroke-opacity="0.32"/>
+      <text x="16" y="24" fill="#c8b3e8" font-size="13" font-weight="700">Aldric Vane</text>
+      <text x="16" y="44" fill="#e9e2d2" font-size="12.5">Twelve hundred gil heavier too. Spend it before the next pass narrows our road.</text>
+    </g>
+  </g>
+</svg>

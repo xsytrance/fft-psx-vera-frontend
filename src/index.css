@@ -1,8 +1,7 @@
-@import './App.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Reset */
+/* Root sizing — App.css (loaded after this in main.tsx) carries the design language. */
 html, body, #root { height: 100%; }
 #root { display: flex; flex-direction: column; }
-
-/* Selection */
-::selection { background: rgba(212, 168, 67, 0.3); }
