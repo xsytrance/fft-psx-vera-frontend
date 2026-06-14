@@ -1,0 +1,56 @@
+<svg width="400" height="820" viewBox="0 0 400 820" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+  <defs>
+    <radialGradient id="vg" cx="50%" cy="42%" r="62%"><stop offset="0%" stop-color="#1a2030"/><stop offset="55%" stop-color="#10131c"/><stop offset="100%" stop-color="#070910"/></radialGradient>
+    <linearGradient id="br" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0d690"/><stop offset="48%" stop-color="#c9a24b"/><stop offset="100%" stop-color="#8a6d2e"/></linearGradient>
+    <clipPath id="screen"><rect x="18" y="18" width="364" height="784" rx="26"/></clipPath>
+    <g id="sg"><path d="M21 5 H43 L59 21 V43 L43 59 H21 L5 43 V21 Z" fill="url(#vg)" stroke="url(#br)" stroke-width="2.5" stroke-linejoin="round"/><rect x="19" y="37.5" width="26" height="2.4" rx="1.2" fill="url(#br)"/><path d="M20 36 L32 16 L44 36" fill="none" stroke="url(#br)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="44.5" r="3" fill="#4fd1c5"/></g>
+  </defs>
+
+  <!-- phone -->
+  <rect x="8" y="8" width="384" height="804" rx="36" fill="#05070c" stroke="#232c3d" stroke-width="2"/>
+  <g clip-path="url(#screen)">
+    <rect x="18" y="18" width="364" height="784" fill="#0a0e14"/>
+
+    <!-- dimmed page content behind -->
+    <g opacity="0.9">
+      <text x="40" y="92" fill="#687387" font-family="monospace" font-size="9">HOME / CAMPAIGNS / CAPTAIN VEREL'S COMPANY</text>
+      <text x="40" y="118" fill="#f5efe0" font-family="Georgia, serif" font-size="20" font-weight="700">Captain Verel's Company</text>
+      <rect x="40" y="140" width="320" height="60" rx="10" fill="#141925" stroke="#232c3d"/>
+      <rect x="40" y="140" width="3" height="60" rx="2" fill="#c9a24b"/>
+      <rect x="40" y="212" width="320" height="120" rx="10" fill="#141925" stroke="#c9a24b" stroke-opacity="0.35"/>
+    </g>
+
+    <!-- top bar -->
+    <rect x="18" y="18" width="364" height="46" fill="#0c111b"/>
+    <line x1="18" y1="64" x2="382" y2="64" stroke="#232c3d"/>
+    <rect x="30" y="29" width="26" height="24" rx="6" fill="#1b2233" stroke="#232c3d"/>
+    <g stroke="#d8b25a" stroke-width="1.6"><line x1="36" y1="37" x2="50" y2="37"/><line x1="36" y1="41" x2="50" y2="41"/><line x1="36" y1="45" x2="50" y2="45"/></g>
+    <g transform="translate(66,28) scale(0.42)"><use href="#sg"/></g>
+    <text x="92" y="46" fill="#f5efe0" font-family="Georgia, serif" font-size="13" font-weight="700" letter-spacing="0.5">FFT PSX Vera</text>
+
+    <!-- backdrop dimming the page -->
+    <rect x="18" y="64" width="364" height="738" fill="#000000" opacity="0.6"/>
+
+    <!-- the drawer (now openable!) -->
+    <rect x="18" y="18" width="232" height="784" fill="#0c111b"/>
+    <line x1="250" y1="18" x2="250" y2="802" stroke="#232c3d"/>
+    <g transform="translate(34,30) scale(0.5)"><use href="#sg"/></g>
+    <text x="70" y="44" fill="#f5efe0" font-family="Georgia, serif" font-size="14" font-weight="700" letter-spacing="1">FFT PSX VERA</text>
+    <text x="70" y="58" fill="#c9a24b" font-family="monospace" font-size="7.5" letter-spacing="2">SAVE COMPANION</text>
+    <!-- close X -->
+    <g stroke="#9aa3b4" stroke-width="1.6"><line x1="222" y1="34" x2="234" y2="46"/><line x1="234" y1="34" x2="222" y2="46"/></g>
+    <line x1="30" y1="76" x2="238" y2="76" stroke="#c9a24b" stroke-opacity="0.14"/>
+
+    <text x="34" y="104" fill="#687387" font-family="monospace" font-size="8.5" letter-spacing="2">ARCHIVE</text>
+    <g font-size="13" fill="#9aa3b4">
+      <text x="56" y="130">Home</text>
+      <text x="56" y="162">Campaigns</text>
+    </g>
+    <line x1="34" y1="184" x2="234" y2="184" stroke="#c9a24b" stroke-opacity="0.14"/>
+    <text x="34" y="208" fill="#687387" font-family="monospace" font-size="8.5" letter-spacing="2">THIS SAVE</text>
+    <!-- active item -->
+    <rect x="28" y="220" width="214" height="30" rx="8" fill="#1b1606" fill-opacity="0.5" stroke="#c9a24b" stroke-opacity="0.35"/>
+    <text x="56" y="240" fill="#d8b25a" font-size="13" font-weight="600">Party Ledger</text>
+    <g font-size="13" fill="#9aa3b4"><text x="56" y="276">War Council</text><text x="56" y="308">Dream Team</text></g>
+  </g>
+</svg>
