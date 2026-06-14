@@ -116,6 +116,11 @@ export default function TimelinePage() {
                   {event.warnings && event.warnings.length > 0 && (
                     <div className="timeline-warn">{event.warnings.map((w, i) => <div key={i}>{w}</div>)}</div>
                   )}
+                  {event.event_id && (
+                    <Link to={`/project/${projectId}/campfire?event=${encodeURIComponent(event.event_id)}`} className="timeline-discuss">
+                      <Flame size={13} /> Discuss at campfire
+                    </Link>
+                  )}
                 </article>
               </li>
             ))}

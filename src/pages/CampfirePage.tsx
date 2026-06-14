@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Link, useParams } from 'react-router';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { Flame } from 'lucide-react';
 import TruthSeal from '../components/ui/TruthSeal';
 import Panel from '../components/ui/Panel';
@@ -104,6 +104,17 @@ export default function CampfirePage() {
   const [asking, setAsking] = useState(false);
   const [campfireError, setCampfireError] = useState<string | null>(null);
   const [campfireResult, setCampfireResult] = useState<CampfireResponse | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const events = useMemo(() => memory?.events ?? [], [memory]);
+  const eventParam = searchParams.get('event');
+  const selectedEvent = useMemo(() => {
+    if (eventParam) {
+      const found = events.find(e => e.event_id === eventParam);
+      if (found) return found;
+    }
+    return memory?.latest_event ?? events[0] ?? null;
+  }, [eventParam, events, memory]);
 
   const fetchMemory = useCallback(async () => {
     setLoading(true);
@@ -126,7 +137,7 @@ export default function CampfirePage() {
   }, [projectId, fetchMemory]);
 
   const askCampfire = async () => {
-    const event = memory?.latest_event;
+    const event = selectedEvent;
     if (!event) return;
     setAsking(true);
     setCampfireError(null);
@@ -151,7 +162,8 @@ export default function CampfirePage() {
     }
   };
 
-  const latest = memory?.latest_event || null;
+  const latest = selectedEvent;
+  const isHistoric = Boolean(eventParam && selectedEvent && selectedEvent.event_id !== memory?.latest_event?.event_id);
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto text-amber-100">
@@ -192,10 +204,26 @@ export default function CampfirePage() {
 
       {latest && (
         <div className="space-y-6">
+          {events.length > 1 && (
+            <div className="campfire-event-picker">
+              <label className="eyebrow eyebrow--ember">Discussing</label>
+              <select
+                value={selectedEvent?.event_id || ''}
+                onChange={e => setSearchParams(e.target.value ? { event: e.target.value } : {}, { replace: true })}
+                className="dt-input"
+              >
+                {events.map(ev => (
+                  <option key={ev.event_id} value={ev.event_id}>
+                    {ev.generated_at ? `${ev.generated_at} — ` : ''}{ev.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <Panel variant="ember">
             <div className="mb-4">
               <div className="mb-1 flex flex-wrap items-center gap-3">
-                <p className="eyebrow eyebrow--ember">Since the last save refresh</p>
+                <p className="eyebrow eyebrow--ember">{isHistoric ? 'A turn from the campaign ledger' : 'Since the last save refresh'}</p>
                 <TruthSeal label="From your save" />
               </div>
               <h2 className="text-2xl font-serif font-bold text-orange-100">{latest.title}</h2>
