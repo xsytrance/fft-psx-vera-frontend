@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { MessageSquare } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import Eyebrow from '../components/ui/Eyebrow';
 import type { Character, AvatarOption } from '../types';
 
 export default function CharacterDetail() {
@@ -70,6 +72,7 @@ export default function CharacterDetail() {
           <div className="avatar-edit-overlay">✏️ Edit</div>
         </div>
         <div className="char-hero-info">
+          <Eyebrow>Roster · Dossier</Eyebrow>
           <h1>{character.name}</h1>
           <p className="char-role">{character.role || 'Party Member'}</p>
           {character.level > 0 && <span className="char-level-badge">Lv.{character.level}</span>}
@@ -78,7 +81,7 @@ export default function CharacterDetail() {
 
       <div className="char-actions">
         <Link to={`/project/${id}/character/${charId}/chat`} className="btn-primary btn-chat">
-          💬 Chat with {character.name}
+          <MessageSquare size={16} /> Chat with {character.name}
         </Link>
       </div>
 

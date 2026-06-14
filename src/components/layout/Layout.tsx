@@ -1,9 +1,18 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { Home, Library, Users, Landmark, Swords } from 'lucide-react';
+import { Home, Library, Users, Landmark, Swords, Menu, X } from 'lucide-react';
 import Sigil from '../ui/Sigil';
 
 export default function Layout() {
   const { pathname } = useLocation();
+  const [navOpen, setNavOpen] = useState(false);
+  const [lastPath, setLastPath] = useState(pathname);
+
+  // Close the mobile drawer whenever the route changes (adjust state during render).
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    setNavOpen(false);
+  }
 
   // Show project-scoped links only when on a project page
   const isOnProject = pathname.startsWith('/project/');
@@ -11,7 +20,20 @@ export default function Layout() {
 
   return (
     <div className="app-layout">
-      <nav className="sidebar">
+      {/* Mobile top bar — the only way to reach navigation on small screens */}
+      <header className="mobile-topbar">
+        <button className="nav-toggle" aria-label="Open navigation" onClick={() => setNavOpen(true)}>
+          <Menu size={20} />
+        </button>
+        <Link to="/" className="mobile-brand">
+          <Sigil size={26} />
+          <strong>FFT PSX Vera</strong>
+        </Link>
+      </header>
+
+      {navOpen && <div className="nav-backdrop" onClick={() => setNavOpen(false)} aria-hidden="true" />}
+
+      <nav className={`sidebar ${navOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
           <Link to="/">
             <Sigil size={34} className="brand-mark" />
@@ -20,6 +42,9 @@ export default function Layout() {
               <small>Save Companion</small>
             </span>
           </Link>
+          <button className="nav-close" aria-label="Close navigation" onClick={() => setNavOpen(false)}>
+            <X size={18} />
+          </button>
         </div>
 
         <div className="sidebar-section-label">Archive</div>
@@ -51,7 +76,9 @@ export default function Layout() {
         )}
       </nav>
       <main className="content">
-        <Outlet />
+        <div className="page-fade" key={pathname}>
+          <Outlet />
+        </div>
       </main>
     </div>
   );
