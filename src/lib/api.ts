@@ -9,6 +9,7 @@ import type {
   AvatarOption, InventoryResponse, InventoryLatestDiffResponse,
   SaveMemoryResponse, CampfireResponse, DreamTeam, DreamTeamMember,
   AvailableCharacter, JobInfo, EquipmentData,
+  Conversation, ConversationSummary, ConversationMessage,
 } from '../types';
 
 const BASE = '/api';
@@ -166,6 +167,19 @@ export const api = {
   updateMember: (teamId: Id, memberId: Id, member: DreamTeamMember) =>
     request<unknown>(`/dream-teams/${teamId}/members/${memberId}`, { method: 'PUT', json: member }),
   removeMember: (teamId: Id, memberId: Id) => request<unknown>(`/dream-teams/${teamId}/members/${memberId}`, { method: 'DELETE' }),
+
+  // ── Conversations (chat history persistence) ─────────────────────────────────
+  listConversations: (projectId: Id) =>
+    request<{ conversations: ConversationSummary[] }>(`/projects/${projectId}/conversations`),
+  createConversation: (projectId: Id, payload: { mode?: string; title?: string | null; character_ids?: number[]; commit_id?: number | null }) =>
+    request<Conversation>(`/projects/${projectId}/conversations`, { method: 'POST', json: payload }),
+  getConversation: (conversationId: string) => request<Conversation>(`/conversations/${conversationId}`),
+  appendConversationMessage: (conversationId: string, payload: { role: string; content: string; character_name?: string | null; character_id?: number | null; metadata?: Record<string, unknown> }) =>
+    request<{ message: ConversationMessage; message_count: number; title: string | null; updated_at: string | null }>(`/conversations/${conversationId}/messages`, { method: 'POST', json: payload }),
+  renameConversation: (conversationId: string, title: string | null) =>
+    request<ConversationSummary>(`/conversations/${conversationId}`, { method: 'PATCH', json: { title } }),
+  deleteConversation: (conversationId: string) =>
+    request<{ deleted: boolean; id: string }>(`/conversations/${conversationId}`, { method: 'DELETE' }),
 
   // ── Streaming chat (returns raw Response for SSE reading) ─────────────────────
   streamChat: (payload: ChatStreamRequest, signal?: AbortSignal) => requestStream('/chat/stream', payload, signal),

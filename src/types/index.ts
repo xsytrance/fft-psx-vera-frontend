@@ -145,6 +145,33 @@ export interface ChatMessage {
   error?: boolean;
 }
 
+// ── Conversation persistence (chat history) ──────────────────────────────────
+export interface ConversationMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  character_name?: string | null;
+  character_id?: number | null;
+  created_at: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ConversationSummary {
+  id: string;
+  project_id: number;
+  mode: string;
+  title: string | null;
+  commit_id: number | null;
+  character_ids: number[];
+  message_count: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface Conversation extends ConversationSummary {
+  messages: ConversationMessage[];
+}
+
 export interface AvailableCharacter {
   name: string;
   display_name: string;
