@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { Landmark, Backpack, Flame, ChevronRight } from 'lucide-react';
+import { Landmark, Backpack, Flame, ChevronRight, ScrollText } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import TruthSeal from '../components/ui/TruthSeal';
 import Badge from '../components/ui/Badge';
@@ -135,6 +135,11 @@ export default function ProjectView() {
         <Link to={`/project/${project.id}/campfire`} className="btn-campfire">
           <span className="qa-icon"><Flame size={18} /> Campfire</span>
           <span className="btn-subtitle">Discuss the latest save memory with the party</span>
+        </Link>
+
+        <Link to={`/project/${project.id}/timeline`} className="btn-timeline">
+          <span className="qa-icon"><ScrollText size={18} /> Campaign Timeline</span>
+          <span className="btn-subtitle">The save-memory archive, turn by turn</span>
         </Link>
       </div>
 

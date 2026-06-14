@@ -1,0 +1,67 @@
+<svg width="880" height="660" viewBox="0 0 880 660" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+  <rect width="880" height="660" fill="#0a0e14"/>
+  <rect width="880" height="660" fill="none"/>
+  <g stroke="#c9a24b" stroke-opacity="0.03"><line x1="0" y1="220" x2="880" y2="220"/><line x1="0" y1="440" x2="880" y2="440"/></g>
+
+  <!-- header -->
+  <g transform="translate(48,40)">
+    <text x="0" y="14" fill="#4fd1c5" font-family="monospace" font-size="10.5" letter-spacing="2.5">— SAVE-MEMORY ARCHIVE</text>
+    <text x="0" y="46" fill="#f5efe0" font-family="Georgia, serif" font-size="27" font-weight="700">Campaign Timeline</text>
+    <text x="0" y="70" fill="#9aa3b4" font-size="12.5">Every recorded turn of the campaign, drawn from parser-confirmed save changes.</text>
+    <g transform="translate(0,84)"><rect width="206" height="24" rx="12" fill="#4fd1c5" fill-opacity="0.08" stroke="#4fd1c5" stroke-opacity="0.4"/><circle cx="15" cy="12" r="3.4" fill="#4fd1c5"/><text x="28" y="16" fill="#4fd1c5" font-family="monospace" font-size="9.5" letter-spacing="1">PARSER-GROUNDED RECORD</text></g>
+  </g>
+
+  <!-- timeline -->
+  <g transform="translate(48,170)">
+    <!-- rail -->
+    <line x1="9" y1="14" x2="9" y2="450" stroke="#c9a24b" stroke-opacity="0.3" stroke-width="2"/>
+
+    <!-- event 1 (latest) -->
+    <circle cx="9" cy="22" r="7" fill="#4fd1c5" stroke="#4fd1c5"/><circle cx="9" cy="22" r="11" fill="none" stroke="#4fd1c5" stroke-opacity="0.3" stroke-width="2"/>
+    <g transform="translate(34,0)">
+      <rect width="760" height="118" rx="12" fill="#141925" stroke="#232c3d"/>
+      <g transform="translate(18,20)">
+        <text x="0" y="10" fill="#687387" font-family="monospace" font-size="10">2026-06-14 09:40</text>
+        <g transform="translate(120,-2)"><rect width="58" height="18" rx="9" fill="#4fd1c5" fill-opacity="0.1" stroke="#4fd1c5" stroke-opacity="0.4"/><text x="29" y="13" fill="#4fd1c5" font-family="monospace" font-size="9" text-anchor="middle">LATEST</text></g>
+        <g transform="translate(186,-2)"><rect width="92" height="18" rx="9" fill="#c9a24b" fill-opacity="0.12" stroke="#c9a24b" stroke-opacity="0.4"/><text x="46" y="13" fill="#d8b25a" font-family="monospace" font-size="9" text-anchor="middle">CHAPTER II</text></g>
+        <text x="0" y="38" fill="#f5efe0" font-family="Georgia, serif" font-size="16" font-weight="700">The Quartermaster's Tally</text>
+        <text x="0" y="58" fill="#9aa3b4" font-size="12">After the skirmish at the river crossing, the company restocked and re-armed.</text>
+        <g transform="translate(0,72)" font-family="monospace" font-size="10">
+          <g><rect width="92" height="20" rx="10" fill="#4fd1c5" fill-opacity="0.1" stroke="#4fd1c5" stroke-opacity="0.38"/><text x="46" y="14" fill="#4fd1c5" text-anchor="middle">+3 gained</text></g>
+          <g transform="translate(100,0)"><rect width="100" height="20" rx="10" fill="#d9a93f" fill-opacity="0.12" stroke="#d9a93f" stroke-opacity="0.42"/><text x="50" y="14" fill="#d9a93f" text-anchor="middle">Gil +1,200</text></g>
+          <g transform="translate(208,0)"><rect width="92" height="20" rx="10" fill="#9a7bd1" fill-opacity="0.12" stroke="#9a7bd1" stroke-opacity="0.4"/><text x="46" y="14" fill="#9a7bd1" text-anchor="middle">1 re-armed</text></g>
+        </g>
+      </g>
+    </g>
+
+    <!-- event 2 -->
+    <circle cx="9" cy="170" r="6.5" fill="#141925" stroke="#c9a24b" stroke-width="2"/>
+    <g transform="translate(34,148)">
+      <rect width="760" height="96" rx="12" fill="#141925" stroke="#232c3d"/>
+      <g transform="translate(18,20)">
+        <text x="0" y="10" fill="#687387" font-family="monospace" font-size="10">2026-06-12 21:05</text>
+        <text x="0" y="34" fill="#f5efe0" font-family="Georgia, serif" font-size="15" font-weight="700">Spoils of the River Crossing</text>
+        <text x="0" y="53" fill="#9aa3b4" font-size="12">Two relics recovered from the broken bridge; a blade lost to the current.</text>
+        <g transform="translate(0,64)" font-family="monospace" font-size="10">
+          <g><rect width="92" height="20" rx="10" fill="#4fd1c5" fill-opacity="0.1" stroke="#4fd1c5" stroke-opacity="0.38"/><text x="46" y="14" fill="#4fd1c5" text-anchor="middle">+2 gained</text></g>
+          <g transform="translate(100,0)"><rect width="84" height="20" rx="10" fill="#e0564f" fill-opacity="0.12" stroke="#e0564f" stroke-opacity="0.42"/><text x="42" y="14" fill="#e0564f" text-anchor="middle">-1 spent</text></g>
+        </g>
+      </g>
+    </g>
+
+    <!-- event 3 -->
+    <circle cx="9" cy="320" r="6.5" fill="#141925" stroke="#c9a24b" stroke-width="2"/>
+    <g transform="translate(34,298)">
+      <rect width="760" height="96" rx="12" fill="#141925" stroke="#232c3d"/>
+      <g transform="translate(18,20)">
+        <text x="0" y="10" fill="#687387" font-family="monospace" font-size="10">2026-06-10 14:22</text>
+        <text x="0" y="34" fill="#f5efe0" font-family="Georgia, serif" font-size="15" font-weight="700">Outfitting at the Garrison</text>
+        <text x="0" y="53" fill="#9aa3b4" font-size="12">The party emptied its purse to re-arm before the mountain pass.</text>
+        <g transform="translate(0,64)" font-family="monospace" font-size="10">
+          <g><rect width="92" height="20" rx="10" fill="#9a7bd1" fill-opacity="0.12" stroke="#9a7bd1" stroke-opacity="0.4"/><text x="46" y="14" fill="#9a7bd1" text-anchor="middle">3 re-armed</text></g>
+          <g transform="translate(100,0)"><rect width="100" height="20" rx="10" fill="#d9a93f" fill-opacity="0.12" stroke="#d9a93f" stroke-opacity="0.42"/><text x="50" y="14" fill="#d9a93f" text-anchor="middle">Gil -2,400</text></g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -12,6 +12,7 @@ import DreamTeamBuilder from './pages/DreamTeamBuilder';
 import DreamTeamChat from './pages/DreamTeamChat';
 import InventoryPage from './pages/InventoryPage';
 import CampfirePage from './pages/CampfirePage';
+import TimelinePage from './pages/TimelinePage';
 import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/project/:id" element={<ProjectView />} />
             <Route path="/project/:id/inventory" element={<InventoryPage />} />
             <Route path="/project/:id/campfire" element={<CampfirePage />} />
+            <Route path="/project/:id/timeline" element={<TimelinePage />} />
             <Route path="/project/:id/group-chat" element={<GroupChatPage />} />
             <Route path="/project/:id/character/:charId" element={<CharacterDetail />} />
             <Route path="/project/:id/character/:charId/chat" element={<ChatPage />} />
