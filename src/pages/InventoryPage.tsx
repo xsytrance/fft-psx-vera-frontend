@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
 import TruthSeal from '../components/ui/TruthSeal';
+import MessageContent from '../components/ui/MessageContent';
 import type { InventoryDiffItem, InventoryEquipmentChangedDiff, InventoryEquipmentDiff, InventoryEquippedBy, InventoryItem, InventoryLatestDiffResponse, InventoryResponse } from '../types';
 
 const VALID_TYPES = ['All', 'Weapon', 'Shield', 'Helmet', 'Armor', 'Accessory', 'Consumable', 'Key Item', 'Unknown'];
@@ -332,7 +333,7 @@ function ItemDetailDrawer({ item, projectId, onClose }: { item: InventoryItem; p
               {askResult.responses.map(response => (
                 <div key={`${response.character_id}-${response.character_name}`} className="rounded border border-purple-800/40 bg-slate-900/70 p-3">
                   <div className="mb-1 text-sm font-semibold text-purple-200">{response.character_name}</div>
-                  <p className="whitespace-pre-wrap text-sm text-purple-50/90">{response.text}</p>
+                  <MessageContent text={response.text} className="text-purple-50/90" />
                 </div>
               ))}
             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router';
+import MessageContent from '../components/ui/MessageContent';
 import type { DreamTeam } from '../types';
 
 // Tactical-fantasy palette — references the design tokens from App.css.
@@ -242,7 +243,9 @@ export default function DreamTeamChat() {
                   {msg.character}
                 </div>
               )}
-              <div style={{ lineHeight: '1.5' }}>{msg.text}</div>
+              {msg.isUser
+                ? <div style={{ lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{msg.text}</div>
+                : <MessageContent text={msg.text} />}
             </div>
           </div>
         ))}

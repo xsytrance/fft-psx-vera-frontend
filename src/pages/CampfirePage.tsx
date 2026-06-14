@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { Flame } from 'lucide-react';
 import TruthSeal from '../components/ui/TruthSeal';
 import Panel from '../components/ui/Panel';
+import MessageContent from '../components/ui/MessageContent';
 import type { CampfireResponse, InventoryDiffItem, InventoryEquipmentChangedDiff, InventoryEquipmentDiff, SaveMemoryEvent, SaveMemoryResponse } from '../types';
 
 const DEFAULT_CAMPFIRE_QUESTION = 'What do you all make of what changed since the last save?';
@@ -233,7 +234,7 @@ export default function CampfirePage() {
                 {campfireResult.responses.map(response => (
                   <div key={`${response.character_id}-${response.character_name}`} className="rounded border border-purple-800/40 bg-slate-900/70 p-4">
                     <h3 className="mb-1 font-semibold text-purple-200">{response.character_name}</h3>
-                    <p className="whitespace-pre-wrap text-sm text-purple-50/90">{response.text}</p>
+                    <MessageContent text={response.text} className="text-purple-50/90" />
                   </div>
                 ))}
                 {campfireResult.prompt_inspections && campfireResult.prompt_inspections.length > 0 && (

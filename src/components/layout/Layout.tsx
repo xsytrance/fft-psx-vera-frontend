@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
 import { Home, Library, Users, Landmark, Swords, Menu, X, Settings, ScrollText } from 'lucide-react';
 import Sigil from '../ui/Sigil';
@@ -82,9 +82,11 @@ export default function Layout() {
         )}
       </nav>
       <main className="content">
-        <div className="page-fade" key={pathname}>
-          <Outlet />
-        </div>
+        <Suspense fallback={<div className="page-loading">Loading…</div>}>
+          <div className="page-fade" key={pathname}>
+            <Outlet />
+          </div>
+        </Suspense>
       </main>
     </div>
   );

@@ -127,6 +127,8 @@ export interface ChatMessage {
   character_name?: string;
   timestamp: number;
   streaming?: boolean;
+  stopped?: boolean;
+  error?: boolean;
 }
 
 export interface AvailableCharacter {
