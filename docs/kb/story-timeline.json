@@ -1,0 +1,66 @@
+{
+  "$comment": "Backend-consumable lore + story timeline for FFT PSX Vera. Spoiler-gated by chapter. PSX-era names primary, War of the Lions aliases in parentheses. Original-phrased factual summaries for grounding character chat — NOT a replacement for SaveTruth.",
+  "game": "Final Fantasy Tactics (PlayStation, 1997)",
+  "spoiler_policy": "A character at story_phase = chapter N may reference events from chapters <= N only. Never inject a later chapter's state or events. Map the save's `story_phase` string to a chapter via `phase_aliases` (case-insensitive substring match); if unmatched, default to ch1 and stay conservative.",
+  "world": {
+    "setting": "Ivalice, in the uneasy years after the Fifty Years' War. The crown is weak, the treasury empty, and the great noble houses circle a child-king's throne.",
+    "the_lions_war": "A succession struggle between Duke Larg (the White Lion, backing Princess Ovelia) and Duke Goltana (the Black Lion, backing Prince Orinus). The knightly orders Hokuten (Northern Sky) and Nanten (Southern Sky) serve them.",
+    "the_church": "The Church of Glabados holds spiritual power over Ivalice and venerates Saint Ajora. Beneath its piety, some Templars pursue the Zodiac Stones.",
+    "zodiac_stones": "Auracite — twelve sacred stones tied to the zodiac. Coveted as holy relics, they are in truth keys that let the demon Lucavi possess the living.",
+    "class_divide": "Highborn and commoner are worlds apart. This wound drives much of the tragedy — most of all Delita's.",
+    "note": "Keep franchise specifics factual and grounding-only; the app remains an original, genre-adjacent companion."
+  },
+  "chapters": [
+    {
+      "id": "ch1",
+      "order": 1,
+      "title": "The Meager",
+      "phase_aliases": ["chapter 1", "chapter1", "ch1", "ch 1", "the meager", "meager", "1"],
+      "synopsis": "Ramza Beoulve and his commoner friend Delita serve as cadets of the Hokuten under Ramza's elder brother Dycedarg. A commoner uprising — the Death Corps (Corpse Brigade) — exposes how little noble Ivalice values the lowborn. The chapter ends in tragedy at Ziekden Fortress.",
+      "events": [
+        { "id": "ch1_cadets", "title": "Cadets of the Hokuten", "summary": "Ramza and Delita, raised almost as brothers, train together. Their bond ignores the class line that the world insists upon." },
+        { "id": "ch1_death_corps", "title": "The Death Corps rises", "summary": "Embittered war veterans and commoners rebel against noble rule. The nobles treat the revolt as vermin to be exterminated, not grievance to be heard." },
+        { "id": "ch1_algus", "title": "Algus and the class wound", "summary": "The highborn cadet Algus (Argath) joins them and openly despises commoners, straining Ramza and Delita's friendship and foreshadowing the tragedy." },
+        { "id": "ch1_ziekden", "title": "Tragedy at Ziekden Fortress", "weight": "pivotal", "summary": "Delita's sister Teta is taken hostage. At Ziekden she is killed amid the nobles' indifference. Delita's faith in the world breaks; he and Ramza are torn apart. Ramza walks away from the Beoulve name." }
+      ]
+    },
+    {
+      "id": "ch2",
+      "order": 2,
+      "title": "The Manipulator and the Subservient",
+      "phase_aliases": ["chapter 2", "chapter2", "ch2", "ch 2", "the manipulator", "manipulator", "subservient", "2"],
+      "synopsis": "A year later, Ramza is a sellsword. The Lions' War for the throne turns on Princess Ovelia, who is spirited away from Orbonne. Old friends and enemies resurface, mercenaries betray, and the Zodiac Stones begin to surface as more than relics.",
+      "events": [
+        { "id": "ch2_mercenary", "title": "Ramza the sellsword", "summary": "Ramza takes mercenary work under Gaffgarion (Gafgarion), hiding his name, still searching for what is right in a crooked war." },
+        { "id": "ch2_ovelia", "title": "The princess taken", "summary": "Princess Ovelia, guarded by the holy knight Agrias, is seized from Orbonne Monastery — and the one behind it is Delita, alive and risen as a knight, now playing the noble houses against each other." },
+        { "id": "ch2_betrayal", "title": "Gaffgarion's betrayal", "summary": "Gaffgarion is revealed to serve Ramza's own house. Ramza breaks with him to protect Ovelia and Agrias." },
+        { "id": "ch2_stones", "title": "The Stones surface", "summary": "Cardinal Draclau and the Zodiac Stones enter the tale; Mustadio, hunted for the stone he carries, joins Ramza. The relics are clearly more than holy keepsakes." }
+      ]
+    },
+    {
+      "id": "ch3",
+      "order": 3,
+      "title": "The Valiant",
+      "phase_aliases": ["chapter 3", "chapter3", "ch3", "ch 3", "the valiant", "valiant", "3"],
+      "synopsis": "The Church of Glabados reveals its hand. Templars hunt the Zodiac Stones, the myth of the Zodiac Braves is twisted into propaganda, and the first Lucavi steps out from behind a holy face. Ramza is branded a heretic for seeing the truth.",
+      "events": [
+        { "id": "ch3_templars", "title": "The Church's Templars", "summary": "Wiegraf, the fallen rebel leader, now serves the Church as a Templar. The Glabados order maneuvers behind the war for its own ends." },
+        { "id": "ch3_rapha_marach", "title": "Rapha and Marach", "summary": "The siblings Rapha and Marach Galthena are caught in Grand Duke Barrington's and the Church's schemes, drawing Ramza deeper into the conspiracy." },
+        { "id": "ch3_lucavi", "title": "A demon behind the mitre", "weight": "pivotal", "summary": "A trusted churchman is unmasked as a Lucavi demon. The Zodiac Stones are keys to possession, not salvation. Ramza is branded a heretic for knowing it." }
+      ]
+    },
+    {
+      "id": "ch4",
+      "order": 4,
+      "title": "Somebody to Love",
+      "phase_aliases": ["chapter 4", "chapter4", "ch4", "ch 4", "somebody to love", "someone to love", "in the name of love", "4"],
+      "synopsis": "The conspiracy's full shape emerges. The master swordsman Orlandeau turns against the rot at the top; the Lucavi move to bring back their god. Ramza races to stop them and to save his sister Alma, while Delita climbs to the throne over everyone he has used — and finds the summit hollow.",
+      "events": [
+        { "id": "ch4_orlandeau", "title": "Thunder God Cid", "summary": "Cidolfus Orlandeau (T.G. Cid), peerless and weary, breaks with Goltana's corrupt cause to help Ramza spare the common people the war's true cost." },
+        { "id": "ch4_riovanes", "title": "Riovanes and the demons unmasked", "weight": "pivotal", "summary": "At Riovanes, hidden Lucavi shed their human disguises. Alma is taken; the war is revealed as a stage for the demons' return." },
+        { "id": "ch4_ascension", "title": "Delita's hollow crown", "summary": "Delita seizes the throne through manipulation and blood, achieving everything he schemed for — and is left to wonder what it was all for." },
+        { "id": "ch4_altima", "title": "The final descent", "weight": "pivotal", "summary": "Ramza confronts the last and greatest Lucavi to stop a god's resurrection. History records him a heretic; the truth is buried. His fate is left uncertain." }
+      ]
+    }
+  ]
+}
