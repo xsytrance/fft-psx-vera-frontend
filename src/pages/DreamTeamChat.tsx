@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router';
 import type { DreamTeam } from '../types';
 
@@ -27,7 +27,7 @@ export default function DreamTeamChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const loadTeam = async () => {
+  const loadTeam = useCallback(async () => {
     try {
       const res = await fetch(`/api/projects/${projectId}/dream-teams/${teamId}`);
       if (res.ok) {
@@ -39,9 +39,9 @@ export default function DreamTeamChat() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, teamId]);
 
-  useEffect(() => { loadTeam(); }, [projectId, teamId]);
+  useEffect(() => { loadTeam(); }, [loadTeam]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -109,14 +109,14 @@ export default function DreamTeamChat() {
                   return [...filtered, ...charMsgs];
                 });
               }
-            } catch (e) {
+            } catch {
               // Not JSON, skip
             }
           }
         }
       }
-    } catch (e: any) {
-      if (e.name !== 'AbortError') {
+    } catch (e) {
+      if (!(e instanceof Error) || e.name !== 'AbortError') {
         console.error('Chat error:', e);
       }
     } finally {

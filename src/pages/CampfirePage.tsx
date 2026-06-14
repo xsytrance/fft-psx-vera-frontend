@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useParams } from 'react-router';
 import { Flame } from 'lucide-react';
 import TruthSeal from '../components/ui/TruthSeal';
@@ -104,7 +104,7 @@ export default function CampfirePage() {
   const [campfireError, setCampfireError] = useState<string | null>(null);
   const [campfireResult, setCampfireResult] = useState<CampfireResponse | null>(null);
 
-  const fetchMemory = async () => {
+  const fetchMemory = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -117,12 +117,12 @@ export default function CampfirePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
     fetchMemory();
-  }, [projectId]);
+  }, [projectId, fetchMemory]);
 
   const askCampfire = async () => {
     const event = memory?.latest_event;

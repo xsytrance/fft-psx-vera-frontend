@@ -38,7 +38,7 @@ export default function DreamTeamBuilder() {
   const [selectedEquipment, setSelectedEquipment] = useState<Record<string, string>>({});
   const [selectedAbilities, setSelectedAbilities] = useState<Record<string, string[]>>({});
 
-  const loadTeam = async () => {
+  const loadTeam = useCallback(async () => {
     try {
       const res = await fetch(`/api/projects/${projectId}/dream-teams/${teamId}`);
       if (res.ok) {
@@ -52,7 +52,7 @@ export default function DreamTeamBuilder() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, teamId, navigate]);
 
   const loadCharacters = useCallback(async () => {
     try {
@@ -332,7 +332,7 @@ export default function DreamTeamBuilder() {
                         display: 'flex', flexWrap: 'wrap', gap: '0.25rem',
                         justifyContent: 'center', marginBottom: '1rem',
                       }}>
-                        {Object.entries(member.abilities).map(([_cat, abls]) =>
+                        {Object.entries(member.abilities).map(([, abls]) =>
                           (abls || []).slice(0, 2).map(ab => (
                             <span key={ab} style={{
                               background: 'rgba(201,162,39,0.15)', color: FFT_THEME.gold,
