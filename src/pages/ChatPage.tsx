@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router';
-import { ArrowLeft, Square, RotateCcw, Copy, Check, ShieldCheck, SendHorizonal } from 'lucide-react';
+import { ArrowLeft, Square, RotateCcw, Copy, Check, ShieldCheck, SendHorizonal, History, Plus, Pencil, Trash2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import MessageContent from '../components/ui/MessageContent';
 import { api } from '../lib/api';
-import type { Character, ChatMessage, SaveTruthCharacter } from '../types';
+import type { Character, ChatMessage, SaveTruthCharacter, ConversationSummary, ConversationMessage } from '../types';
 
 const normalizeName = (value: string | null | undefined) =>
   (value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -19,10 +19,45 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameText, setRenameText] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const conversationIdRef = useRef<string | null>(null);
+
+  const toMessages = (msgs: ConversationMessage[]): ChatMessage[] =>
+    msgs.map(m => ({
+      id: m.id,
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: m.content,
+      character_name: m.character_name || undefined,
+      timestamp: m.created_at ? Date.parse(m.created_at) : Date.now(),
+    }));
+
+  const refreshConversations = useCallback(async (): Promise<ConversationSummary[]> => {
+    if (!id || !character) return [];
+    try {
+      const { conversations: all } = await api.listConversations(id);
+      const mine = all.filter(c => c.mode === 'chat' && c.character_ids.includes(character.id));
+      setConversations(mine);
+      return mine;
+    } catch {
+      return [];
+    }
+  }, [id, character]);
+
+  const loadConversation = useCallback(async (convId: string) => {
+    try {
+      const full = await api.getConversation(convId);
+      conversationIdRef.current = full.id;
+      setActiveId(full.id);
+      setMessages(toMessages(full.messages));
+    } catch { /* best-effort */ }
+  }, []);
 
   useEffect(() => {
     const pid = Number(id);
@@ -55,25 +90,15 @@ export default function ChatPage() {
     if (!id || !character) return;
     let cancelled = false;
     conversationIdRef.current = null;
-    api.listConversations(id)
-      .then(async ({ conversations }) => {
-        if (cancelled) return;
-        const match = conversations.find(c => c.mode === 'chat' && c.character_ids.includes(character.id));
-        if (!match) return;
-        conversationIdRef.current = match.id;
-        const full = await api.getConversation(match.id);
-        if (cancelled) return;
-        setMessages(full.messages.map(m => ({
-          id: m.id,
-          role: m.role === 'assistant' ? 'assistant' : 'user',
-          content: m.content,
-          character_name: m.character_name || undefined,
-          timestamp: m.created_at ? Date.parse(m.created_at) : Date.now(),
-        })));
-      })
-      .catch(() => { /* persistence is best-effort; chat works without it */ });
+    setActiveId(null);
+    setMessages([]);
+    (async () => {
+      const mine = await refreshConversations();
+      if (cancelled || mine.length === 0) return;
+      await loadConversation(mine[0].id); // list is most-recent-first
+    })();
     return () => { cancelled = true; };
-  }, [id, character]);
+  }, [id, character, refreshConversations, loadConversation]);
 
   const ensureConversation = useCallback(async (): Promise<string | null> => {
     if (conversationIdRef.current) return conversationIdRef.current;
@@ -81,11 +106,42 @@ export default function ChatPage() {
     try {
       const conv = await api.createConversation(id, { mode: 'chat', character_ids: [character.id] });
       conversationIdRef.current = conv.id;
+      setActiveId(conv.id);
       return conv.id;
     } catch {
       return null;
     }
   }, [id, character]);
+
+  const startNewConversation = useCallback(() => {
+    if (streaming) return;
+    conversationIdRef.current = null;
+    setActiveId(null);
+    setMessages([]);
+    setShowHistory(false);
+  }, [streaming]);
+
+  const selectConversation = useCallback(async (convId: string) => {
+    setShowHistory(false);
+    if (convId !== conversationIdRef.current) await loadConversation(convId);
+  }, [loadConversation]);
+
+  const removeConversation = useCallback(async (convId: string) => {
+    try { await api.deleteConversation(convId); } catch { /* best-effort */ }
+    if (convId === conversationIdRef.current) {
+      conversationIdRef.current = null;
+      setActiveId(null);
+      setMessages([]);
+    }
+    refreshConversations();
+  }, [refreshConversations]);
+
+  const commitRename = useCallback(async (convId: string) => {
+    const title = renameText.trim();
+    setRenamingId(null);
+    try { await api.renameConversation(convId, title || null); } catch { /* best-effort */ }
+    refreshConversations();
+  }, [renameText, refreshConversations]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -180,8 +236,10 @@ export default function ChatPage() {
           role: 'assistant', content: fullText, character_name: character.name, character_id: character.id,
         }).catch(() => {});
       }
+      // Refresh the thread list so new titles / message counts show up.
+      if (persist && convId) refreshConversations();
     }
-  }, [character, id, ensureConversation]);
+  }, [character, id, ensureConversation, refreshConversations]);
 
   const send = useCallback(() => {
     const msg = input.trim();
@@ -224,7 +282,67 @@ export default function ChatPage() {
             <p>{character.role || 'Party Member'}{grounded && grounded.level > 0 ? ` · Lv.${grounded.level} ${grounded.job}` : ''}</p>
           </div>
         </div>
+        <div className="chat-header-actions">
+          <button type="button" className="chat-tool-btn" onClick={startNewConversation} disabled={streaming} title="New conversation">
+            <Plus size={15} /> New
+          </button>
+          <button
+            type="button"
+            className={`chat-tool-btn ${showHistory ? 'is-active' : ''}`}
+            onClick={() => setShowHistory(s => !s)}
+            title="Conversation history"
+          >
+            <History size={15} /> History{conversations.length > 0 ? ` (${conversations.length})` : ''}
+          </button>
+        </div>
       </header>
+
+      {showHistory && (
+        <>
+          <button type="button" className="chat-history-backdrop" aria-label="Close history" onClick={() => setShowHistory(false)} />
+          <div className="chat-history-panel" role="dialog" aria-label="Conversation history">
+            <div className="chat-history-head">
+              <span>Saved conversations</span>
+              <button type="button" className="chat-history-new" onClick={startNewConversation} disabled={streaming}>
+                <Plus size={13} /> New
+              </button>
+            </div>
+            <ul className="chat-history-list">
+              {conversations.length === 0 && <li className="chat-history-empty">No saved threads yet — start chatting and they'll appear here.</li>}
+              {conversations.map(conv => (
+                <li key={conv.id} className={conv.id === activeId ? 'is-active' : ''}>
+                  {renamingId === conv.id ? (
+                    <input
+                      className="chat-history-rename"
+                      autoFocus
+                      value={renameText}
+                      onChange={e => setRenameText(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') commitRename(conv.id);
+                        if (e.key === 'Escape') setRenamingId(null);
+                      }}
+                      onBlur={() => commitRename(conv.id)}
+                    />
+                  ) : (
+                    <button type="button" className="chat-history-pick" onClick={() => selectConversation(conv.id)}>
+                      <span className="chat-history-title">{conv.title || 'Untitled chat'}</span>
+                      <span className="chat-history-meta">{conv.message_count} msg{conv.message_count === 1 ? '' : 's'}</span>
+                    </button>
+                  )}
+                  <div className="chat-history-actions">
+                    <button type="button" title="Rename" onClick={() => { setRenamingId(conv.id); setRenameText(conv.title || ''); }}>
+                      <Pencil size={12} />
+                    </button>
+                    <button type="button" title="Delete" onClick={() => removeConversation(conv.id)}>
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
 
       <details className="chat-grounding">
         <summary>
