@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { Landmark, Backpack, Flame, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import TruthSeal from '../components/ui/TruthSeal';
+import Badge from '../components/ui/Badge';
 import type { Project, Character, SaveTruth, PromptInspectorResult, EquipmentTruthTestResult } from '../types';
 
 export default function ProjectView() {
@@ -119,28 +122,33 @@ export default function ProjectView() {
       <div className="quick-actions">
         {characters.length >= 2 && (
           <Link to={`/project/${project.id}/group-chat`} className="btn-group-chat">
-            🗺️ Council Chat
-            <span className="btn-subtitle">Talk to multiple characters at once</span>
+            <span className="qa-icon"><Landmark size={18} /> War Council</span>
+            <span className="btn-subtitle">Convene multiple characters at the table</span>
           </Link>
         )}
 
         <Link to={`/project/${project.id}/inventory`} className="btn-inventory">
-          🎒 Current Inventory
-          <span className="btn-subtitle">View parsed save-file gear and items</span>
+          <span className="qa-icon"><Backpack size={18} /> Current Inventory</span>
+          <span className="btn-subtitle">Parser-verified gear and items from the save</span>
         </Link>
 
-        <Link to={`/project/${project.id}/campfire`} className="btn-inventory">
-          🔥 Campfire
-          <span className="btn-subtitle">Discuss latest save memory with the party</span>
+        <Link to={`/project/${project.id}/campfire`} className="btn-campfire">
+          <span className="qa-icon"><Flame size={18} /> Campfire</span>
+          <span className="btn-subtitle">Discuss the latest save memory with the party</span>
         </Link>
       </div>
 
       <section className="save-truth-audit">
         <div className="audit-header">
           <div>
-            <span className="audit-eyebrow">SAVE TRUTH AUDIT</span>
-            <h2>What the AI knows from this memory card</h2>
-            <p>These are the hard facts injected before character personality or lore.</p>
+            <span className="audit-eyebrow">Save Truth Audit</span>
+            <h2>What the party actually knows from this save</h2>
+            <p>These are the hard facts the parser pins before any character personality or lore is added — the model answers from this, not around it.</p>
+            {saveTruth?.validation.valid && (
+              <div style={{ marginTop: '0.7rem' }}>
+                <TruthSeal label="Parser-verified save truth" />
+              </div>
+            )}
           </div>
           {saveTruth && (
             <div className="audit-score">
@@ -274,7 +282,10 @@ export default function ProjectView() {
       </section>
 
       <section className="roster">
-        <h2>Party Roster</h2>
+        <div className="roster-head">
+          <h2>Party Roster</h2>
+          {characters.length > 0 && <Badge tone="gold">{characters.length} on the rolls</Badge>}
+        </div>
         {characters.length === 0 ? (
           <p className="empty-text">No characters detected in this save.</p>
         ) : (
@@ -297,7 +308,7 @@ export default function ProjectView() {
                   <p>{char.role || 'Party Member'}</p>
                   {char.level > 0 && <span className="char-level">Lv.{char.level}</span>}
                 </div>
-                <div className="char-card-arrow">{"\u2192"}</div>
+                <div className="char-card-arrow"><ChevronRight size={18} /></div>
               </Link>
             ))}
           </div>

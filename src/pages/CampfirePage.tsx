@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { Flame } from 'lucide-react';
+import TruthSeal from '../components/ui/TruthSeal';
+import Panel from '../components/ui/Panel';
 import type { CampfireResponse, InventoryDiffItem, InventoryEquipmentChangedDiff, InventoryEquipmentDiff, SaveMemoryEvent, SaveMemoryResponse } from '../types';
 
 const DEFAULT_CAMPFIRE_QUESTION = 'What do you all make of what changed since the last save?';
@@ -153,9 +156,11 @@ export default function CampfirePage() {
     <div className="p-4 md:p-6 max-w-5xl mx-auto text-amber-100">
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-widest text-orange-400/70">Parser-grounded save memory</p>
-          <h1 className="text-3xl font-serif font-bold">🔥 Campfire</h1>
-          <p className="mt-1 text-sm text-amber-400/70">Campfire memories are generated from parser-confirmed save changes. Characters can react, but they cannot invent save facts.</p>
+          <p className="eyebrow eyebrow--ember mb-1">Parser-grounded save memory</p>
+          <h1 className="flex items-center gap-2 text-3xl font-serif font-bold">
+            <Flame size={26} className="text-orange-400" /> Campfire
+          </h1>
+          <p className="mt-1 text-sm text-amber-400/70">Campfire memories are drawn from parser-confirmed save changes. The party can react and reflect, but they cannot invent save facts.</p>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={fetchMemory} disabled={loading} className="rounded border border-amber-800/50 px-3 py-2 text-sm text-amber-200 hover:bg-amber-900/30 disabled:opacity-60">Refresh Memory</button>
@@ -164,11 +169,13 @@ export default function CampfirePage() {
       </div>
 
       {latest && (
-        <details className="mb-6 rounded border border-slate-800 bg-slate-950/50 p-4 text-xs text-slate-400">
-          <summary className="cursor-pointer font-semibold text-slate-200">Inspect Save Memory Schema</summary>
-          <pre className="mt-3 max-h-64 overflow-auto rounded bg-black/50 p-3 text-[10px] text-slate-300 whitespace-pre-wrap">
-            {JSON.stringify(latest, null, 2)}
-          </pre>
+        <details className="audit-drawer mb-6">
+          <summary>Inspect Save Memory Schema</summary>
+          <div className="audit-drawer__body">
+            <pre className="max-h-64 overflow-auto whitespace-pre-wrap">
+              {JSON.stringify(latest, null, 2)}
+            </pre>
+          </div>
         </details>
       )}
 
@@ -184,17 +191,20 @@ export default function CampfirePage() {
 
       {latest && (
         <div className="space-y-6">
-          <section className="rounded border border-orange-800/40 bg-slate-950/50 p-5">
+          <Panel variant="ember">
             <div className="mb-4">
-              <p className="text-xs uppercase tracking-widest text-orange-400/70">Since the last save refresh</p>
+              <div className="mb-1 flex flex-wrap items-center gap-3">
+                <p className="eyebrow eyebrow--ember">Since the last save refresh</p>
+                <TruthSeal label="From your save" />
+              </div>
               <h2 className="text-2xl font-serif font-bold text-orange-100">{latest.title}</h2>
               <p className="mt-2 text-lg text-amber-100/90">{latest.summary}</p>
-              {latest.generated_at && <p className="mt-1 text-xs text-amber-500/70">Generated: {latest.generated_at}</p>}
+              {latest.generated_at && <p className="mt-1 text-xs text-amber-500/70 font-mono">Generated: {latest.generated_at}</p>}
             </div>
             <SaveMemoryFacts event={latest} />
-          </section>
+          </Panel>
 
-          <section className="rounded border border-purple-800/40 bg-purple-950/20 p-5">
+          <Panel variant="arcane">
             <h2 className="mb-2 text-xl font-serif font-bold text-purple-100">Ask at Campfire</h2>
             <textarea
               value={question}
@@ -227,13 +237,13 @@ export default function CampfirePage() {
                   </div>
                 ))}
                 {campfireResult.prompt_inspections && campfireResult.prompt_inspections.length > 0 && (
-                  <details className="mt-6 rounded border border-slate-800 bg-slate-950/50 p-4 text-xs text-slate-400">
-                    <summary className="cursor-pointer font-semibold text-slate-200">Prompt Inspector</summary>
-                    <div className="mt-3 space-y-4">
+                  <details className="audit-drawer mt-6">
+                    <summary>Prompt Inspector</summary>
+                    <div className="audit-drawer__body space-y-4">
                       {campfireResult.prompt_inspections.map((insp, idx) => (
                         <div key={idx}>
                           <h4 className="mb-2 font-semibold text-amber-300">System Prompt: {insp.character_name}</h4>
-                          <pre className="max-h-64 overflow-auto rounded bg-black/50 p-3 text-[10px] text-amber-100/80 whitespace-pre-wrap">
+                          <pre className="max-h-64 overflow-auto whitespace-pre-wrap">
                             {insp.system_prompt}
                           </pre>
                         </div>
@@ -243,7 +253,7 @@ export default function CampfirePage() {
                 )}
               </div>
             )}
-          </section>
+          </Panel>
         </div>
       )}
     </div>

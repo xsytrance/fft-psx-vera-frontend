@@ -1,6 +1,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
+import { Upload, Loader2, Download, AlertTriangle, HardDriveDownload, MessagesSquare, Compass, UserRoundCog } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import Sigil from '../components/ui/Sigil';
+import Eyebrow from '../components/ui/Eyebrow';
 import type { Project } from '../types';
 
 type UploadDebug = {
@@ -87,11 +90,12 @@ export default function Home() {
     <div className="page-home">
       <section className="hero">
         <div className="hero-content">
+          <Sigil size={84} className="hero-sigil" />
           <h1>FFT PSX Vera</h1>
-          <p className="hero-tagline">Upload your save. Meet your party. Talk to Ivalice.</p>
+          <p className="hero-tagline">Upload your save. Read its truth. Speak with your party.</p>
           <p className="hero-desc">
-            Upload a Final Fantasy Tactics PSX memory card save file and chat with your characters.
-            Your party, your story, your adventure.
+            A tactical fantasy companion terminal. Drop in a PSX memory-card save and the parser turns
+            it into a living party ledger — every name, level, and item drawn straight from your file.
           </p>
         </div>
       </section>
@@ -111,14 +115,18 @@ export default function Home() {
             onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
             style={{ display: 'none' }}
           />
-          <div className="dropzone-icon">{uploading ? '⏳' : '📁'}</div>
-          <h2>{uploading ? 'Analyzing save...' : 'Drop your save file here'}</h2>
+          <div className="dropzone-icon">
+            {uploading ? <Loader2 size={40} className="spin" /> : <Upload size={40} />}
+          </div>
+          <h2>{uploading ? 'Reading the save...' : 'Drop your save file here'}</h2>
           <p>or click to browse</p>
           <p className="formats">.zip · .mcr · .mcd · .mcs</p>
         </div>
         {error && (
           <div className="error-banner">
-            <strong>⚠️ {error}</strong>
+            <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <AlertTriangle size={15} /> {error}
+            </strong>
             {debug && (
               <details className="upload-debug" open>
                 <summary>Debug details</summary>
@@ -140,20 +148,20 @@ export default function Home() {
 
       <section className="parser-download">
         <div>
-          <span className="parser-eyebrow">NEW TOOL</span>
-          <h2>DuckStation FFT save parser</h2>
+          <Eyebrow tone="aether">Read-only tool</Eyebrow>
+          <h2>DuckStation save parser</h2>
           <p>
-            Read-only Python parser for raw PS1 memory-card saves: validates .mcd/.mcr files,
-            lists FFT slots, extracts confirmed equipment bytes, and diffs original vs edited saves.
+            A read-only Python parser for raw PS1 memory-card saves: it validates .mcd/.mcr files,
+            lists save slots, extracts confirmed equipment bytes, and diffs original vs edited saves.
           </p>
         </div>
         <a className="btn-primary" href={parserDownloadUrl} download>
-          ⬇ Download parser
+          <Download size={16} /> Download parser
         </a>
       </section>
 
       <section className="parser-instructions">
-        <span className="parser-eyebrow">HOW TO USE</span>
+        <Eyebrow>How to use</Eyebrow>
         <h2>Run the parser locally</h2>
         <ol>
           <li>Download <code>duckstation_fft_parser.py</code>.</li>
@@ -170,24 +178,24 @@ export default function Home() {
 
       <section className="features">
         <div className="feature">
-          <span className="feature-icon">💾</span>
-          <h3>Save Analysis</h3>
-          <p>Auto-detects your party, equipment, level, job class, and story progress from PSX save files.</p>
+          <span className="feature-icon"><HardDriveDownload size={24} /></span>
+          <h3>Save Truth</h3>
+          <p>The parser reads your party, equipment, level, job, and inventory straight from the save — no guessing.</p>
         </div>
         <div className="feature">
-          <span className="feature-icon">💬</span>
-          <h3>Character Chat</h3>
-          <p>Talk to Ramza, Delita, Agrias, and more — each with unique personality and knowledge.</p>
+          <span className="feature-icon"><MessagesSquare size={24} /></span>
+          <h3>Grounded Chat</h3>
+          <p>Talk to your roster — each voice is anchored to the parsed facts of your actual save.</p>
         </div>
         <div className="feature">
-          <span className="feature-icon">🎮</span>
-          <h3>Gameplay Guide</h3>
-          <p>Ask about job unlocks, JP farming, rare weapons, treasure, and shop prices.</p>
+          <span className="feature-icon"><Compass size={24} /></span>
+          <h3>Campaign Ledger</h3>
+          <p>Inspect inventory changes, save-memory events, and what the party knows between battles.</p>
         </div>
         <div className="feature">
-          <span className="feature-icon">🎨</span>
-          <h3>Custom Avatars</h3>
-          <p>Pick from 20 job class images or upload your own custom character portraits.</p>
+          <span className="feature-icon"><UserRoundCog size={24} /></span>
+          <h3>Custom Portraits</h3>
+          <p>Choose a portrait for each member or upload your own to make the roster yours.</p>
         </div>
       </section>
     </div>

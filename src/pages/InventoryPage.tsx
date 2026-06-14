@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
+import TruthSeal from '../components/ui/TruthSeal';
 import type { InventoryDiffItem, InventoryEquipmentChangedDiff, InventoryEquipmentDiff, InventoryEquippedBy, InventoryItem, InventoryLatestDiffResponse, InventoryResponse } from '../types';
 
 const VALID_TYPES = ['All', 'Weapon', 'Shield', 'Helmet', 'Armor', 'Accessory', 'Consumable', 'Key Item', 'Unknown'];
@@ -496,10 +497,13 @@ export default function InventoryPage() {
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-amber-100">Current Inventory</h1>
-          <p className="text-sm text-amber-400/70 mt-1">
+          <p className="eyebrow mb-1">Party Ledger · Bag</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-serif font-bold text-amber-100">Current Inventory</h1>
+            {inventory.has_save_truth && <TruthSeal label="Parser-verified" />}
+          </div>
+          <p className="text-sm text-amber-400/70 mt-1 font-mono">
             {uniqueItemCount} unique items &middot; {totalQuantity} total
-            {inventory.has_save_truth && <span className="ml-2 text-emerald-400">(Parser-verified Save Truth)</span>}
           </p>
         </div>
         <Link 
@@ -597,9 +601,9 @@ export default function InventoryPage() {
 
       <InventoryDiffPanel diffResponse={latestDiff} loading={diffLoading} error={diffError} />
 
-      <details className="mt-6 rounded border border-amber-800/30 bg-slate-950/40 p-3 text-xs text-amber-400/70">
-        <summary className="cursor-pointer font-semibold text-amber-300">Inventory contract details</summary>
-        <div className="mt-3 grid gap-1 text-left font-mono">
+      <details className="audit-drawer mt-6">
+        <summary>Inventory contract details</summary>
+        <div className="audit-drawer__body grid gap-1 text-left font-mono text-xs">
           <div>inventory_schema_version: {inventory.inventory_schema_version || 'unknown'}</div>
           <div>schema_version: {inventory.schema_version || 'null'}</div>
           <div>source.inventory_source: {inventory.source?.inventory_source || 'unknown'}</div>
