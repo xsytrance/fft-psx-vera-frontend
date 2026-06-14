@@ -22,6 +22,7 @@ export default function ChatPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const conversationIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const pid = Number(id);
@@ -49,6 +50,43 @@ export default function ChatPage() {
     return () => { cancelled = true; };
   }, [id, character]);
 
+  // Restore this character's most recent saved thread so chat history survives reloads.
+  useEffect(() => {
+    if (!id || !character) return;
+    let cancelled = false;
+    conversationIdRef.current = null;
+    api.listConversations(id)
+      .then(async ({ conversations }) => {
+        if (cancelled) return;
+        const match = conversations.find(c => c.mode === 'chat' && c.character_ids.includes(character.id));
+        if (!match) return;
+        conversationIdRef.current = match.id;
+        const full = await api.getConversation(match.id);
+        if (cancelled) return;
+        setMessages(full.messages.map(m => ({
+          id: m.id,
+          role: m.role === 'assistant' ? 'assistant' : 'user',
+          content: m.content,
+          character_name: m.character_name || undefined,
+          timestamp: m.created_at ? Date.parse(m.created_at) : Date.now(),
+        })));
+      })
+      .catch(() => { /* persistence is best-effort; chat works without it */ });
+    return () => { cancelled = true; };
+  }, [id, character]);
+
+  const ensureConversation = useCallback(async (): Promise<string | null> => {
+    if (conversationIdRef.current) return conversationIdRef.current;
+    if (!id || !character) return null;
+    try {
+      const conv = await api.createConversation(id, { mode: 'chat', character_ids: [character.id] });
+      conversationIdRef.current = conv.id;
+      return conv.id;
+    } catch {
+      return null;
+    }
+  }, [id, character]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streaming]);
@@ -67,12 +105,21 @@ export default function ChatPage() {
     setLoading(false);
   }, []);
 
-  const streamReply = useCallback(async (userText: string) => {
+  const streamReply = useCallback(async (userText: string, persist: boolean) => {
     if (!character) return;
     setLoading(true);
     setStreaming(true);
     const controller = new AbortController();
     abortRef.current = controller;
+
+    // Persist the user turn (best-effort; never blocks or breaks the chat).
+    let convId: string | null = null;
+    if (persist) {
+      convId = await ensureConversation();
+      if (convId) {
+        api.appendConversationMessage(convId, { role: 'user', content: userText, character_id: character.id }).catch(() => {});
+      }
+    }
 
     const aiMsgId = `a-${Date.now()}`;
     setMessages(prev => [...prev, {
@@ -80,6 +127,8 @@ export default function ChatPage() {
       timestamp: Date.now(), streaming: true,
     }]);
 
+    let fullText = '';
+    let failed = false;
     try {
       const r = await api.streamChat({ project_id: Number(id), character_id: character.id, message: userText }, controller.signal);
       const reader = r.body?.getReader();
@@ -87,7 +136,6 @@ export default function ChatPage() {
 
       const decoder = new TextDecoder();
       let buffer = '';
-      let fullText = '';
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -104,6 +152,7 @@ export default function ChatPage() {
                 setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m));
               }
               if (data.response) {
+                fullText = data.response;
                 setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, content: data.response, streaming: false } : m));
               }
               if (data.error) {
@@ -114,6 +163,7 @@ export default function ChatPage() {
         }
       }
     } catch (err) {
+      failed = true;
       if (err instanceof Error && err.name === 'AbortError') {
         setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, streaming: false, stopped: true } : m));
       } else {
@@ -124,15 +174,21 @@ export default function ChatPage() {
       setLoading(false);
       setStreaming(false);
       abortRef.current = null;
+      // Persist the assistant turn only on a clean, non-empty completion.
+      if (persist && convId && fullText.trim() && !failed) {
+        api.appendConversationMessage(convId, {
+          role: 'assistant', content: fullText, character_name: character.name, character_id: character.id,
+        }).catch(() => {});
+      }
     }
-  }, [character, id]);
+  }, [character, id, ensureConversation]);
 
   const send = useCallback(() => {
     const msg = input.trim();
     if (!msg || !character || loading) return;
     setInput('');
     setMessages(prev => [...prev, { id: `u-${Date.now()}`, role: 'user', content: msg, timestamp: Date.now() }]);
-    streamReply(msg);
+    streamReply(msg, true);
   }, [input, character, loading, streamReply]);
 
   const regenerate = useCallback(() => {
@@ -140,7 +196,8 @@ export default function ChatPage() {
     const lastUser = [...messages].reverse().find(m => m.role === 'user');
     if (!lastUser) return;
     setMessages(prev => prev.slice(0, prev.map(m => m.id).lastIndexOf(lastUser.id) + 1));
-    streamReply(lastUser.content);
+    // Regenerate is a transient re-roll; don't double-persist the same turn.
+    streamReply(lastUser.content, false);
   }, [messages, streaming, loading, streamReply]);
 
   const copy = useCallback((text: string, msgId: string) => {
