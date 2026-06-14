@@ -97,18 +97,23 @@ Tip of `main` is a Verified squash commit. Since the phase-16 note above, also m
 - **`docs/kb/` — lore + character knowledge base** (the "character layer"): a
   spoiler-gated `story-timeline.json` (4 chapters, PSX names) and
   `characters.json` (per-character, per-chapter mood/knowledge/goals/mindset/
-  relationships; starter set of 6: Ramza, Delita, Agrias, Ovelia, Mustadio,
-  Orlandeau), with a `README.md` defining the grounding stack and spoiler rules.
-  Backend-consumed, like `docs/persona-kb.md`. Extend with the rest of the cast.
+  relationships), with a `README.md` defining the grounding stack and spoiler rules.
+  Backend-consumed, like `docs/persona-kb.md`. **Now 16 characters** (Ramza, Delita,
+  Agrias, Ovelia, Mustadio, Orlandeau, Gaffgarion, Wiegraf, Rapha, Marach,
+  Meliadoul, Beowulf, Reis, Cloud, Alma, Algus).
+- **Timeline ↔ Campfire wiring: DONE & merged** — TimelinePage "Discuss at campfire"
+  links carry `?event=`; CampfirePage reads it (event picker, historic vs latest).
+- **`docs/monorepo-plan.md`** — recommendation (combine into a monorepo) + migration
+  steps; can't execute from a frontend-only session (needs both repos).
 
 ### Open decisions (waiting on the user)
-- **Backend access for the persona/lore work.** This session is scoped to the
-  frontend repo only (`add_repo` not connected). To wire `docs/kb/` +
-  `docs/persona-kb.md` into the prompt builder (the ★ top backend task) and add
-  brave/faith/zodiac to the parser, the user must relaunch a session that
+- **★ Backend access** for the persona/lore work AND the monorepo migration. This
+  session is scoped to the frontend repo only (`add_repo` not connected). To wire
+  `docs/kb/` + `docs/persona-kb.md` into the prompt builder, add brave/faith/zodiac
+  to the parser, and/or combine the repos, the user must relaunch a session that
   includes **`github.com/xsytrance/fft-psx-vera`**, or OK a read-only PAT clone.
-- **Expand `docs/kb/characters.json`** to the full roster (Gaffgarion, Wiegraf,
-  Rapha/Marach, Beowulf, Reis, Cloud, Meliadoul, …) — pure frontend-repo work.
+- Frontend ideas left: shared `src/lib/api.ts`, real screenshot/QA pass,
+  dependency cleanup (needs working `npm install`).
 
 ### How pushing worked this session (so it's repeatable)
 Local git proxy denies push and the GitHub MCP app is read-only, so all pushes

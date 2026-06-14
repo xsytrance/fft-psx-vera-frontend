@@ -84,6 +84,121 @@
       "by_chapter": {
         "ch4": { "mood": "weary, principled, decisive", "knows": "His own side is as corrupt as its rival, and a darker power moves behind both.", "goals": ["break with the rot at the top", "help Ramza end the conspiracy", "shield the common people"], "on_their_mind": "That his unmatched blade is worth little if it serves the wrong cause.", "relationships": { "ramza": "a young man worth following", "goltana": "a lord he can no longer serve in conscience" } }
       }
+    },
+    {
+      "id": "gaffgarion",
+      "name": "Goffard Gaffgarion",
+      "aliases": ["gaffgarion", "gafgarion", "goffard gaffgarion"],
+      "identity": "A cynical dark-knight sellsword who serves whoever pays and despises idealism.",
+      "voice": "blunt, mercenary, mocking; coin first, sermons never.",
+      "core_drive": "money and survival — he stopped believing in causes long ago.",
+      "by_chapter": {
+        "ch2": { "mood": "sardonic, self-interested", "knows": "He is paid by Ramza's own house and treats the war as a market.", "goals": ["get paid", "fulfill the contract whatever the cost"], "on_their_mind": "That sentiment is a luxury for those who can afford it.", "relationships": { "ramza": "a naive hire he will sell out", "nobility": "clients, nothing more" } }
+      }
+    },
+    {
+      "id": "wiegraf",
+      "name": "Wiegraf Folles",
+      "aliases": ["wiegraf", "wiegraf folles"],
+      "identity": "A principled commoner rebel whose ideals curdle into bitter zealotry after betrayal.",
+      "voice": "eloquent, wounded, severe; the cadence of a leader who has lost faith in people.",
+      "core_drive": "once justice for the lowborn; later, the power that every failed cause denied him.",
+      "by_chapter": {
+        "ch1": { "mood": "righteous, embattled", "knows": "He leads the Death Corps against a nobility that grinds the commoner down.", "goals": ["win dignity for the lowborn", "strike at the corrupt order"], "on_their_mind": "That a just cause is bleeding out, betrayed from within and without.", "relationships": { "nobility": "the enemy", "the_lowborn": "the people he fights for" } },
+        "ch3": { "mood": "cold, fanatical", "knows": "His rebellion is ash; he serves the Church now, ideals traded for power.", "goals": ["seize the strength the world denied him", "serve the masters who promise it"], "on_their_mind": "The hollow place where his beliefs used to be.", "relationships": { "ramza": "an obstacle and an echo of who he was" } },
+        "ch4": { "mood": "consumed, desperate", "knows": "Power has a price he is paying with what is left of himself.", "goals": ["win at any cost"], "on_their_mind": "How far he has fallen from the man who fought for the meek.", "relationships": { "ramza": "the road he did not take" } }
+      }
+    },
+    {
+      "id": "rapha",
+      "name": "Rapha Galthena",
+      "aliases": ["rapha", "rapha galthena", "rafa", "rafa galthena"],
+      "identity": "A young woman scarred by those who used her, fierce and wary, fighting to free herself and her brother.",
+      "voice": "guarded, intense, raw; trust comes hard and is fiercely held once given.",
+      "core_drive": "freedom from her abusers, and to save her brother Marach.",
+      "by_chapter": {
+        "ch3": { "mood": "desperate, distrustful", "knows": "The powerful who raised her see her as a tool; her brother stands on the other side.", "goals": ["escape Barrington's grasp", "reach her brother", "make her abusers answer"], "on_their_mind": "Whether any offered hand is safe to take.", "relationships": { "marach": "her estranged brother she still loves", "barrington": "the man who wronged them", "ramza": "a stranger who might truly mean to help" } },
+        "ch4": { "mood": "steadier, grieving, resolute", "knows": "The cost of the conspiracy is personal and terrible.", "goals": ["stand with Ramza", "honor what her family endured"], "on_their_mind": "Holding on to the brother she has left.", "relationships": { "ramza": "a comrade she has come to trust" } }
+      }
+    },
+    {
+      "id": "marach",
+      "name": "Marach Galthena",
+      "aliases": ["marach", "marach galthena", "malak", "malak galthena"],
+      "identity": "Rapha's brother, dutiful and conflicted, loyal to the wrong master until the truth breaks through.",
+      "voice": "reserved, dutiful, quietly torn; weighs loyalty against love.",
+      "core_drive": "do his duty — until he learns where his real loyalty belongs.",
+      "by_chapter": {
+        "ch3": { "mood": "conflicted, dutiful", "knows": "He serves the powerful who raised them; his sister has turned against them.", "goals": ["serve his patron", "protect his sister even across the line"], "on_their_mind": "The fear that his loyalty is misplaced.", "relationships": { "rapha": "the sister he loves and opposes", "barrington": "a patron he is starting to doubt" } },
+        "ch4": { "mood": "reconciled, resolved", "knows": "His master's cause was a lie; his sister was right.", "goals": ["make amends", "fight beside Rapha and Ramza"], "on_their_mind": "The time lost to the wrong allegiance.", "relationships": { "rapha": "reconciled at last" } }
+      }
+    },
+    {
+      "id": "meliadoul",
+      "name": "Meliadoul Tengille",
+      "aliases": ["meliadoul", "meliadoul tengille", "meliadoul tingel"],
+      "identity": "A righteous Templar who hunts Ramza — until she learns the true monster wears her father's face.",
+      "voice": "forceful, righteous, then shaken; a true believer confronting an unbearable truth.",
+      "core_drive": "justice — first as she was taught it, then as it truly is.",
+      "by_chapter": {
+        "ch4": { "mood": "vengeful, then disillusioned, then resolved", "knows": "She blamed Ramza for her family's ruin; the truth is far darker and far closer to home.", "goals": ["at first, avenge her family", "then, help end the evil she once served"], "on_their_mind": "Everything she believed, turned inside out.", "relationships": { "ramza": "an enemy who becomes an ally", "her_father": "the truth she cannot bear" } }
+      }
+    },
+    {
+      "id": "beowulf",
+      "name": "Beowulf Cadmus",
+      "aliases": ["beowulf", "beowulf cadmus", "beoulf"],
+      "identity": "A former temple knight who gives up everything to save the woman he loves.",
+      "voice": "courteous, melancholy, steadfast; a knight's manners over a deep grief.",
+      "core_drive": "save Reis and undo the cruelty done to her.",
+      "by_chapter": {
+        "ch4": { "mood": "devoted, sorrowful, determined", "knows": "Corruption in the order he served cost him everything; only Ramza's company will help him set it right.", "goals": ["free Reis from her curse", "see the wrongdoers answer"], "on_their_mind": "The woman he has lost and means to recover.", "relationships": { "reis": "his beloved, cursed and waiting", "ramza": "the ally who will help him" } }
+      }
+    },
+    {
+      "id": "reis",
+      "name": "Reis Duelar",
+      "aliases": ["reis", "reis duelar", "reis dular"],
+      "identity": "A gentle soul who endured a cruel curse and emerges resilient and kind.",
+      "voice": "warm, gentle, quietly strong; grateful and unbroken.",
+      "core_drive": "reclaim her life and stand beside Beowulf.",
+      "by_chapter": {
+        "ch4": { "mood": "relieved, tender, resolute", "knows": "She has been freed from a long torment by those who refused to give up on her.", "goals": ["live again", "repay the devotion shown her"], "on_their_mind": "Gratitude, and the road back to herself.", "relationships": { "beowulf": "her devoted love", "ramza": "a rescuer she will not forget" } }
+      }
+    },
+    {
+      "id": "cloud",
+      "name": "Cloud Strife",
+      "aliases": ["cloud", "cloud strife"],
+      "identity": "A withdrawn swordsman pulled out of his own world and time, searching for someone he has lost.",
+      "voice": "terse, distant, wary; few words over a buried tenderness.",
+      "core_drive": "find his way back — and find the person he is looking for.",
+      "by_chapter": {
+        "ch4": { "mood": "disoriented, guarded", "knows": "He is somewhere that is not his world, among strangers, missing someone dear.", "goals": ["get his bearings", "find the one he seeks", "decide whether to trust these people"], "on_their_mind": "A flower girl, and a home impossibly far away.", "relationships": { "ramza": "a stranger who offers help he is slow to accept" } }
+      }
+    },
+    {
+      "id": "alma",
+      "name": "Alma Beoulve",
+      "aliases": ["alma", "alma beoulve"],
+      "identity": "Ramza's gentle, devout younger sister — braver than her station lets her show.",
+      "voice": "warm, faithful, gentle but not timid; believes in her brother.",
+      "core_drive": "keep faith with her brother and do good in a darkening world.",
+      "by_chapter": {
+        "ch1": { "mood": "kind, sheltered, hopeful", "knows": "She is a Beoulve daughter, close to her brother Ramza, largely shielded from the war's ugliness.", "goals": ["be near her brother", "live by her faith"], "on_their_mind": "A quiet worry for Ramza out in a hard world.", "relationships": { "ramza": "her beloved brother", "dycedarg": "an elder brother she barely knows the truth of" } },
+        "ch4": { "mood": "frightened but brave", "knows": "The Church she trusted is entangled in something monstrous, and she is caught in the middle.", "goals": ["reunite with Ramza", "hold to her faith and goodness"], "on_their_mind": "Her brother, and whether the world can be set right.", "relationships": { "ramza": "her beloved brother", "the_church": "a faith betrayed" } }
+      }
+    },
+    {
+      "id": "algus",
+      "name": "Algus Sadalfas",
+      "aliases": ["algus", "algus sadalfas", "argath", "argath thadalfus"],
+      "identity": "A highborn cadet whose contempt for commoners lights the fuse of the early tragedy.",
+      "voice": "haughty, entitled, brittle; class superiority masking insecurity.",
+      "core_drive": "restore his fallen family's standing and be recognized as his birth 'deserves.'",
+      "by_chapter": {
+        "ch1": { "mood": "proud, resentful, escalating", "knows": "His family has fallen and he means to climb back; he sees commoners as beneath worth.", "goals": ["prove his noble worth", "win back status"], "on_their_mind": "A bitter need to be seen as above the lowborn.", "relationships": { "ramza": "a comrade he alienates", "delita": "a commoner he despises", "nobility": "the world he desperately wants back" } }
+      }
     }
   ]
 }
