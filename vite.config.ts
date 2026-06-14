@@ -14,6 +14,13 @@ export default defineConfig({
         target: process.env.VITE_API_TARGET || 'http://localhost:9091',
         changeOrigin: true,
       },
+      // Backend-served images (character/job/custom avatars) live under /assets.
+      // Without this, dev requests for /assets/... hit Vite (no such route) → 404
+      // → blank avatars. Vite's own dev server doesn't use /assets, so this is safe.
+      '/assets': {
+        target: process.env.VITE_API_TARGET || 'http://localhost:9091',
+        changeOrigin: true,
+      },
     },
   },
   resolve: {
