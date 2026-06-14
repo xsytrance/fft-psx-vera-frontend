@@ -4,6 +4,7 @@ import { Upload, Loader2, Download, AlertTriangle, HardDriveDownload, MessagesSq
 import { useApp } from '../context/AppContext';
 import Sigil from '../components/ui/Sigil';
 import Eyebrow from '../components/ui/Eyebrow';
+import { api } from '../lib/api';
 import type { Project } from '../types';
 
 type UploadDebug = {
@@ -40,31 +41,22 @@ export default function Home() {
     };
 
     try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const r = await fetch(endpoint, { method: 'POST', body: fd });
-      const text = await r.text();
-      let body: unknown = text;
-      try {
-        body = text ? JSON.parse(text) : null;
-      } catch {
-        // Keep raw text for debug output.
-      }
+      const r = await api.uploadSave(file);
 
       if (!r.ok) {
         setDebug({
           ...baseDebug,
           status: r.status,
           statusText: r.statusText,
-          requestId: r.headers.get('x-request-id') || undefined,
-          responseBody: body,
+          requestId: r.requestId,
+          responseBody: r.body,
           note: 'Upload reached the API/dev proxy, but parsing or proxying failed.',
         });
-        const errBody = (body ?? null) as { detail?: string; error?: string } | null;
+        const errBody = (r.body ?? null) as { detail?: string; error?: string } | null;
         throw new Error(errBody?.detail || errBody?.error || r.statusText || 'Upload failed');
       }
 
-      const data = body as Project;
+      const data = r.body as Project;
       dispatch({ type: 'ADD_PROJECT', payload: data });
       navigate(`/project/${data.id}`);
     } catch (e) {

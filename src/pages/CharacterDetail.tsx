@@ -4,7 +4,8 @@ import { MessageSquare, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import Eyebrow from '../components/ui/Eyebrow';
 import TruthSeal from '../components/ui/TruthSeal';
-import type { Character, AvatarOption, SaveTruth, SaveTruthCharacter } from '../types';
+import { api } from '../lib/api';
+import type { Character, AvatarOption, SaveTruthCharacter } from '../types';
 
 const normalizeName = (value: string | null | undefined) =>
   (value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -29,8 +30,7 @@ export default function CharacterDetail() {
 
   useEffect(() => {
     if (showPicker) {
-      fetch('/api/avatars')
-        .then(r => r.json())
+      api.getAvatars()
         .then(data => setAvatars(data.avatars || []))
         .catch(() => {});
     }
@@ -40,12 +40,10 @@ export default function CharacterDetail() {
   useEffect(() => {
     if (!id || !baseCharacter) return;
     let cancelled = false;
-    fetch(`/api/projects/${id}/save-truth`)
-      .then(r => (r.ok ? r.json() : null))
-      .then((data: SaveTruth | null) => {
+    api.getSaveTruth(id)
+      .then(data => {
         if (cancelled) return;
         setTruthLoaded(true);
-        if (!data) return;
         const target = normalizeName(baseCharacter.name);
         const match = data.characters.find(c => normalizeName(c.name) === target)
           || data.characters.find(c => {
@@ -61,11 +59,7 @@ export default function CharacterDetail() {
   if (!character) return <div className="page-loading">Loading...</div>;
 
   const selectAvatar = async (url: string) => {
-    await fetch(`/api/projects/${id}/characters/${charId}/set-avatar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ avatar_url: url }),
-    });
+    await api.setAvatar(id!, charId!, url).catch(() => {});
     setAvatarOverride(url);
     setShowPicker(false);
   };
@@ -73,15 +67,12 @@ export default function CharacterDetail() {
   const uploadCustom = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const fd = new FormData();
-    fd.append('file', file);
-    const r = await fetch(`/api/projects/${id}/characters/${charId}/avatar`, {
-      method: 'POST', body: fd,
-    });
-    if (r.ok) {
-      const data = await r.json();
+    try {
+      const data = await api.uploadAvatar(id!, charId!, file);
       setAvatarOverride(data.url);
       setShowPicker(false);
+    } catch {
+      /* keep the picker open on failure */
     }
   };
 

@@ -4,6 +4,7 @@ import { Landmark, Backpack, Flame, ChevronRight, ScrollText } from 'lucide-reac
 import { useApp } from '../context/AppContext';
 import TruthSeal from '../components/ui/TruthSeal';
 import Badge from '../components/ui/Badge';
+import { api } from '../lib/api';
 import type { Project, Character, SaveTruth, PromptInspectorResult, EquipmentTruthTestResult } from '../types';
 
 export default function ProjectView() {
@@ -21,9 +22,8 @@ export default function ProjectView() {
     const p = state.projects.find(p => p.id === Number(id));
     if (p) {
       setProject(p);
-    } else {
-      fetch(`/api/projects/${id}`)
-        .then(r => r.json())
+    } else if (id) {
+      api.getProject(id)
         .then(data => setProject(data))
         .catch(() => {});
     }
@@ -32,11 +32,7 @@ export default function ProjectView() {
   useEffect(() => {
     if (!id) return;
     setSaveTruthError(null);
-    fetch(`/api/projects/${id}/save-truth`)
-      .then(r => {
-        if (!r.ok) throw new Error(`Save truth unavailable (${r.status})`);
-        return r.json();
-      })
+    api.getSaveTruth(id)
       .then(data => setSaveTruth(data))
       .catch(err => setSaveTruthError(err instanceof Error ? err.message : 'Save truth unavailable'));
   }, [id]);
@@ -67,9 +63,7 @@ export default function ProjectView() {
     setQaError(null);
     setQaLoading(`inspect-${saveName}`);
     try {
-      const res = await fetch(`/api/projects/${project.id}/characters/${rosterChar.id}/prompt-inspector`);
-      if (!res.ok) throw new Error(`Prompt inspector failed (${res.status})`);
-      setPromptInspector(await res.json());
+      setPromptInspector(await api.getPromptInspector(project.id, rosterChar.id));
     } catch (err) {
       setQaError(err instanceof Error ? err.message : 'Prompt inspector failed');
     } finally {
@@ -86,16 +80,7 @@ export default function ProjectView() {
     setQaError(null);
     setQaLoading(`test-${saveName}`);
     try {
-      const res = await fetch(`/api/projects/${project.id}/characters/${rosterChar.id}/equipment-truth-test`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: 'What do I have equipped right now? Answer with only my equipped item names.' }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || `Gear QA failed (${res.status})`);
-      }
-      setTruthTest(await res.json());
+      setTruthTest(await api.runEquipmentTruthTest(project.id, rosterChar.id, 'What do I have equipped right now? Answer with only my equipped item names.'));
     } catch (err) {
       setQaError(err instanceof Error ? err.message : 'Gear QA failed');
     } finally {

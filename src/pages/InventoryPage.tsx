@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
 import TruthSeal from '../components/ui/TruthSeal';
 import MessageContent from '../components/ui/MessageContent';
+import { api, type AskPartyResponse } from '../lib/api';
 import type { InventoryDiffItem, InventoryEquipmentChangedDiff, InventoryEquipmentDiff, InventoryEquippedBy, InventoryItem, InventoryLatestDiffResponse, InventoryResponse } from '../types';
 
 const VALID_TYPES = ['All', 'Weapon', 'Shield', 'Helmet', 'Armor', 'Accessory', 'Consumable', 'Key Item', 'Unknown'];
@@ -28,12 +29,6 @@ function equippedByLabel(eq: InventoryEquippedBy) {
   const saveSlot = eq.save_slot !== undefined && eq.save_slot !== null ? ` - save slot ${eq.save_slot}` : '';
   return `${eq.character_name}${alias}${slot}${saveSlot}`;
 }
-
-type AskPartyResponse = {
-  question: string;
-  responses: Array<{ character_id: number; character_name: string; text: string }>;
-  warnings?: string[];
-};
 
 const DEFAULT_ITEM_QUESTION = 'What can you tell me about this item from our inventory?';
 
@@ -164,23 +159,13 @@ function ItemDetailDrawer({ item, projectId, onClose }: { item: InventoryItem; p
     setAskResult(null);
     try {
       const question = askQuestion.trim() || DEFAULT_ITEM_QUESTION;
-      const res = await fetch(`/api/projects/${projectId}/inventory/items/ask-party`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          item_id: item.item_id,
-          item_id_hex: item.item_id_hex,
-          item_name: item.item_name,
-          question,
-          mode: 'campfire',
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        const detail = typeof data.detail === 'string' ? data.detail : 'Party could not answer about this item.';
-        throw new Error(detail);
-      }
-      setAskResult(data as AskPartyResponse);
+      setAskResult(await api.askPartyAboutItem(projectId, {
+        item_id: item.item_id,
+        item_id_hex: item.item_id_hex,
+        item_name: item.item_name,
+        question,
+        mode: 'campfire',
+      }));
     } catch (err) {
       const fallback = 'This item could not be verified in the current parsed save, so the party will not comment on it.';
       setAskError(err instanceof Error ? err.message : fallback);
@@ -372,10 +357,7 @@ export default function InventoryPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/projects/${projectId}/inventory`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch inventory`);
-        const data: InventoryResponse = await res.json();
-        setInventory(data);
+        setInventory(await api.getInventory(projectId));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load inventory');
       } finally {
@@ -393,10 +375,7 @@ export default function InventoryPage() {
       setDiffLoading(true);
       setDiffError(null);
       try {
-        const res = await fetch(`/api/projects/${projectId}/inventory/diff/latest`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch latest inventory diff`);
-        const data: InventoryLatestDiffResponse = await res.json();
-        setLatestDiff(data);
+        setLatestDiff(await api.getInventoryDiffLatest(projectId));
       } catch (err) {
         setDiffError(err instanceof Error ? err.message : 'Failed to load latest inventory diff');
       } finally {

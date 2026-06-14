@@ -4,6 +4,7 @@ import { Flame } from 'lucide-react';
 import TruthSeal from '../components/ui/TruthSeal';
 import Panel from '../components/ui/Panel';
 import MessageContent from '../components/ui/MessageContent';
+import { api } from '../lib/api';
 import type { CampfireResponse, InventoryDiffItem, InventoryEquipmentChangedDiff, InventoryEquipmentDiff, SaveMemoryEvent, SaveMemoryResponse } from '../types';
 
 const DEFAULT_CAMPFIRE_QUESTION = 'What do you all make of what changed since the last save?';
@@ -120,10 +121,7 @@ export default function CampfirePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/projects/${projectId}/save-memory`);
-      if (!res.ok) throw new Error(`Save memory unavailable (${res.status})`);
-      const data: SaveMemoryResponse = await res.json();
-      setMemory(data);
+      setMemory(await api.getSaveMemory(projectId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Save memory unavailable');
     } finally {
@@ -143,18 +141,11 @@ export default function CampfirePage() {
     setCampfireError(null);
     setCampfireResult(null);
     try {
-      const res = await fetch(`/api/projects/${projectId}/campfire/save-memory`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_id: event.event_id,
-          question: question.trim() || DEFAULT_CAMPFIRE_QUESTION,
-          mode: 'campfire',
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Campfire could not answer yet.');
-      setCampfireResult(data as CampfireResponse);
+      setCampfireResult(await api.askCampfire(projectId, {
+        event_id: event.event_id,
+        question: question.trim() || DEFAULT_CAMPFIRE_QUESTION,
+        mode: 'campfire',
+      }));
     } catch (err) {
       setCampfireError(err instanceof Error ? err.message : 'Campfire could not answer yet.');
     } finally {

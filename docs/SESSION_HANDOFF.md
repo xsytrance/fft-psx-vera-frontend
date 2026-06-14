@@ -112,8 +112,9 @@ Tip of `main` is a Verified squash commit. Since the phase-16 note above, also m
   `docs/kb/` + `docs/persona-kb.md` into the prompt builder, add brave/faith/zodiac
   to the parser, and/or combine the repos, the user must relaunch a session that
   includes **`github.com/xsytrance/fft-psx-vera`**, or OK a read-only PAT clone.
-- Frontend ideas left: shared `src/lib/api.ts`, real screenshot/QA pass,
-  dependency cleanup (needs working `npm install`).
+- Frontend ideas left: real screenshot/QA pass, dependency cleanup (needs
+  working `npm install`), `cmdk` command palette. (**Shared `src/lib/api.ts`
+  — DONE:** all 28 endpoints centralized + typed; pages call `api.*`.)
 
 ### How pushing worked this session (so it's repeatable)
 Local git proxy denies push and the GitHub MCP app is read-only, so all pushes

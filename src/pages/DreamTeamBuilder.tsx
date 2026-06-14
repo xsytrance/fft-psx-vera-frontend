@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router';
+import { api } from '../lib/api';
 import type { DreamTeam, DreamTeamMember, AvailableCharacter, JobInfo, EquipmentData } from '../types';
 
 // Tactical-fantasy palette — references the design tokens from App.css so the
@@ -40,15 +41,10 @@ export default function DreamTeamBuilder() {
 
   const loadTeam = useCallback(async () => {
     try {
-      const res = await fetch(`/api/projects/${projectId}/dream-teams/${teamId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setTeam(data);
-      } else {
-        navigate(`/project/${projectId}/dream-team`);
-      }
+      setTeam(await api.getDreamTeam(projectId!, teamId!));
     } catch (e) {
       console.error('Failed to load team', e);
+      navigate(`/project/${projectId}/dream-team`);
     } finally {
       setLoading(false);
     }
@@ -56,11 +52,8 @@ export default function DreamTeamBuilder() {
 
   const loadCharacters = useCallback(async () => {
     try {
-      const res = await fetch('/api/characters');
-      if (res.ok) {
-        const data = await res.json();
-        setCharacters(data.characters);
-      }
+      const data = await api.getAvailableCharacters();
+      setCharacters(data.characters);
     } catch (e) {
       console.error('Failed to load characters', e);
     }
@@ -68,11 +61,8 @@ export default function DreamTeamBuilder() {
 
   const loadJobs = useCallback(async () => {
     try {
-      const res = await fetch('/api/jobs');
-      if (res.ok) {
-        const data = await res.json();
-        setJobs(data.jobs);
-      }
+      const data = await api.getJobs();
+      setJobs(data.jobs);
     } catch (e) {
       console.error('Failed to load jobs', e);
     }
@@ -81,11 +71,8 @@ export default function DreamTeamBuilder() {
   const loadJobEquipment = useCallback(async (jobName: string) => {
     if (jobEquipment[jobName]) return;
     try {
-      const res = await fetch(`/api/jobs/${encodeURIComponent(jobName)}/equipment?level=${selectedLevel}`);
-      if (res.ok) {
-        const data = await res.json();
-        setJobEquipment(prev => ({ ...prev, [jobName]: data }));
-      }
+      const data = await api.getJobEquipment(jobName, selectedLevel);
+      setJobEquipment(prev => ({ ...prev, [jobName]: data }));
     } catch (e) {
       console.error('Failed to load equipment', e);
     }
@@ -136,14 +123,8 @@ export default function DreamTeamBuilder() {
 
   const addMember = async (member: DreamTeamMember) => {
     try {
-      const res = await fetch(`/api/projects/${projectId}/dream-teams/${teamId}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(member),
-      });
-      if (res.ok) {
-        loadTeam();
-      }
+      await api.addMember(projectId!, teamId!, member);
+      loadTeam();
     } catch (e) {
       console.error('Failed to add member', e);
     }
@@ -153,11 +134,7 @@ export default function DreamTeamBuilder() {
     try {
       // If updating existing, use PUT; if new, use POST
       if (member.id) {
-        await fetch(`/api/dream-teams/${teamId}/members/${member.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(member),
-        });
+        await api.updateMember(teamId!, member.id, member);
       } else {
         await addMember(member);
         // After add, we need the ID - reload and find
@@ -172,7 +149,7 @@ export default function DreamTeamBuilder() {
   const removeMember = async (memberId: number) => {
     if (!confirm('Remove this character from the team?')) return;
     try {
-      await fetch(`/api/dream-teams/${teamId}/members/${memberId}`, { method: 'DELETE' });
+      await api.removeMember(teamId!, memberId);
       loadTeam();
     } catch (e) {
       console.error('Failed to remove member', e);
