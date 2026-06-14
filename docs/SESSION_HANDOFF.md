@@ -112,6 +112,7 @@ Tip of `main` is a Verified squash commit. Since the phase-16 note above, also m
   `docs/kb/` + `docs/persona-kb.md` into the prompt builder, add brave/faith/zodiac
   to the parser, and/or combine the repos, the user must relaunch a session that
   includes **`github.com/xsytrance/fft-psx-vera`**, or OK a read-only PAT clone.
+  **The ready-to-paste backend session prompt + setup is in `docs/kb/BACKEND_TASK.md`.**
 - Frontend ideas left: real screenshot/QA pass, dependency cleanup (needs
   working `npm install`), `cmdk` command palette. (**Shared `src/lib/api.ts`
   — DONE:** all 28 endpoints centralized + typed; pages call `api.*`.)
