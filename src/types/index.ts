@@ -35,6 +35,14 @@ export interface SaveTruthCharacter {
   equipment: SaveTruthEquipment[];
   has_equipment: boolean;
   equipment_count: number;
+  // Persona stats (additive). Brave is parsed (confidence "medium"); Faith/Zodiac
+  // are honest placeholders (null + "unknown") until their offsets are confirmed.
+  brave?: number | null;
+  brave_confidence?: string;
+  faith?: number | null;
+  faith_confidence?: string;
+  zodiac?: string | null;
+  zodiac_confidence?: string;
 }
 
 export interface SaveTruthValidation {
@@ -96,6 +104,12 @@ export interface PromptInspectorResult {
   equipment_truth: EquipmentTruth;
   prompt_contains_actual_equipment_header: boolean;
   prompt_contains_expected_items: Record<string, boolean>;
+  // The character voice/story-state injected after SaveTruth (flavor only).
+  persona: string | null;
+  persona_source: 'canon' | 'derived' | null;
+  resolved_chapter: string | null;
+  resolved_chapter_title: string | null;
+  prompt_contains_persona: boolean;
   system_prompt: string;
 }
 

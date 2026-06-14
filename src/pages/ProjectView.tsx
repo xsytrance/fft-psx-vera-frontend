@@ -248,6 +248,24 @@ export default function ProjectView() {
                         <span key={item} className={present ? 'pass' : 'fail'}>{present ? '✓' : '✗'} {item}</span>
                       ))}
                     </div>
+                    {promptInspector.persona && (
+                      <div className="prompt-persona-block">
+                        <div className="prompt-persona-head">
+                          <span>Injected Persona</span>
+                          {promptInspector.persona_source && (
+                            <Badge tone={promptInspector.persona_source === 'canon' ? 'arcane' : 'ember'}>
+                              {promptInspector.persona_source === 'canon' ? 'Canon voice' : 'Stat-derived'}
+                            </Badge>
+                          )}
+                          {promptInspector.resolved_chapter_title && (
+                            <span className="prompt-persona-chapter">
+                              {promptInspector.resolved_chapter_title}
+                            </span>
+                          )}
+                        </div>
+                        <p className="prompt-persona-text">{promptInspector.persona}</p>
+                      </div>
+                    )}
                     <details>
                       <summary>Show exact system prompt</summary>
                       <pre>{promptInspector.system_prompt}</pre>

@@ -4,8 +4,9 @@ import { MessageSquare, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import Eyebrow from '../components/ui/Eyebrow';
 import TruthSeal from '../components/ui/TruthSeal';
+import Badge from '../components/ui/Badge';
 import { api } from '../lib/api';
-import type { Character, AvatarOption, SaveTruthCharacter } from '../types';
+import type { Character, AvatarOption, SaveTruthCharacter, PromptInspectorResult } from '../types';
 
 const normalizeName = (value: string | null | undefined) =>
   (value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -18,6 +19,7 @@ export default function CharacterDetail() {
   const [avatarOverride, setAvatarOverride] = useState<string | null>(null);
   const [grounded, setGrounded] = useState<SaveTruthCharacter | null>(null);
   const [truthLoaded, setTruthLoaded] = useState(false);
+  const [persona, setPersona] = useState<PromptInspectorResult | null>(null);
 
   const baseCharacter = useMemo(() => {
     const project = state.projects.find(p => p.id === Number(id));
@@ -55,6 +57,17 @@ export default function CharacterDetail() {
       .catch(() => { if (!cancelled) setTruthLoaded(true); });
     return () => { cancelled = true; };
   }, [id, baseCharacter]);
+
+  // The character's injected voice + spoiler-gated story state (enrichment;
+  // failures are silent so the dossier still renders the parser-confirmed facts).
+  useEffect(() => {
+    if (!id || !charId) return;
+    let cancelled = false;
+    api.getPromptInspector(id, charId)
+      .then(data => { if (!cancelled) setPersona(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [id, charId]);
 
   if (!character) return <div className="page-loading">Loading...</div>;
 
@@ -125,6 +138,9 @@ export default function CharacterDetail() {
               <div><span>Level</span><strong>{grounded.level}</strong></div>
               <div><span>HP</span><strong>{grounded.hp}</strong></div>
               <div><span>MP</span><strong>{grounded.mp}</strong></div>
+              {grounded.brave != null && grounded.brave_confidence !== 'unknown' && (
+                <div><span>Brave</span><strong>{grounded.brave}</strong></div>
+              )}
             </div>
             {grounded.equipment && grounded.equipment.length > 0 && (
               <div className="dossier-gear">
@@ -152,6 +168,27 @@ export default function CharacterDetail() {
           </p>
         )}
       </section>
+
+      {persona?.persona && (
+        <section className="panel char-voice">
+          <div className="dossier-head">
+            <Eyebrow tone="arcane">Voice &amp; story state</Eyebrow>
+            {persona.persona_source && (
+              <Badge tone={persona.persona_source === 'canon' ? 'arcane' : 'ember'}>
+                {persona.persona_source === 'canon' ? 'Canon voice' : 'Stat-derived'}
+              </Badge>
+            )}
+          </div>
+          {persona.resolved_chapter_title && (
+            <p className="char-voice-chapter">Speaking as of: {persona.resolved_chapter_title}</p>
+          )}
+          <p className="char-voice-text">{persona.persona}</p>
+          <p className="dossier-note">
+            <ShieldCheck size={14} />
+            <span>This is voice and motivation only — it never overrides the parser-confirmed facts above, and {character.name} won't reference anything past this point in the story.</span>
+          </p>
+        </section>
+      )}
 
       {/* Avatar Picker Modal */}
       {showPicker && (
