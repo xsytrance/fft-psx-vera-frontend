@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router';
+import { Landmark, MessagesSquare, Download, Mic, Check, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import type { Character, ChatMessage } from '../types';
 
@@ -185,15 +186,15 @@ export default function GroupChatPage() {
     }
   };
 
-  const modeLabel = mode === 'council' ? 'Council' : 'Dialogue';
-  const modeIcon = mode === 'council' ? '\uD83D\uDDBC\uFE0F' : '\uD83D\uDCAC';
+  const modeLabel = mode === 'council' ? 'War Council' : 'Dialogue';
+  const ModeIcon = mode === 'council' ? Landmark : MessagesSquare;
 
   return (
     <div className="page-chat group-chat">
       <header className="chat-header">
-        <Link to={`/project/${id}`} className="btn-back">{"\u2190"} Back</Link>
+        <Link to={`/project/${id}`} className="btn-back"><ArrowLeft size={15} /> Back</Link>
         <div>
-          <h2>{modeIcon} {modeLabel}</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}><ModeIcon size={18} /> {modeLabel}</h2>
           <p className="chat-subtitle">
             {selectedChars.length < 2
               ? 'Select 2-4 characters to begin'
@@ -205,11 +206,12 @@ export default function GroupChatPage() {
             className={`mode-toggle ${mode === 'council' ? 'active' : ''}`}
             onClick={() => setMode(m => m === 'council' ? 'dialogue' : 'council')}
           >
-            {mode === 'council' ? '\uD83D\uDDBC\uFE0F Council' : '\uD83D\uDCAC Dialogue'}
+            <ModeIcon size={14} style={{ verticalAlign: '-2px', marginRight: '0.35rem' }} />
+            {mode === 'council' ? 'Council' : 'Dialogue'}
           </button>
           {messages.length > 0 && (
             <button className="btn-export" onClick={exportConversation} title="Export conversation">
-              {"\uD83D\uDCE5"} Export
+              <Download size={14} style={{ verticalAlign: '-2px', marginRight: '0.3rem' }} /> Export
             </button>
           )}
         </div>
@@ -232,7 +234,7 @@ export default function GroupChatPage() {
                   <span className="chip-emoji">{char.name[0]}</span>
                 )}
                 <span className="chip-name">{char.name}</span>
-                {isSelected && <span className="chip-check">{"\u2713"}</span>}
+                {isSelected && <span className="chip-check"><Check size={13} /></span>}
               </button>
             );
           })}
@@ -241,7 +243,7 @@ export default function GroupChatPage() {
 
       {activeSpeaker && (
         <div className="active-speaker-banner">
-          <span className="speaker-icon">{"\uD83C\uDF99\uFE0F"}</span>
+          <span className="speaker-icon" style={{ display: 'inline-flex' }}><Mic size={14} /></span>
           <span><strong>{activeSpeaker}</strong> is speaking...</span>
         </div>
       )}
