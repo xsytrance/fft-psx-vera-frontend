@@ -387,9 +387,7 @@ export default function DreamTeamBuilder() {
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
             <div className="modal-header" style={{ borderBottom: `1px solid ${FFT_THEME.border}` }}>
               <h2 style={{ color: FFT_THEME.accent, margin: 0 }}>Select Character</h2>
-              <button className="btn btn-sm" onClick={() => setShowCharModal(false)} style={{
-                background: 'transparent', color: FFT_THEME.muted,
-              }}>✕</button>
+              <button className="btn-close" onClick={() => setShowCharModal(false)}>✕</button>
             </div>
             <div style={{ padding: '1rem' }}>
               <input
@@ -397,24 +395,13 @@ export default function DreamTeamBuilder() {
                 placeholder="Search characters..."
                 value={searchChar}
                 onChange={e => setSearchChar(e.target.value)}
-                style={{
-                  width: '100%', padding: '0.75rem', marginBottom: '1rem',
-                  background: FFT_THEME.dark, border: `1px solid ${FFT_THEME.border}`,
-                  color: FFT_THEME.text, borderRadius: '8px', fontSize: '1rem',
-                }}
+                className="dt-input"
+                style={{ width: '100%', marginBottom: '1rem' }}
                 autoFocus
               />
               <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 {filteredCharacters.map(char => (
-                  <div key={char.name} onClick={() => selectCharacter(char)} style={{
-                    padding: '0.75rem', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: '1rem',
-                    borderBottom: `1px solid rgba(42,58,92,0.3)`,
-                    transition: 'background 0.15s',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(201,162,39,0.1)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >
+                  <div key={char.name} className="dt-pick" onClick={() => selectCharacter(char)}>
                     <img src={char.avatar_url} alt={char.display_name}
                          style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }}
                          onError={e => { (e.target as HTMLImageElement).src = '/assets/character_avatars/squire.png'; }}
@@ -441,9 +428,7 @@ export default function DreamTeamBuilder() {
               <h2 style={{ color: FFT_THEME.accent, margin: 0 }}>
                 Edit: {editMember.display_name}
               </h2>
-              <button className="btn btn-sm" onClick={() => setEditMember(null)} style={{
-                background: 'transparent', color: FFT_THEME.muted,
-              }}>✕</button>
+              <button className="btn-close" onClick={() => setEditMember(null)}>✕</button>
             </div>
             <div style={{ padding: '1.5rem', maxHeight: '70vh', overflowY: 'auto' }}>
               {/* Job Selection */}
@@ -456,11 +441,8 @@ export default function DreamTeamBuilder() {
                       setSelectedJob(e.target.value);
                       loadJobEquipment(e.target.value);
                     }}
-                    style={{
-                      flex: 1, padding: '0.75rem',
-                      background: FFT_THEME.dark, border: `1px solid ${FFT_THEME.border}`,
-                      color: FFT_THEME.text, borderRadius: '8px', fontSize: '1rem',
-                    }}
+                    className="dt-input"
+                    style={{ flex: 1 }}
                   >
                     <option value="">Select a job...</option>
                     {filteredJobs.map(job => (
@@ -479,38 +461,28 @@ export default function DreamTeamBuilder() {
                       setSelectedLevel(lv);
                       if (selectedJob) loadJobEquipment(selectedJob);
                     }}
-                    style={{
-                      width: '80px', padding: '0.75rem',
-                      background: FFT_THEME.dark, border: `1px solid ${FFT_THEME.border}`,
-                      color: FFT_THEME.text, borderRadius: '8px', fontSize: '1rem',
-                      textAlign: 'center',
-                    }}
+                    className="dt-input"
+                    style={{ width: '80px', textAlign: 'center' }}
                   />
                 </div>
 
                 {/* Equipment */}
                 {selectedJob && jobEquipment[selectedJob] && (
-                  <div style={{
-                    background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '1rem',
-                    marginBottom: '1rem',
-                  }}>
-                    <h4 style={{ color: FFT_THEME.gold, margin: '0 0 0.75rem 0', fontSize: '0.9rem' }}>
+                  <div className="dt-equip-box">
+                    <h4 style={{ color: 'var(--gold)', margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontFamily: 'var(--font-serif)' }}>
                       Recommended Equipment (Lv.{jobEquipment[selectedJob].level_range})
                     </h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                    <div className="dt-equip-grid">
                       {Object.entries(jobEquipment[selectedJob].equipment).map(([slot, items]) => (
                         <div key={slot}>
-                          <label style={{ color: FFT_THEME.muted, fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>
+                          <label className="dt-label">
                             {slot}
                           </label>
                           <select
                             value={selectedEquipment[slot] || ''}
                             onChange={e => selectEquipment(slot, e.target.value)}
-                            style={{
-                              width: '100%', padding: '0.5rem', fontSize: '0.85rem',
-                              background: FFT_THEME.dark, border: `1px solid ${FFT_THEME.border}`,
-                              color: FFT_THEME.text, borderRadius: '6px',
-                            }}
+                            className="dt-input"
+                            style={{ width: '100%', fontSize: '0.85rem' }}
                           >
                             <option value="">-- None --</option>
                             {items.map(item => (
@@ -528,26 +500,19 @@ export default function DreamTeamBuilder() {
                   const abilities = getJobAbilities(selectedJob);
                   return (
                     <div>
-                      <h4 style={{ color: FFT_THEME.gold, margin: '0 0 0.75rem 0', fontSize: '0.9rem' }}>
+                      <h4 style={{ color: 'var(--gold)', margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontFamily: 'var(--font-serif)' }}>
                         Available Abilities
                       </h4>
                       {Object.entries(abilities).map(([category, abList]) => (
                         <div key={category} style={{ marginBottom: '0.75rem' }}>
-                          <label style={{ color: FFT_THEME.muted, fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>
+                          <label className="dt-label">
                             {category}
                           </label>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                             {(abList || []).map(ab => {
                               const selected = (selectedAbilities[category] || []).includes(ab);
                               return (
-                                <button key={ab} onClick={() => toggleAbility(category, ab)} style={{
-                                  padding: '0.35rem 0.75rem', borderRadius: '16px',
-                                  border: selected ? `1px solid ${FFT_THEME.accent}` : `1px solid ${FFT_THEME.border}`,
-                                  background: selected ? 'rgba(201,162,39,0.2)' : 'rgba(0,0,0,0.2)',
-                                  color: selected ? FFT_THEME.accent : FFT_THEME.muted,
-                                  cursor: 'pointer', fontSize: '0.8rem',
-                                  transition: 'all 0.15s',
-                                }}>
+                                <button key={ab} type="button" onClick={() => toggleAbility(category, ab)} className={`dt-ability ${selected ? 'on' : ''}`}>
                                   {ab}
                                 </button>
                               );
@@ -561,14 +526,10 @@ export default function DreamTeamBuilder() {
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                <button className="btn" onClick={() => setEditMember(null)} style={{
-                  border: `1px solid ${FFT_THEME.border}`, color: FFT_THEME.muted,
-                }}>
+                <button className="btn-ghost" onClick={() => setEditMember(null)}>
                   Cancel
                 </button>
-                <button className="btn btn-primary" onClick={handleSaveEdit} style={{
-                  background: FFT_THEME.accent, color: FFT_THEME.primary, fontWeight: 'bold',
-                }}>
+                <button className="btn-primary" onClick={handleSaveEdit}>
                   Save Changes
                 </button>
               </div>

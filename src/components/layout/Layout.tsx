@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { Home, Library, Users, Landmark, Swords, Menu, X, Settings } from 'lucide-react';
+import { Home, Library, Users, Landmark, Swords, Menu, X, Settings, ScrollText } from 'lucide-react';
 import Sigil from '../ui/Sigil';
 
 export default function Layout() {
@@ -67,6 +67,9 @@ export default function Layout() {
             <div className="sidebar-nav">
               <Link to={`/project/${projectId}`} className={pathname === `/project/${projectId}` ? 'active' : ''}>
                 <span className="nav-icon"><Users size={16} /></span> Party Ledger
+              </Link>
+              <Link to={`/project/${projectId}/timeline`} className={pathname.includes('/timeline') ? 'active' : ''}>
+                <span className="nav-icon"><ScrollText size={16} /></span> Timeline
               </Link>
               <Link to={`/project/${projectId}/group-chat`} className={pathname.includes('/group-chat') ? 'active' : ''}>
                 <span className="nav-icon"><Landmark size={16} /></span> War Council
