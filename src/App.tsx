@@ -1,19 +1,23 @@
+import { lazy } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router';
 import { AppProvider } from './context/AppContext';
 import Layout from './components/layout/Layout';
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import ProjectView from './pages/ProjectView';
-import CharacterDetail from './pages/CharacterDetail';
-import ChatPage from './pages/ChatPage';
-import GroupChatPage from './pages/GroupChatPage';
-import DreamTeamList from './pages/DreamTeamList';
-import DreamTeamBuilder from './pages/DreamTeamBuilder';
-import DreamTeamChat from './pages/DreamTeamChat';
-import InventoryPage from './pages/InventoryPage';
-import CampfirePage from './pages/CampfirePage';
-import TimelinePage from './pages/TimelinePage';
-import SettingsPage from './pages/SettingsPage';
+
+// Route-level code splitting: each page (and heavy deps like the markdown
+// renderer) loads on demand, keeping the initial bundle small.
+const Home = lazy(() => import('./pages/Home'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const ProjectView = lazy(() => import('./pages/ProjectView'));
+const CharacterDetail = lazy(() => import('./pages/CharacterDetail'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const GroupChatPage = lazy(() => import('./pages/GroupChatPage'));
+const DreamTeamList = lazy(() => import('./pages/DreamTeamList'));
+const DreamTeamBuilder = lazy(() => import('./pages/DreamTeamBuilder'));
+const DreamTeamChat = lazy(() => import('./pages/DreamTeamChat'));
+const InventoryPage = lazy(() => import('./pages/InventoryPage'));
+const CampfirePage = lazy(() => import('./pages/CampfirePage'));
+const TimelinePage = lazy(() => import('./pages/TimelinePage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
 export default function App() {
   return (

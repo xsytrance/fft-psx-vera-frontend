@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router';
 import { Landmark, MessagesSquare, Download, Mic, Check, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import MessageContent from '../components/ui/MessageContent';
 import type { Character, ChatMessage } from '../types';
 
 export default function GroupChatPage() {
@@ -277,7 +278,9 @@ export default function GroupChatPage() {
               {msg.role === 'assistant' && (
                 <span className="msg-name">{msg.character_name}</span>
               )}
-              <p>{msg.content}</p>
+              {msg.role === 'assistant'
+                ? <MessageContent text={msg.content} />
+                : <p className="msg-user-text">{msg.content}</p>}
               {msg.streaming && <span className="streaming-cursor">{"\u258A"}</span>}
             </div>
           </div>
