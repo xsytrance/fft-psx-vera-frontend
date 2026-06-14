@@ -7,6 +7,13 @@
     <meta name="description" content="A tactical fantasy companion terminal. Upload a save, parse the truth of your party and inventory, and talk to your roster grounded in the actual save state." />
     <meta name="theme-color" content="#0a0e14" />
     <link rel="icon" type="image/svg+xml" href="/fftpsxvera-icon.svg" />
+    <script>
+      // Apply the saved theme before paint to avoid a flash (default: Obsidian/dark).
+      try {
+        var t = localStorage.getItem('fftvera-theme');
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+      } catch (e) {}
+    </script>
     <!-- Cinzel (display/inscriptions), Crimson Text (storybook serif), Inter (UI), JetBrains Mono (ledger figures) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
