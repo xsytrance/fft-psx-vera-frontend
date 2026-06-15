@@ -56,7 +56,15 @@ export default function Home() {
         throw new Error(errBody?.detail || errBody?.error || r.statusText || 'Upload failed');
       }
 
-      const data = r.body as Project;
+      const body = r.body as (Project & { status?: string; existing_save?: { id?: number } });
+      const data = body.status === 'duplicate' && body.existing_save?.id
+        ? await api.loadSaveHistory(body.existing_save.id)
+        : body;
+
+      if (!data?.id) {
+        throw new Error('Save loaded, but the API did not return a project id.');
+      }
+
       dispatch({ type: 'ADD_PROJECT', payload: data });
       navigate(`/project/${data.id}`);
     } catch (e) {

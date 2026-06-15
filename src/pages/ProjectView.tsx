@@ -11,6 +11,7 @@ export default function ProjectView() {
   const { id } = useParams();
   const { state } = useApp();
   const [project, setProject] = useState<Project | null>(null);
+  const [projectError, setProjectError] = useState<string | null>(null);
   const [saveTruth, setSaveTruth] = useState<SaveTruth | null>(null);
   const [saveTruthError, setSaveTruthError] = useState<string | null>(null);
   const [promptInspector, setPromptInspector] = useState<PromptInspectorResult | null>(null);
@@ -19,14 +20,23 @@ export default function ProjectView() {
   const [qaError, setQaError] = useState<string | null>(null);
 
   useEffect(() => {
+    setProject(null);
+    setProjectError(null);
+
+    if (!id || !Number.isFinite(Number(id))) {
+      setProjectError('Invalid project link. Upload or load the save again.');
+      return;
+    }
+
     const p = state.projects.find(p => p.id === Number(id));
     if (p) {
       setProject(p);
-    } else if (id) {
-      api.getProject(id)
-        .then(data => setProject(data))
-        .catch(() => {});
+      return;
     }
+
+    api.getProject(id)
+      .then(data => setProject(data))
+      .catch(err => setProjectError(err instanceof Error ? err.message : 'Project unavailable'));
   }, [id, state.projects]);
 
   useEffect(() => {
@@ -87,6 +97,18 @@ export default function ProjectView() {
       setQaLoading(null);
     }
   };
+
+  if (projectError) {
+    return (
+      <div className="page-project">
+        <div className="empty-state">
+          <h2>Project unavailable</h2>
+          <p>{projectError}</p>
+          <Link to="/" className="btn-primary">Load a save</Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!project) {
     return <div className="page-loading">Loading...</div>;

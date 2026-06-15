@@ -121,6 +121,7 @@ export const api = {
   // ── Projects ──────────────────────────────────────────────────────────────
   getProjects: () => request<Project[]>('/projects'),
   getProject: (id: Id) => request<Project>(`/projects/${id}`),
+  loadSaveHistory: (historyId: Id) => request<Project>(`/save-history/${historyId}/load`, { method: 'POST' }),
   uploadSave,
 
   // ── Save truth / chat QA ────────────────────────────────────────────────────

@@ -8,7 +8,11 @@ export default defineConfig({
   base: process.env.GITHUB_PAGES ? '/fft-psx-vera-frontend/' : '/',
   plugins: [inspectAttr(), react()],
   server: {
+    host: '0.0.0.0',
     port: Number(process.env.VITE_DEV_PORT || 5173),
+    // Tailnet users commonly open http://<tailscale-hostname>:5173.
+    // Allow those host headers instead of forcing the raw 100.x IP.
+    allowedHosts: true,
     proxy: {
       '/api': {
         target: process.env.VITE_API_TARGET || 'http://localhost:9091',
