@@ -185,7 +185,7 @@ export default function DreamTeamChat() {
               }}>
                 <img src={m.display_name.toLowerCase().replace(/\s+/g, '_') + '.png'}
                      alt={m.display_name} style={{ width: '20px', height: '20px', borderRadius: '4px' }}
-                     onError={e => { (e.target as HTMLImageElement).src = '/assets/character_avatars/squire.png'; }}
+                     onError={e => { (e.target as HTMLImageElement).src = '/assets/job_avatars/squire.jpg'; }}
                 />
                 {m.display_name} <span style={{ color: FFT_THEME.muted }}>({m.job})</span>
               </span>

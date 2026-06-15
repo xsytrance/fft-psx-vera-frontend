@@ -277,7 +277,7 @@ export default function DreamTeamBuilder() {
                     }}>
                       <img src={member.display_name.toLowerCase().replace(/\s+/g, '_') + '.png'} alt={member.display_name}
                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                           onError={e => { (e.target as HTMLImageElement).src = '/assets/character_avatars/squire.png'; }}
+                           onError={e => { (e.target as HTMLImageElement).src = '/assets/job_avatars/squire.jpg'; }}
                       />
                     </div>
                     <h3 style={{ color: FFT_THEME.accent, margin: '0 0 0.25rem 0', fontSize: '1.1rem' }}>
@@ -381,7 +381,7 @@ export default function DreamTeamBuilder() {
                   <div key={char.name} className="dt-pick" onClick={() => selectCharacter(char)}>
                     <img src={char.avatar_url} alt={char.display_name}
                          style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }}
-                         onError={e => { (e.target as HTMLImageElement).src = '/assets/character_avatars/squire.png'; }}
+                         onError={e => { (e.target as HTMLImageElement).src = '/assets/job_avatars/squire.jpg'; }}
                     />
                     <div>
                       <div style={{ color: FFT_THEME.text, fontWeight: 'bold' }}>{char.display_name}</div>

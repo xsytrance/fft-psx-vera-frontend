@@ -116,7 +116,7 @@ export default function DreamTeamList() {
                     <div key={m.id} className="team-preview-char">
                       <div className="char-avatar-sm">
                         <img src={m.display_name.toLowerCase().replace(/\s+/g, '_') + '.png'} alt={m.display_name}
-                             onError={e => { (e.target as HTMLImageElement).src = '/assets/character_avatars/squire.png'; }}
+                             onError={e => { (e.target as HTMLImageElement).src = '/assets/job_avatars/squire.jpg'; }}
                         />
                       </div>
                       <span className="char-name-sm">{m.display_name}</span>
