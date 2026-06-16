@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 
-export type MusicTrackId = 'feverbreak' | 'ember-between-wars' | 'steel-across-timelines';
+export type MusicTrackId = 'feverbreak' | 'ember-between-wars' | 'steel-across-timelines' | 'back-fire';
 
 export type MusicScreenId =
   | 'home'
@@ -81,6 +81,13 @@ export const MUSIC_TRACKS: MusicTrack[] = [
     summary: 'Loopable high-energy battle-ready orchestral strategy theme with snares, timpani, brass, and cello pulse.',
     tags: ['battle', 'high-energy', 'combat', 'advisor', 'dangerous', 'orchestral'],
   },
+  {
+    id: 'back-fire',
+    title: 'Back Fire',
+    url: '/audio/back-fire.mp3',
+    summary: 'Extended loopable PS1-era tactical JRPG menu theme: calm, reflective, focused, and built for long navigation.',
+    tags: ['menu', 'dashboard', 'strategic', 'reflective', 'calm', 'orchestral'],
+  },
 ];
 
 export const MUSIC_SCREENS: MusicScreen[] = [
@@ -88,19 +95,19 @@ export const MUSIC_SCREENS: MusicScreen[] = [
     id: 'home',
     label: 'Home',
     description: 'Opening archive and upload landing.',
-    defaultTrackId: 'ember-between-wars',
+    defaultTrackId: 'back-fire',
   },
   {
     id: 'campaigns',
     label: 'Campaigns',
     description: 'Save/project list and campaign archive.',
-    defaultTrackId: 'ember-between-wars',
+    defaultTrackId: 'back-fire',
   },
   {
     id: 'settings',
     label: 'Settings',
     description: 'Theme, music, and companion preferences.',
-    defaultTrackId: 'ember-between-wars',
+    defaultTrackId: 'back-fire',
   },
   {
     id: 'party-ledger',
