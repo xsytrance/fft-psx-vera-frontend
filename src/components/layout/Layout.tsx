@@ -1,6 +1,7 @@
 import { Suspense, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
 import { Home, Library, Users, Landmark, Swords, Menu, X, Settings, ScrollText } from 'lucide-react';
+import MusicControls from '../music/MusicControls';
 import Sigil from '../ui/Sigil';
 
 export default function Layout() {
@@ -80,6 +81,8 @@ export default function Layout() {
             </div>
           </>
         )}
+
+        <MusicControls />
       </nav>
       <main className="content">
         <Suspense fallback={<div className="page-loading">Loading…</div>}>

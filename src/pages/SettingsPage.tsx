@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { Moon, Sun, Check, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { useTheme, type Theme } from '../lib/theme';
+import MusicControls from '../components/music/MusicControls';
 import Eyebrow from '../components/ui/Eyebrow';
 
 type ThemeChoice = {
@@ -75,6 +76,10 @@ export default function SettingsPage() {
             );
           })}
         </div>
+      </section>
+
+      <section className="panel panel--ember" style={{ marginTop: '1rem' }}>
+        <MusicControls mode="settings" />
       </section>
 
       <section className="panel panel--truth" style={{ marginTop: '1rem' }}>
