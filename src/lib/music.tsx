@@ -5,6 +5,7 @@ export type MusicTrackId = 'feverbreak' | 'ember-between-wars' | 'steel-across-t
 
 export type MusicScreenId =
   | 'home'
+  | 'parser-guide'
   | 'campaigns'
   | 'settings'
   | 'party-ledger'
@@ -57,7 +58,9 @@ type MusicContextValue = {
   previousTrack: () => void;
 };
 
-const STORAGE_KEY = 'fft-psx-vera:music-preferences:v1';
+const STORAGE_KEY = 'fft-psx-vera:music-preferences:v2';
+const DEFAULT_VOLUME = 0.25;
+const TRACK_FADE_MS = 900;
 
 export const MUSIC_TRACKS: MusicTrack[] = [
   {
@@ -101,6 +104,12 @@ export const MUSIC_SCREENS: MusicScreen[] = [
     id: 'campaigns',
     label: 'Campaigns',
     description: 'Save/project list and campaign archive.',
+    defaultTrackId: 'back-fire',
+  },
+  {
+    id: 'parser-guide',
+    label: 'Parser Guide',
+    description: 'DuckStation/ePSXe save export instructions.',
     defaultTrackId: 'back-fire',
   },
   {
@@ -161,15 +170,44 @@ const screenIds = new Set(MUSIC_SCREENS.map(screen => screen.id));
 const MusicContext = createContext<MusicContextValue | undefined>(undefined);
 
 function clampVolume(volume: number) {
-  if (!Number.isFinite(volume)) return 0.55;
+  if (!Number.isFinite(volume)) return DEFAULT_VOLUME;
   return Math.min(1, Math.max(0, volume));
 }
 
+function defaultPreferences(): MusicPreferences {
+  return { enabled: true, volume: DEFAULT_VOLUME, screenOverrides: {} };
+}
+
+function fadeAudioVolume(
+  audio: HTMLAudioElement,
+  targetVolume: number,
+  durationMs: number,
+  onComplete?: () => void,
+) {
+  const startVolume = audio.volume;
+  const target = clampVolume(targetVolume);
+  const startedAt = performance.now();
+  let frameId = 0;
+
+  const step = (now: number) => {
+    const progress = Math.min(1, (now - startedAt) / durationMs);
+    audio.volume = startVolume + (target - startVolume) * progress;
+    if (progress < 1) {
+      frameId = window.requestAnimationFrame(step);
+    } else {
+      onComplete?.();
+    }
+  };
+
+  frameId = window.requestAnimationFrame(step);
+  return () => window.cancelAnimationFrame(frameId);
+}
+
 function loadPreferences(): MusicPreferences {
-  if (typeof window === 'undefined') return { enabled: false, volume: 0.55, screenOverrides: {} };
+  if (typeof window === 'undefined') return defaultPreferences();
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { enabled: false, volume: 0.55, screenOverrides: {} };
+    if (!raw) return defaultPreferences();
     const parsed = JSON.parse(raw) as Partial<MusicPreferences>;
     const overrides: Partial<Record<MusicScreenId, MusicTrackId>> = {};
     Object.entries(parsed.screenOverrides ?? {}).forEach(([screenId, trackId]) => {
@@ -179,16 +217,17 @@ function loadPreferences(): MusicPreferences {
     });
     return {
       enabled: Boolean(parsed.enabled),
-      volume: clampVolume(typeof parsed.volume === 'number' ? parsed.volume : 0.55),
+      volume: clampVolume(typeof parsed.volume === 'number' ? parsed.volume : DEFAULT_VOLUME),
       screenOverrides: overrides,
     };
   } catch {
-    return { enabled: false, volume: 0.55, screenOverrides: {} };
+    return defaultPreferences();
   }
 }
 
 function resolveScreen(pathname: string): MusicScreen {
   if (pathname === '/') return MUSIC_SCREENS.find(screen => screen.id === 'home') ?? fallbackScreen;
+  if (pathname.startsWith('/parser-guide')) return MUSIC_SCREENS.find(screen => screen.id === 'parser-guide') ?? fallbackScreen;
   if (pathname.startsWith('/dashboard')) return MUSIC_SCREENS.find(screen => screen.id === 'campaigns') ?? fallbackScreen;
   if (pathname.startsWith('/settings')) return MUSIC_SCREENS.find(screen => screen.id === 'settings') ?? fallbackScreen;
   if (pathname.includes('/inventory')) return MUSIC_SCREENS.find(screen => screen.id === 'inventory') ?? fallbackScreen;
@@ -236,25 +275,105 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const previousTime = audio.currentTime;
-    audio.src = currentTrack.url;
-    audio.loop = true;
-    audio.currentTime = Math.min(previousTime, 8);
+
+    let cancelled = false;
+    let cancelFade: (() => void) | undefined;
+    const nextSrc = new URL(currentTrack.url, window.location.href).href;
+
+    const fadeTo = (targetVolume: number, onComplete?: () => void) => {
+      cancelFade?.();
+      cancelFade = fadeAudioVolume(audio, targetVolume, TRACK_FADE_MS, onComplete);
+    };
+
+    const startTrack = (resumeFrom = 0) => {
+      if (cancelled) return;
+      audio.src = nextSrc;
+      audio.loop = true;
+      audio.currentTime = Math.min(resumeFrom, 8);
+      audio.volume = 0;
+      audio.play()
+        .then(() => {
+          if (cancelled) return;
+          setIsPlaying(true);
+          setBlocked(false);
+          fadeTo(preferences.volume);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setIsPlaying(false);
+          setBlocked(true);
+        });
+    };
+
     if (!preferences.enabled) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-    audio.play()
-      .then(() => {
-        setIsPlaying(true);
-        setBlocked(false);
-      })
-      .catch(() => {
-        setIsPlaying(false);
-        setBlocked(true);
+      fadeTo(0, () => {
+        if (!cancelled) {
+          audio.pause();
+          setIsPlaying(false);
+        }
       });
+      return () => {
+        cancelled = true;
+        cancelFade?.();
+      };
+    }
+
+    if (!audio.src || audio.src === window.location.href) {
+      startTrack(0);
+    } else if (audio.src === nextSrc) {
+      audio.play()
+        .then(() => {
+          if (cancelled) return;
+          setIsPlaying(true);
+          setBlocked(false);
+          fadeTo(preferences.volume);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setIsPlaying(false);
+          setBlocked(true);
+        });
+    } else {
+      const previousTime = audio.currentTime;
+      fadeTo(0, () => {
+        if (!cancelled) startTrack(previousTime);
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      cancelFade?.();
+    };
   }, [currentTrack.url, preferences.enabled]);
+
+  useEffect(() => {
+    if (!preferences.enabled || typeof window === 'undefined') return;
+
+    const unlockPlayback = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio.volume = preferences.volume;
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          setBlocked(false);
+        })
+        .catch(() => {
+          setIsPlaying(false);
+          setBlocked(true);
+        });
+    };
+
+    window.addEventListener('pointerdown', unlockPlayback, { once: true, capture: true });
+    window.addEventListener('touchstart', unlockPlayback, { once: true, capture: true });
+    window.addEventListener('keydown', unlockPlayback, { once: true, capture: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockPlayback, { capture: true });
+      window.removeEventListener('touchstart', unlockPlayback, { capture: true });
+      window.removeEventListener('keydown', unlockPlayback, { capture: true });
+    };
+  }, [preferences.enabled, preferences.volume, currentTrack.url]);
 
   useEffect(() => {
     return () => {

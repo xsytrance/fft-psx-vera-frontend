@@ -56,6 +56,9 @@ export default function Layout() {
           <Link to="/dashboard" className={pathname.startsWith('/dashboard') ? 'active' : ''}>
             <span className="nav-icon"><Library size={16} /></span> Campaigns
           </Link>
+          <Link to="/parser-guide" className={pathname.startsWith('/parser-guide') ? 'active' : ''}>
+            <span className="nav-icon"><ScrollText size={16} /></span> Parser Guide
+          </Link>
           <Link to="/settings" className={pathname.startsWith('/settings') ? 'active' : ''}>
             <span className="nav-icon"><Settings size={16} /></span> Settings
           </Link>

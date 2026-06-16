@@ -19,6 +19,7 @@ const InventoryPage = lazy(() => import('./pages/InventoryPage'));
 const CampfirePage = lazy(() => import('./pages/CampfirePage'));
 const TimelinePage = lazy(() => import('./pages/TimelinePage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const ParserGuide = lazy(() => import('./pages/ParserGuide'));
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/parser-guide" element={<ParserGuide />} />
               <Route path="/project/:id" element={<ProjectView />} />
               <Route path="/project/:id/inventory" element={<InventoryPage />} />
               <Route path="/project/:id/campfire" element={<CampfirePage />} />

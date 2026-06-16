@@ -13,15 +13,24 @@ function formatDelta(delta: number) {
   return delta > 0 ? `+${delta}` : `${delta}`;
 }
 
+function isPlaceholderUnknownName(name?: string | null) {
+  return /^Unknown_0x[0-9A-F]+$/i.test(String(name || '').trim());
+}
+
+function hasDisplayableItemName(item?: { item_name?: string | null } | null) {
+  return Boolean(item?.item_name) && !isPlaceholderUnknownName(item?.item_name);
+}
+
 function EventItemList({ title, items }: { title: string; items?: InventoryDiffItem[] }) {
-  if (!items || items.length === 0) return null;
+  const displayItems = (items || []).filter(hasDisplayableItemName);
+  if (displayItems.length === 0) return null;
   return (
     <div>
       <h3 className="mb-2 text-sm font-semibold text-amber-300">{title}</h3>
       <ul className="space-y-2 text-sm">
-        {items.map((item, idx) => (
+        {displayItems.map((item, idx) => (
           <li key={`${title}-${item.item_id_hex || item.item_name}-${idx}`} className="rounded border border-amber-900/30 bg-slate-900/60 p-2 text-amber-100/90">
-            <span className="font-semibold">{item.item_name || 'Unknown parsed item ID'}</span>
+            <span className="font-semibold">{item.item_name}</span>
             {item.item_id_hex && <span className="ml-2 font-mono text-xs text-amber-400/70">{item.item_id_hex}</span>}
             <span className="ml-2 text-xs text-amber-500/80">{item.before_count} → {item.after_count}</span>
             <span className="ml-2 font-mono text-xs text-emerald-300">{formatDelta(item.delta)}</span>
@@ -33,16 +42,17 @@ function EventItemList({ title, items }: { title: string; items?: InventoryDiffI
 }
 
 function EquipmentList({ title, items }: { title: string; items?: InventoryEquipmentDiff[] }) {
-  if (!items || items.length === 0) return null;
+  const displayItems = (items || []).filter(hasDisplayableItemName);
+  if (displayItems.length === 0) return null;
   return (
     <div>
       <h3 className="mb-2 text-sm font-semibold text-blue-300">{title}</h3>
       <ul className="space-y-2 text-sm">
-        {items.map((item, idx) => (
+        {displayItems.map((item, idx) => (
           <li key={`${title}-${item.character_name}-${item.equipment_slot}-${idx}`} className="rounded border border-blue-900/30 bg-slate-900/60 p-2 text-blue-100/90">
             <span className="font-semibold">{item.character_name}</span>
             {item.equipment_slot && <span className="ml-2 text-xs text-blue-300/70">{item.equipment_slot}</span>}
-            <span className="ml-2">{item.item_name || 'Unknown parsed item ID'}</span>
+            <span className="ml-2">{item.item_name}</span>
           </li>
         ))}
       </ul>
@@ -51,16 +61,17 @@ function EquipmentList({ title, items }: { title: string; items?: InventoryEquip
 }
 
 function EquipmentChanges({ items }: { items?: InventoryEquipmentChangedDiff[] }) {
-  if (!items || items.length === 0) return null;
+  const displayItems = (items || []).filter(item => hasDisplayableItemName(item.before) || hasDisplayableItemName(item.after));
+  if (displayItems.length === 0) return null;
   return (
     <div>
       <h3 className="mb-2 text-sm font-semibold text-purple-300">Changed equipment</h3>
       <ul className="space-y-2 text-sm">
-        {items.map((item, idx) => (
+        {displayItems.map((item, idx) => (
           <li key={`${item.character_name}-${item.equipment_slot}-${idx}`} className="rounded border border-purple-900/30 bg-slate-900/60 p-2 text-purple-100/90">
             <span className="font-semibold">{item.character_name}</span>
             {item.equipment_slot && <span className="ml-2 text-xs text-purple-300/70">{item.equipment_slot}</span>}
-            <span className="ml-2">{item.before.item_name || 'Unknown parsed item ID'} → {item.after.item_name || 'Unknown parsed item ID'}</span>
+            <span className="ml-2">{hasDisplayableItemName(item.before) ? item.before.item_name : 'unidentified item'} → {hasDisplayableItemName(item.after) ? item.after.item_name : 'unidentified item'}</span>
           </li>
         ))}
       </ul>

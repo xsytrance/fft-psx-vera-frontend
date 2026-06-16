@@ -1,6 +1,6 @@
 # Session Handoff — FFT PSX Vera frontend polish
 
-_Last updated: 2026-06-14. Read this first when resuming._
+_Last updated: 2026-06-15. Read this first when resuming._
 
 ## Current state (all merged into `main`)
 The frontend went from a bare prototype to a cohesive tactical-fantasy companion.
@@ -123,3 +123,60 @@ were `git push --force https://<PAT>@github.com/...` + PR create/squash-merge vi
 the REST API (`python urllib`). Repo is squash-only → every merge to `main` is
 GitHub-signed/Verified. Branch goes stale after each squash; realign with
 `git reset --soft FETCH_HEAD`.
+
+## Latest checkpoint (2026-06-15, PRIME / Tailnet smoke)
+Scope saved in this checkpoint:
+- Backend `fft-psx-vera`: Campfire/save-memory no longer surfaces bogus `Unknown_0xNN` placeholder rows. Displayable diff logic now ignores unresolved placeholder names; save-memory responses sanitize summaries/facts/prompt payloads; stale legacy event payloads are cleaned on read. The item table also labels late-game item IDs that were previously unresolved.
+- Frontend `fft-psx-vera-frontend`: Campfire rendering filters placeholder item/equipment rows client-side too. Also includes the current home/parser-guide/music polish that was in the working tree this session.
+- Live dev stack on PRIME: backend `0.0.0.0:9091`, frontend `0.0.0.0:5173`, Tailnet IP `100.110.224.126`.
+
+Verification run before commit:
+```bash
+# backend
+cd /home/xsyprime/fft-psx-vera
+. .venv/bin/activate
+PYTHONDONTWRITEBYTECODE=1 pytest -q tests/test_save_memory.py
+# result: 14 passed, 1 warning in 0.42s
+
+# backend Tailnet/API smoke
+python - <<'PY'
+import json, urllib.request
+url='http://100.110.224.126:9091/api/projects/73/save-memory'
+with urllib.request.urlopen(url, timeout=20) as r:
+    data=json.load(r)
+text=json.dumps(data)
+print(text.count('Unknown_0x'), 'Unknown_0x placeholders')
+print('Mythril Knife', 'Mythril Knife' in text)
+print('Leather Hat', 'Leather Hat' in text)
+PY
+# result: 0 Unknown_0x placeholders; Mythril Knife True; Leather Hat True
+
+# frontend
+cd /home/xsyprime/fft-psx-vera-frontend
+npm run build
+# result: TypeScript + Vite production build succeeded
+
+# frontend Tailnet/proxy smoke
+python - <<'PY'
+import urllib.request
+for url in [
+  'http://100.110.224.126:5173/',
+  'http://100.110.224.126:5173/#/project/73/campfire',
+  'http://100.110.224.126:5173/api/projects/73/save-memory',
+]:
+    with urllib.request.urlopen(url, timeout=20) as r:
+        body=r.read(300000).decode('utf-8','replace')
+        print(url, r.status, r.headers.get('content-type'), len(body), body.count('Unknown_0x'))
+PY
+# result: home/campfire HTML 200; proxy JSON 200; proxy Unknown_0x count 0
+```
+
+User-facing URLs:
+- Frontend: `http://100.110.224.126:5173/`
+- Campfire: `http://100.110.224.126:5173/#/project/73/campfire`
+- Backend API: `http://100.110.224.126:9091`
+
+Known non-blockers:
+- Frontend build prints the existing Browserslist/caniuse-lite age warning.
+- Backend targeted test emits the existing FastAPI/Starlette `httpx` deprecation warning.
+- `fft_psx_vera.db` may be dirtied by local smoke data; do not commit incidental runtime DB/cache churn unless intentionally preserving a seed snapshot.

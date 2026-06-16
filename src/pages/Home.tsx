@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router';
-import { Upload, Loader2, Download, AlertTriangle, HardDriveDownload, MessagesSquare, Compass, UserRoundCog } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
+import { Upload, Loader2, AlertTriangle, HardDriveDownload, MessagesSquare, Compass, Sparkles, ScrollText } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import Sigil from '../components/ui/Sigil';
 import Eyebrow from '../components/ui/Eyebrow';
@@ -21,7 +21,6 @@ type UploadDebug = {
 export default function Home() {
   const navigate = useNavigate();
   const { dispatch } = useApp();
-  const parserDownloadUrl = `${import.meta.env.BASE_URL}tools/duckstation_fft_parser.py`;
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [debug, setDebug] = useState<UploadDebug | null>(null);
@@ -88,116 +87,93 @@ export default function Home() {
   };
 
   return (
-    <div className="page-home">
-      <section className="hero">
-        <div className="hero-content">
-          <Sigil size={84} className="hero-sigil" />
-          <h1>FFT PSX Vera</h1>
-          <p className="hero-tagline">Upload your save. Read its truth. Speak with your party.</p>
-          <p className="hero-desc">
-            A tactical fantasy companion terminal. Drop in a PSX memory-card save and the parser turns
-            it into a living party ledger — every name, level, and item drawn straight from your file.
-          </p>
+    <div className="page-home home-vault">
+      <section className="home-hero-panel" aria-label="MultiVera Presents Final Fantasy Tactics">
+        <div className="home-art-orbit" aria-hidden="true">
+          <span>♈</span><span>♌</span><span>♐</span><span>✦</span>
         </div>
-      </section>
-
-      <section className="upload-section">
-        <div
-          className={`dropzone ${dragOver ? 'drag-over' : ''} ${uploading ? 'uploading' : ''}`}
-          onClick={() => fileRef.current?.click()}
-          onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={onDrop}
-        >
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".zip,.mcr,.mcd,.mcs"
-            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-            style={{ display: 'none' }}
-          />
-          <div className="dropzone-icon">
-            {uploading ? <Loader2 size={40} className="spin" /> : <Upload size={40} />}
+        <div className="home-brand-lockup">
+          <Sigil size={72} className="hero-sigil" />
+          <div>
+            <Eyebrow tone="aether">MultiVera Presents</Eyebrow>
+            <h1>Final Fantasy Tactics</h1>
+            <p className="hero-tagline">Upload your save. Read its truth. Speak with your party.</p>
           </div>
-          <h2>{uploading ? 'Reading the save...' : 'Drop your save file here'}</h2>
-          <p>or click to browse</p>
-          <p className="formats">.zip · .mcr · .mcd · .mcs</p>
         </div>
-        {error && (
-          <div className="error-banner">
-            <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <AlertTriangle size={15} /> {error}
-            </strong>
-            {debug && (
-              <details className="upload-debug" open>
-                <summary>Debug details</summary>
-                <dl>
-                  <div><dt>Endpoint</dt><dd>{debug.endpoint}</dd></div>
-                  <div><dt>File</dt><dd>{debug.fileName} ({debug.fileSize.toLocaleString()} bytes)</dd></div>
-                  {debug.status && <div><dt>Status</dt><dd>{debug.status} {debug.statusText}</dd></div>}
-                  {debug.requestId && <div><dt>Request ID</dt><dd>{debug.requestId}</dd></div>}
-                  {debug.note && <div><dt>Note</dt><dd>{debug.note}</dd></div>}
-                </dl>
-                {debug.responseBody != null && (
-                  <pre>{typeof debug.responseBody === 'string' ? debug.responseBody : JSON.stringify(debug.responseBody, null, 2)}</pre>
-                )}
-              </details>
-            )}
-          </div>
-        )}
-      </section>
-
-      <section className="parser-download">
-        <div>
-          <Eyebrow tone="aether">Read-only tool</Eyebrow>
-          <h2>DuckStation save parser</h2>
-          <p>
-            A read-only Python parser for raw PS1 memory-card saves: it validates .mcd/.mcr files,
-            lists save slots, extracts confirmed equipment bytes, and diffs original vs edited saves.
-          </p>
-        </div>
-        <a className="btn-primary" href={parserDownloadUrl} download>
-          <Download size={16} /> Download parser
-        </a>
-      </section>
-
-      <section className="parser-instructions">
-        <Eyebrow>How to use</Eyebrow>
-        <h2>Run the parser locally</h2>
-        <ol>
-          <li>Download <code>duckstation_fft_parser.py</code>.</li>
-          <li>Find your DuckStation/ePSXe raw PS1 card, usually a <code>.mcd</code> or <code>.mcr</code> file.</li>
-          <li>Run: <code>python3 duckstation_fft_parser.py /path/to/epsxe000.mcd</code></li>
-          <li>For machine-readable output: <code>python3 duckstation_fft_parser.py /path/to/epsxe000.mcd --json</code></li>
-          <li>To compare two FFT save slots: <code>python3 duckstation_fft_parser.py /path/to/epsxe000.mcd --diff-slots 1 2</code></li>
-        </ol>
-        <p>
-          It is read-only: it validates the card, lists FFT save IDs, shows confirmed character/equipment bytes,
-          and never writes back to your memory card.
+        <p className="hero-desc">
+          A polished tactical companion terminal for PSX memory-card saves — grounded party chat,
+          Save Truth, inventory reads, and a living campaign ledger drawn from your file.
         </p>
+        <div className="home-feature-strip" aria-label="Core features">
+          <span><HardDriveDownload size={15} /> Save Truth</span>
+          <span><MessagesSquare size={15} /> Grounded Chat</span>
+          <span><Compass size={15} /> Campaign Ledger</span>
+          <span><Sparkles size={15} /> Portraits</span>
+        </div>
       </section>
 
-      <section className="features">
-        <div className="feature">
-          <span className="feature-icon"><HardDriveDownload size={24} /></span>
-          <h3>Save Truth</h3>
-          <p>The parser reads your party, equipment, level, job, and inventory straight from the save — no guessing.</p>
+      <section className="home-action-grid">
+        <div className="upload-section home-upload-card">
+          <div
+            className={`dropzone ${dragOver ? 'drag-over' : ''} ${uploading ? 'uploading' : ''}`}
+            onClick={() => fileRef.current?.click()}
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+          >
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".zip,.mcr,.mcd,.mcs"
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+              style={{ display: 'none' }}
+            />
+            <div className="dropzone-icon">
+              {uploading ? <Loader2 size={34} className="spin" /> : <Upload size={34} />}
+            </div>
+            <h2>{uploading ? 'Reading the save...' : 'Drop your save file'}</h2>
+            <p>or click to browse</p>
+            <p className="formats">.zip · .mcr · .mcd · .mcs</p>
+          </div>
+          {error && (
+            <div className="error-banner">
+              <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                <AlertTriangle size={15} /> {error}
+              </strong>
+              {debug && (
+                <details className="upload-debug" open>
+                  <summary>Debug details</summary>
+                  <dl>
+                    <div><dt>Endpoint</dt><dd>{debug.endpoint}</dd></div>
+                    <div><dt>File</dt><dd>{debug.fileName} ({debug.fileSize.toLocaleString()} bytes)</dd></div>
+                    {debug.status && <div><dt>Status</dt><dd>{debug.status} {debug.statusText}</dd></div>}
+                    {debug.requestId && <div><dt>Request ID</dt><dd>{debug.requestId}</dd></div>}
+                    {debug.note && <div><dt>Note</dt><dd>{debug.note}</dd></div>}
+                  </dl>
+                  {debug.responseBody != null && (
+                    <pre>{typeof debug.responseBody === 'string' ? debug.responseBody : JSON.stringify(debug.responseBody, null, 2)}</pre>
+                  )}
+                </details>
+              )}
+            </div>
+          )}
         </div>
-        <div className="feature">
-          <span className="feature-icon"><MessagesSquare size={24} /></span>
-          <h3>Grounded Chat</h3>
-          <p>Talk to your roster — each voice is anchored to the parsed facts of your actual save.</p>
-        </div>
-        <div className="feature">
-          <span className="feature-icon"><Compass size={24} /></span>
-          <h3>Campaign Ledger</h3>
-          <p>Inspect inventory changes, save-memory events, and what the party knows between battles.</p>
-        </div>
-        <div className="feature">
-          <span className="feature-icon"><UserRoundCog size={24} /></span>
-          <h3>Custom Portraits</h3>
-          <p>Choose a portrait for each member or upload your own to make the roster yours.</p>
-        </div>
+
+        <aside className="home-clean-card">
+          <Eyebrow>Field Manual</Eyebrow>
+          <h2>Need to export a save?</h2>
+          <p>
+            DuckStation/ePSXe parser instructions moved off the command deck so this screen stays clean.
+          </p>
+          <Link className="btn-ghost parser-guide-link" to="/parser-guide">
+            <ScrollText size={16} /> Open parser guide
+          </Link>
+          <div className="home-art-card" aria-hidden="true">
+            <span className="home-job-sigil">⚔</span>
+            <span className="home-job-sigil">✦</span>
+            <span className="home-job-sigil">♜</span>
+          </div>
+        </aside>
       </section>
     </div>
   );
